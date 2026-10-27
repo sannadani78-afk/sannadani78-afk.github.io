@@ -719,6 +719,9 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .btn-passi svg { width: 24px; height: 24px; color: var(--modo); flex: none; }
 .btn-passi b { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--modo); }
 .btn-passi span { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.btn-passi .tx { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; text-align: left; }
+.btn-passi .tx small { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--modo); }
+.btn-passi .tx > div { display: flex; align-items: baseline; gap: 6px; }
 .btn-passi.off { background: var(--surface); border-style: dashed; }
 .btn-passi.off span { color: var(--modo); }
 .welcome .btn-passi { display: flex; width: max-content; }
@@ -727,7 +730,6 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .passi-oggi .ic svg { width: 32px; height: 32px; }
 .passi-oggi .num b { display: block; font-size: 34px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--modo); }
 .passi-oggi .num span { font-size: 14px; color: var(--muted); font-weight: 600; }
-.passi-oggi .frase { grid-column: 1 / -1; margin: 6px 0 0; font-size: 14.5px; line-height: 1.4; font-style: italic; color: var(--text); border-top: 1px solid var(--line); padding-top: 10px; }
 /* ---------- andamento e obiettivo in Home ---------- */
 .and-panel { padding: 12px 14px; }
 .and-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: stretch; height: 150px; }
@@ -4017,7 +4019,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 
     { k: 'passi', t: 'Contapassi: lavoro e benessere', icon: 'passi', color: 'green', route: 'passi', html: `
 <p>In cima alla Home c'è il <b>contapassi</b>: passi e chilometri di oggi. Tocca <b>Attiva il contapassi</b> una volta: Android chiede il permesso «Attività fisica» e da lì il telefono conta da solo con il suo sensore, anche ad app chiusa, <b>senza GPS</b> e senza consumare batteria. I passi restano solo nel telefono.</p>
-<p>Toccando il contatore si apre la schermata con i passi di oggi, la frase del giorno, gli ultimi 7 giorni e l'elenco <b>giorno per giorno</b>, mese per mese. I chilometri sono stimati dai passi: inserisci la tua <b>altezza</b> per una stima più precisa. Nella versione aperta dal browser (iPhone di prova) il contapassi non c'è: il browser non arriva ai sensori.</p>` },
+<p>Toccando il contatore si apre la schermata con i passi di oggi, gli ultimi 7 giorni e l'elenco <b>giorno per giorno</b>, mese per mese. I chilometri sono stimati dai passi: inserisci la tua <b>altezza</b> per una stima più precisa. Nella versione aperta dal browser (iPhone di prova) il contapassi non c'è: il browser non arriva ai sensori.</p>` },
     { k: 'backup', t: 'Backup, importazione ed esportazioni', icon: 'cloud', color: 'blue', route: 'backup', html: `
 <p><a href="#backup"><b>Backup</b></a>: imposta una <b>password dei backup</b> (scrivila in un posto sicuro fuori dal telefono: senza di essa i file non si riaprono, nemmeno dallo sviluppatore). «Crea e salva backup cifrato» produce un file cifrato (AES-256) da salvare o condividere dove vuoi. Il <b>backup automatico</b> salva periodicamente un file cifrato nella cartella Download → ContabilyTab del telefono. «Importa da file» ripristina un backup: puoi aggiungere o sostituire tutto.</p>
 <p><b>Esportazioni</b> (Altro → Dati): Excel di ogni sezione, PDF con i riepiloghi mensili e annuali, archivio completo in Excel o JSON. Ogni schermata ha anche il tasto di condivisione in alto a destra.</p>
@@ -4341,14 +4343,6 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     let _P = null;
     const P = () => { const C = window.Capacitor; if (!C) return null; if (_P) return _P; _P = (C.Plugins && C.Plugins.Passi) || null; if (!_P && C.isNativePlatform && C.isNativePlatform() && typeof C.registerPlugin === 'function') { try { _P = C.registerPlugin('Passi'); } catch (e) { _P = null; } } return _P; };
     const giorni = () => DB().kv('passiGiorni') || {};
-    // frasi del giorno, un po' sfacciate ma affettuose: cambiano col numero di passi e col giorno
-    const FRASI = [
-      [0, 499, ['Dalla cassa al cassetto dei tabacchi non conta come allenamento: esci cinque minuti, il cuore ringrazia.', '{n} passi. Il Gratta e Vinci si è mosso più di te. Due passi fuori e si rimedia.', 'Unire lavoro e attività fisica vuol dire anche uscire dal bancone, ogni tanto. Oggi {n} passi: si può fare di meglio.']],
-      [500, 2999, ['Dietro al bancone si cammina più di quanto sembri: {n} passi. Il cuore ne vuole altri, la testa pure.', '{n} passi tra cassa e scaffali. Una passeggiata dopo la chiusura e la giornata è completa.', '{n} passi: il lavoro la sua parte l’ha fatta, ora tocca a te. Il benessere mentale passa anche dalle gambe.']],
-      [3000, 6999, ['{n} passi: lavoro e benessere oggi vanno d’accordo. Il cuore batte contento.', '{n} passi. Non è il Giro d’Italia, ma il tuo cuore non lo sa: per lui vale.', '{n} passi tra una levata e l’altra. Testa più leggera, cuore più forte.']],
-      [7000, 9999, ['{n} passi: quasi diecimila. Gli ultimi te li offre una passeggiata serale.', '{n} passi. Il tuo cardiologo oggi non avrebbe niente da dire. Quasi.']],
-      [10000, 1e9, ['{n} passi! Oggi il tuo cuore ti paga l’aggio. Riposati, te lo sei guadagnato.', '{n} passi: la tabaccheria è aperta e tu sei in forma. Testa e cuore ringraziano.', '{n} passi. Se li contassi come scontrini, oggi sarebbe un gran bel corrispettivo.']],
-    ];
     CT.passi = {
       disponibile: () => !!P() && CT.isNative(),
       attivo: () => !!S().passiAttivo,
@@ -4358,7 +4352,6 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       passoM: () => { const a = Number(S().passiAltezza) || 0; return a ? a * 0.415 / 100 : 0.73; },
       km: (n) => (n || 0) * CT.passi.passoM() / 1000,
       kmTxt: (n) => CT.num(CT.passi.km(n)).replace(/,(\d)\d$/, ',$1') + ' km',
-      frase: (n, d) => { const r = FRASI.find((x) => n >= x[0] && n <= x[1]) || FRASI[0]; const i = Number(String(d || CT.today()).replace(/-/g, '')) % r[2].length; return r[2][i].replace('{n}', CT.qty(n)); },
       // dal sensore: coppie [istante, valore del contatore dal riavvio] → passi per giorno, uniti a quelli già salvati
       async integra(letture) {
         const L = (letture || []).map((r) => [Number(r[0]), Number(r[1])]).filter((r) => r[0] > 0 && r[1] >= 0).sort((a, b) => a[0] - b[0]);
@@ -4391,7 +4384,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         if (!CT.passi.disponibile()) return null;
         if (!CT.passi.attivo()) return h('button', { class: 'btn-passi off', onclick: async () => { if (await CT.passi.attiva()) CT.render(); } }, CT.svg('passi'), h('span', null, 'Attiva il contapassi'));
         const n = CT.passi.oggi();
-        const el = h('button', { class: 'btn-passi', 'aria-label': 'Contapassi', onclick: () => CT.go('passi') }, CT.svg('passi'), h('b', null, CT.qty(n)), h('span', null, 'passi · ' + CT.passi.kmTxt(n)));
+        const el = h('button', { class: 'btn-passi', 'aria-label': 'Contapassi', onclick: () => CT.go('passi') }, CT.svg('passi'), h('div', { class: 'tx' }, h('small', null, 'Contapassi'), h('div', null, h('b', null, CT.qty(n)), h('span', null, 'passi · ' + CT.passi.kmTxt(n)))));
         CT.passi.aggiorna().then((r) => { if (!r || !el.isConnected) return; const m = CT.passi.oggi(); el.querySelector('b').textContent = CT.qty(m); el.querySelector('span').textContent = 'passi · ' + CT.passi.kmTxt(m); });
         return el;
       },
@@ -4409,8 +4402,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         // oggi
         cont.appendChild(h('div', { class: 'panel passi-oggi c-' + col },
           h('div', { class: 'ic' }, CT.svg('passi')),
-          h('div', { class: 'num' }, h('b', null, CT.qty(n)), h('span', null, 'passi oggi · ' + CT.passi.kmTxt(n))),
-          h('p', { class: 'frase' }, CT.passi.frase(n, oggi))));
+          h('div', { class: 'num' }, h('b', null, CT.qty(n)), h('span', null, 'passi oggi · ' + CT.passi.kmTxt(n)))));
         // ultimi 7 giorni
         const gg = []; for (let i = 6; i >= 0; i--) gg.push(CT.addDays(oggi, -i));
         const vals = gg.map((d) => g[d] || 0); const max = Math.max(1, ...vals);
