@@ -233,10 +233,20 @@ input, select, textarea { font: inherit; color: var(--text); }
 
 /* ---------- TAB BAR ---------- */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
-.tabbar nav { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); height: var(--tabbar-h); }
-.tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--muted); font-size: 11px; padding: 4px 2px; line-height: 1.1; text-align: center; }
-.tabbar button svg { width: 26px; height: 26px; }
+.tabbar nav { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); height: var(--tabbar-h); }
+.tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-size: 11.5px; padding: 4px 2px; line-height: 1.1; text-align: center; white-space: nowrap; }
+.tabbar button .ib { position: relative; display: grid; place-items: center; width: 28px; height: 28px; }
+.tabbar button .ib svg { width: 26px; height: 26px; }
+.tabbar button .lb { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .tabbar button.on { color: var(--blue); font-weight: 700; }
+/* pallino con i passi di oggi (es. 3/8) sull'angolo dell'icona «Chiusura», mai sopra la scritta */
+.tabbar button .bdg { position: absolute; top: -6px; right: -13px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--modo, var(--blue)); color: #fff; font-size: 9.5px; font-weight: 800; line-height: 17px; text-align: center; letter-spacing: -.02em; box-shadow: 0 0 0 2px var(--surface); }
+.tabbar button.done .ib { color: var(--green); }
+/* tasto centrale «Inserisci»: cerchio pieno del colore della modalità */
+.tabbar button.ins { color: var(--modo, var(--blue)); font-weight: 700; padding: 3px 1px; }
+.tabbar button.ins .ic { width: 42px; height: 42px; border-radius: 50%; background: var(--modo, var(--blue)); color: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px color-mix(in srgb, var(--modo, var(--blue)) 40%, transparent); }
+.tabbar button.ins .ic svg { width: 26px; height: 26px; }
+.tabbar button.ins:active .ic { transform: scale(.94); }
 
 /* ---------- INNER SCREENS ---------- */
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--c, var(--blue)); color: #fff; }
@@ -326,6 +336,8 @@ input, select, textarea { font: inherit; color: var(--text); }
 .fgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .field { display: flex; flex-direction: column; gap: 4px; grid-column: span 2; min-width: 0; }
 .field.half { grid-column: span 1; }
+/* selettori a due voci dentro un campo a metà larghezza («Senza IVA / Con IVA»): scritte più compatte, così stanno su una riga */
+.field.half .seg button { font-size: 13px; padding: 10px 2px; letter-spacing: -.01em; min-width: 0; }
 .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
 .field input, .field select, .field textarea { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 0 12px; height: 50px; font-size: 17px; outline: 0; }
 .field textarea { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; }
@@ -599,12 +611,9 @@ html { background: var(--bg); }
   .scard .vs { font-size: 12px; }
 }
 
-/* ---------- Barra inferiore: etichette su due righe, sempre leggibili ---------- */
+/* ---------- Barra inferiore: cinque voci, scritte su una riga ---------- */
 :root { --tabbar-h: 70px; }
 .tabbar nav { height: var(--tabbar-h); }
-.tabbar button { font-size: 10.5px; line-height: 1.15; gap: 3px; padding: 6px 1px; white-space: nowrap; }
-.tabbar button span { display: block; text-align: center; }
-.tabbar button svg { width: 24px; height: 24px; flex: none; }
 #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 20px); }
 
 /* ---------- ORA (in cima alla Home) ---------- */
@@ -693,6 +702,13 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .scard, .tile, .fav-tile { border: 1.5px solid color-mix(in srgb, var(--modo) 55%, var(--line)); }
 .tile.oggi-ok { border-color: color-mix(in srgb, var(--modo) 55%, var(--line)); }
 .sec-title h2 small { color: var(--modo-scuro); }
+/* frecce su/giù: compaiono solo nelle schermate lunghe, sopra il tasto «Inserisci» */
+.scroll-arrows { position: fixed; right: 6px; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 86px); z-index: 24; display: flex; flex-direction: column; gap: 8px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.scroll-arrows.on { opacity: 1; pointer-events: auto; }
+.scroll-arrows button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 92%, transparent); color: var(--modo); box-shadow: 0 3px 10px rgba(0,0,0,.18); display: grid; place-items: center; padding: 0; }
+.scroll-arrows button svg { width: 22px; height: 22px; }
+.scroll-arrows .sa-up svg { transform: rotate(180deg); }
+.scroll-arrows.top .sa-up, .scroll-arrows.bottom .sa-down { visibility: hidden; }
 .home-links { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; margin-top: 10px; }
 .btn-link { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 6px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 30%, var(--line)); background: var(--tint); color: var(--navy); text-align: center; min-height: 84px; }
 .btn-link svg { width: 28px; height: 28px; color: var(--c); flex: none; }
@@ -1952,8 +1968,35 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     try { fn(app); } catch (e) { console.error(e); app.replaceChildren(h('div', { class: 'wrap screen' }, h('div', { class: 'empty' }, h('b', null, 'Errore nella schermata'), h('span', null, String(e.message || e))), h('button', { class: 'btn block', style: { marginTop: '12px' }, onclick: () => CT.go('home') }, 'Torna alla Home'))); }
     window.scrollTo(0, 0);
     CT.tabbar && CT.tabbar(name);
+    CT.frecceScorri && CT.frecceScorri();
+    // scelta fatta dal tasto «Inserisci» della barra: apre subito la finestra di inserimento della schermata appena mostrata
+    if (CT._apriNuovo) { CT._apriNuovo = false; const f = document.querySelector('.fab'); if (f) setTimeout(() => f.click(), 40); }
   };
   window.addEventListener('hashchange', CT.render);
+  // ---------- frecce per salire e scendere in fretta nelle schermate lunghe (richiesta del 27/10/2026) ----------
+  CT.frecceScorri = () => {
+    let box = document.querySelector('.scroll-arrows');
+    if (!box) {
+      box = h('div', { class: 'scroll-arrows', 'aria-hidden': 'true' },
+        h('button', { type: 'button', class: 'sa-up', 'aria-label': 'Vai in cima', onclick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) }, CT.svg('chevD')),
+        h('button', { type: 'button', class: 'sa-down', 'aria-label': 'Vai in fondo', onclick: () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }) }, CT.svg('chevD')));
+      document.body.appendChild(box);
+      // compaiono mentre si scorre e spariscono da sole dopo un attimo, così non coprono niente mentre si legge
+      let t;
+      const upd = (mostra) => {
+        const h = document.documentElement.scrollHeight, v = window.innerHeight, y = window.scrollY;
+        const lunga = h > v * 1.6;
+        box.classList.toggle('on', lunga && mostra !== false);
+        box.classList.toggle('top', y < 120);
+        box.classList.toggle('bottom', y + v >= h - 120);
+        clearTimeout(t); if (lunga) t = setTimeout(() => box.classList.remove('on'), 1800);
+      };
+      window.addEventListener('scroll', () => upd(true), { passive: true }); window.addEventListener('resize', () => upd(true));
+      box.addEventListener('pointerenter', () => clearTimeout(t));
+      box._upd = upd;
+    }
+    setTimeout(box._upd, 60); setTimeout(box._upd, 400);
+  };
 
   // ---------- Schermata interna ----------
   CT.screen = function (app, { title, subtitle, color = 'blue', right, home = false }) {
@@ -2535,26 +2578,33 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       { k: 'categoria', label: 'Categoria', type: 'select', half: true, options: S().categorieProdotti },
       { k: 'fornitore', label: 'Fornitore', type: 'text', half: true, datalist: [...new Set(DB().all('prodotti').map((p) => p.fornitore).filter(Boolean))] },
       { k: 'iva', label: 'IVA %', type: 'select', half: true, options: [...S().aliquoteIva.map((a) => ({ v: a, l: a + '%' })), { v: 0, l: '0%' }] },
-      { k: 'modoAcq', label: 'Prezzo di acquisto inserito', type: 'seg', half: true, default: rec ? (rec.modoAcq || 'netto') : (S().prodAcquistoModo || 'netto'), options: [{ v: 'netto', l: 'Senza IVA' }, { v: 'lordo', l: 'Con IVA' }] },
-      { k: 'prezzoNetto', label: 'Prezzo di acquisto senza IVA', type: 'money', half: true, zeroOk: true, showIf: (v) => v.modoAcq !== 'lordo' },
-      { k: 'prezzoLordo', label: 'Prezzo di acquisto con IVA', type: 'money', half: true, nullable: true, showIf: (v) => v.modoAcq === 'lordo' },
-      { k: 'prezzoVendita', label: 'Prezzo di vendita (al pubblico, IVA compresa)', type: 'money', half: true, zeroOk: true },
       { k: 'quantita', label: 'Quantità in giacenza', type: 'number', half: true, big: true },
-      { k: 'note', label: 'Note', type: 'text', half: true },
-      { k: 'c', type: 'calc', render: (v) => { const p = calcProd(v); const r = (l, x, cls) => h('div', { class: 'r' }, h('span', null, l), h('b', { class: cls || '' }, x)); return [r('Acquisto senza IVA · con IVA', CT.eur(p.prezzoNetto) + ' · ' + CT.eur(p.prezzoLordo)), r('Vendita senza IVA', CT.eur(p.venditaNetta)), r('Margine (vendita − acquisto, senza IVA)', CT.eur(p.margine), p.margine >= 0 ? 'up' : 'down'), r('Marginalità (sul prezzo di vendita)', v.prezzoVendita ? CT.fmtPct(p.marginePct).replace('+', '') : '—'), r('Ricarico (sul prezzo di acquisto)', p.prezzoNetto ? CT.fmtPct(p.ricaricoPct).replace('+', '') : '—'), h('div', { class: 'r' }, h('span', null, 'Valore giacenza (al netto IVA)'), h('b', null, CT.eur(p.valore)))]; } },
+      // acquisto e vendita: ognuno si inserisce (e si vede) senza o con IVA, a scelta; la scelta resta per i prodotti successivi
+      { k: 'modoAcq', label: 'Prezzo di acquisto', type: 'seg', half: true, default: rec ? (rec.modoAcq || 'netto') : (S().prodAcquistoModo || 'netto'), options: [{ v: 'netto', l: 'Senza IVA' }, { v: 'lordo', l: 'Con IVA' }] },
+      { k: 'modoVend', label: 'Prezzo di vendita', type: 'seg', half: true, default: rec ? (rec.modoVend || 'lordo') : (S().prodVenditaModo || 'lordo'), options: [{ v: 'netto', l: 'Senza IVA' }, { v: 'lordo', l: 'Con IVA' }] },
+      { k: 'prezzoNetto', label: 'Acquisto senza IVA', type: 'money', half: true, zeroOk: true, showIf: (v) => v.modoAcq !== 'lordo' },
+      { k: 'prezzoLordo', label: 'Acquisto con IVA', type: 'money', half: true, nullable: true, showIf: (v) => v.modoAcq === 'lordo' },
+      { k: 'prezzoVenditaNetto', label: 'Vendita senza IVA', type: 'money', half: true, nullable: true, showIf: (v) => v.modoVend === 'netto' },
+      { k: 'prezzoVendita', label: 'Vendita con IVA', type: 'money', half: true, zeroOk: true, showIf: (v) => v.modoVend !== 'netto' },
+      { k: 'note', label: 'Note', type: 'text' },
+      { k: 'c', type: 'calc', render: (v) => { const p = calcProd(v); const r = (l, x, cls) => h('div', { class: 'r' }, h('span', null, l), h('b', { class: cls || '' }, x)); return [r('Acquisto senza IVA · con IVA', CT.eur(p.prezzoNetto) + ' · ' + CT.eur(p.prezzoLordo)), r('Vendita senza IVA · con IVA', CT.eur(p.venditaNetta) + ' · ' + CT.eur(p.prezzoVendita)), r('Margine (vendita − acquisto, senza IVA)', CT.eur(p.margine), p.margine >= 0 ? 'up' : 'down'), r('Marginalità (sul prezzo di vendita)', p.venditaNetta ? CT.fmtPct(p.marginePct).replace('+', '') : '—'), r('Ricarico (sul prezzo di acquisto)', p.prezzoNetto ? CT.fmtPct(p.ricaricoPct).replace('+', '') : '—'), h('div', { class: 'r' }, h('span', null, 'Valore giacenza (al netto IVA)'), h('b', null, CT.eur(p.valore)))]; } },
     ];
-    // acquisto senza o con IVA (l'altro si calcola); margine, marginalità e ricarico sui prezzi senza IVA
+    // acquisto e vendita senza o con IVA (l'altro valore si calcola); margine, marginalità e ricarico sui prezzi senza IVA.
+    // Nel record resta sempre prezzoVendita = prezzo al pubblico con IVA (lo usano listino bar, comande ed esportazioni) e prezzoVenditaNetto = senza IVA
     const calcProd = (v) => {
       const iva = (CT.parseNum(v.iva) || 0) / 100; const k = 1 + iva;
       let netto = Number(v.prezzoNetto) || 0, lordo = v.prezzoLordo != null && v.prezzoLordo !== '' ? Number(v.prezzoLordo) : null;
       if (v.modoAcq === 'lordo' && lordo != null) netto = CT.r2(lordo / k); else lordo = CT.r2(netto * k);
-      const venditaNetta = CT.r2((Number(v.prezzoVendita) || 0) / k);
+      let vendita = Number(v.prezzoVendita) || 0, venditaNetta;
+      if (v.modoVend === 'netto' && v.prezzoVenditaNetto != null && v.prezzoVenditaNetto !== '') { venditaNetta = CT.r2(Number(v.prezzoVenditaNetto)); vendita = CT.r2(venditaNetta * k); } else venditaNetta = CT.r2(vendita / k);
       const margine = CT.r2(venditaNetta - netto);
-      return { prezzoNetto: netto, prezzoLordo: lordo, venditaNetta, margine, marginePct: venditaNetta ? margine / venditaNetta * 100 : 0, ricaricoPct: netto ? margine / netto * 100 : 0, valore: CT.r2(netto * (Number(v.quantita) || 0)) };
+      return { prezzoNetto: netto, prezzoLordo: lordo, prezzoVendita: vendita, prezzoVenditaNetto: venditaNetta, venditaNetta, margine, marginePct: venditaNetta ? margine / venditaNetta * 100 : 0, ricaricoPct: netto ? margine / netto * 100 : 0, valore: CT.r2(netto * (Number(v.quantita) || 0)) };
     };
     CT.calcProd = calcProd;
+    // prezzo di vendita come lo vuole vedere l'utente (scelta fatta sul prodotto, altrimenti quella generale)
+    const venditaVista = (p) => { const modo = p.modoVend || S().prodVenditaModo || 'lordo'; const k = 1 + (Number(p.iva) || 0) / 100; return modo === 'netto' ? CT.eur(p.prezzoVenditaNetto != null ? p.prezzoVenditaNetto : CT.r2((p.prezzoVendita || 0) / k)) + ' senza IVA' : CT.eur(p.prezzoVendita || 0) + ' con IVA'; };
     const openProd = (rec) => CT.editSheet({ title: rec ? 'Modifica prodotto' : 'Nuovo prodotto', color: 'blue', fields: prodFields(rec), values: rec || { iva: S().ivaDefault, categoria: S().categorieProdotti[0], quantita: 0 },
-      onSave: async (d) => { const p = calcProd(d); await DB().put('prodotti', { ...(rec || {}), ...d, ...p }); if (d.modoAcq && S().prodAcquistoModo !== d.modoAcq) await DB().saveSettings({ prodAcquistoModo: d.modoAcq }); CT.toast('Prodotto salvato'); draw(); },
+      onSave: async (d) => { const p = calcProd(d); await DB().put('prodotti', { ...(rec || {}), ...d, ...p }); const sv = {}; if (d.modoAcq && S().prodAcquistoModo !== d.modoAcq) sv.prodAcquistoModo = d.modoAcq; if (d.modoVend && S().prodVenditaModo !== d.modoVend) sv.prodVenditaModo = d.modoVend; if (Object.keys(sv).length) await DB().saveSettings(sv); CT.toast('Prodotto salvato'); draw(); },
       onDelete: rec ? async () => { await DB().del('prodotti', rec.id); draw(); } : null,
       extraButtons: rec ? [h('button', { class: 'btn ghost', style: { flex: '0 0 auto' }, onclick: () => movimento(rec) }, CT.svg('move'), 'Carico/Scarico')] : null });
     const movimento = (rec) => {
@@ -2577,7 +2627,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
           h('div', { class: 'btn-row', style: { marginTop: '10px' } }, h('button', { class: 'btn ghost', onclick: salvaInventario }, CT.svg('check'), 'Salva inventario (fotografia giacenze)')));
         const list = h('div', { class: 'list' });
         if (!prods.length) list.appendChild(h('div', { class: 'empty c-blue' }, CT.svg('box'), h('b', null, all.length ? 'Nessun prodotto trovato' : 'Nessun prodotto in archivio'), h('span', null, 'Aggiungi i prodotti con “Inserisci” o scansionando il barcode.')));
-        prods.forEach((p) => list.appendChild(h('button', { class: 'item c-blue', onclick: () => openProd(p) }, h('div', { class: 'dot', style: (p.quantita || 0) <= 0 ? { background: 'var(--red-t)', color: 'var(--red)' } : null }, h('b', null, CT.qty(p.quantita || 0)), h('span', null, 'pz')), h('div', { class: 'mid' }, h('b', null, p.descrizione), h('small', null, [p.codice, p.barcode, p.categoria, p.fornitore].filter(Boolean).join(' · ')), h('small', null, 'acquisto ' + CT.eur(p.prezzoNetto || 0) + ' + IVA ' + CT.qty(p.iva) + '% · vendita ' + CT.eur(p.prezzoVendita || 0) + ' · margine ' + CT.eur(p.margine || 0) + (p.ricaricoPct ? ' · ricarico ' + CT.fmtPct(p.ricaricoPct).replace('+', '') : ''))), h('div', { class: 'amt' }, CT.eur(p.valore || 0), h('small', null, 'giacenza')))));
+        prods.forEach((p) => list.appendChild(h('button', { class: 'item c-blue', onclick: () => openProd(p) }, h('div', { class: 'dot', style: (p.quantita || 0) <= 0 ? { background: 'var(--red-t)', color: 'var(--red)' } : null }, h('b', null, CT.qty(p.quantita || 0)), h('span', null, 'pz')), h('div', { class: 'mid' }, h('b', null, p.descrizione), h('small', null, [p.codice, p.barcode, p.categoria, p.fornitore].filter(Boolean).join(' · ')), h('small', null, 'acquisto ' + CT.eur(p.prezzoNetto || 0) + ' + IVA ' + CT.qty(p.iva) + '% · vendita ' + venditaVista(p) + ' · margine ' + CT.eur(p.margine || 0) + (p.ricaricoPct ? ' · ricarico ' + CT.fmtPct(p.ricaricoPct).replace('+', '') : ''))), h('div', { class: 'amt' }, CT.eur(p.valore || 0), h('small', null, 'giacenza')))));
         cont.appendChild(list);
         document.body.appendChild(h('button', { class: 'fab c-blue', onclick: () => openProd(null) }, CT.svg('plus'), 'Inserisci'));
       } else {
@@ -3254,7 +3304,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       case 'cassa': return { name: 'Cambio cassa', freeze: 1, rows: [H(['Data', 'Momento', 'Contante sera', 'Fondo mattina', 'Prelievo', 'Reintegro', 'Differenza', 'Note']), ...sortD('date').map((r) => [D(r.date), r.momento || '', E(r.contanteSera), E(r.fondoMattina), E(r.prelievo), E(r.reintegro), E(r.differenza), r.note || ''])] };
       case 'spese': return { name: 'Spese', freeze: 1, rows: [H(['Data', 'Categoria', 'Descrizione', 'Importo', 'Metodo', 'Fornitore', 'Note']), ...sortD('date').map((r) => [D(r.date), r.categoria || '', r.descrizione || '', E(r.importo), r.metodo || '', r.fornitore || '', r.note || ''])] };
       case 'fatture': return { name: 'Fatture', freeze: 1, rows: [H(['Tipo', 'Numero', 'Data', 'Fornitore/Cliente', 'Imponibile', 'IVA %', 'IVA', 'Totale', 'Categoria', 'Stato', 'Scadenza', 'Descrizione']), ...sortD('date').map((r) => [r.tipo === 'ricevuta' ? 'Ricevuta' : 'Inviata', r.numero || '', D(r.date), r.controparte || '', E(r.imponibile), Number(r.iva) || 0, E(r.ivaImporto), E(r.totale), r.categoria || '', r.stato || '', r.scadenza ? D(r.scadenza) : '', r.descrizione || ''])] };
-      case 'prodotti': return { name: 'Inventario', freeze: 1, rows: [H(['Codice', 'Barcode', 'Descrizione', 'Categoria', 'Fornitore', 'Acquisto netto', 'IVA %', 'Acquisto lordo', 'Vendita', 'Margine', 'Quantità', 'Valore giacenza']), ...recs.slice().sort((a, b) => (a.descrizione || '').localeCompare(b.descrizione || '')).map((r) => [r.codice || '', r.barcode || '', r.descrizione || '', r.categoria || '', r.fornitore || '', E(r.prezzoNetto), Number(r.iva) || 0, E(r.prezzoLordo), E(r.prezzoVendita), E(r.margine), Number(r.quantita) || 0, E(r.valore)])] };
+      case 'prodotti': return { name: 'Inventario', freeze: 1, rows: [H(['Codice', 'Barcode', 'Descrizione', 'Categoria', 'Fornitore', 'Acquisto senza IVA', 'IVA %', 'Acquisto con IVA', 'Vendita con IVA', 'Margine', 'Quantità', 'Valore giacenza']), ...recs.slice().sort((a, b) => (a.descrizione || '').localeCompare(b.descrizione || '')).map((r) => [r.codice || '', r.barcode || '', r.descrizione || '', r.categoria || '', r.fornitore || '', E(r.prezzoNetto), Number(r.iva) || 0, E(r.prezzoLordo), E(r.prezzoVendita), E(r.margine), Number(r.quantita) || 0, E(r.valore)])] };
       case 'ricavicosti': return { name: 'Ricavi e costi', freeze: 1, rows: [H(['Data', 'Tipo', 'Prodotto', 'Quantità', 'Ricavo', 'Costo', 'Margine', 'Note']), ...sortD('date').map((r) => [D(r.date), r.tipo === 'svapo' ? 'Svapo' : 'Complementi di tabacchi', r.prodotto || '', Number(r.quantita) || 0, E(r.ricavo), E(r.costo), E((r.ricavo || 0) - (r.costo || 0)), r.note || ''])] };
       case 'versamenti': return { name: 'Versamenti', freeze: 1, rows: [H(['Data', 'Importo', 'Conto', 'Causale', 'Metodo', 'Note']), ...sortD('date').map((r) => [D(r.date), E(r.importo), r.conto || '', r.causale || '', r.metodo || '', r.note || ''])] };
       case 'turni': return { name: 'Turni', freeze: 1, rows: [H(['Data', 'Persona', 'Ingresso', 'Uscita', 'Pausa min', 'Ore', 'Note']), ...sortD('date').map((r) => [D(r.date), r.nome || '', r.entrata || '', r.uscita || '', Number(r.pausa) || 0, Number(r.ore) || 0, r.note || ''])] };
@@ -3886,7 +3936,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 <p><b>Andamento</b>: le barre degli incassi lordi degli ultimi 7 giorni di apertura, il mese in corso rispetto allo stesso mese dell'anno scorso (corrispettivi, aggi, bar) e l'<b>obiettivo del mese</b>: tocca «Imposta un obiettivo» (o la barra) e scegli una cifra su corrispettivi, aggi, incasso lordo o bar; la barra si riempie e ti dice quanto manca e quanto serve al giorno nei giorni di apertura rimasti.</p>
 <p><b>Colore</b>: la Home vira sul blu in Tabaccheria, sul marrone con il Bar e sul verde con Bar Tabacchi, così vedi subito in che modalità sei.</p>
 <p><b>I tuoi preferiti</b>: fino a 8 funzioni con tasti più grandi; si scelgono con «Scegli i preferiti». <b>Azioni rapide</b>: tutti i tasti di inserimento; con «Ordina» li metti nell'ordine che vuoi (tieni premuto ⠿ e trascina).</p>
-<p>La <b>barra in basso</b> cambia con la modalità: in tabaccheria Home, Corrispettivi, Aggi, Spese, Altro; col bar anche Comande e Listino.</p>` },
+<p>La <b>barra in basso</b> ha cinque tasti: <b>Home</b>; <b>Inserisci</b> (il cerchio al centro: scegli cosa inserire, dai corrispettivi alle chiusure, POS, cassa, spese, comande e prodotti; le voci di oggi già fatte hanno la spunta e si possono correggere); <b>Chiusura</b> (la chiusura guidata della giornata, col pallino che conta i passi fatti, es. 3/8, e la spunta verde a giornata chiusa); <b>Listino</b> (listino tabacchi, listino bar o archivio prodotti secondo la modalità); <b>Altro</b>.</p>` },
 
     { k: 'giornata', t: 'Chiudi la giornata (la sera, in sequenza)', icon: 'moon', color: 'blue', route: 'chiusura-giornata', html: `
 <p>Il tasto <a href="#chiusura-giornata"><b>Chiudi la giornata</b></a> ti porta nell'ordine giusto attraverso i dati della sera: <b>Corrispettivi → Chiusura Tabacchi → Lotto → Gratta e Vinci → Servizi → POS → Cambio in cassa → Quadratura cassa → Riepilogo</b>. Compaiono solo le voci accese nella tua modalità.</p>
@@ -4266,33 +4316,52 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   CT.VERSION = '1.3.7';
   CT.homeMonth = null; // mese mostrato nel riepilogo (null = corrente)
 
-  // ---------- Barra inferiore ----------
-  const TABS = [
-    { r: 'home', l: 'Home', i: 'home' },
-    { r: 'corrispettivi', l: 'Corrispettivi', i: 'trend' },
-    { r: 'chiusura-lotto', l: ['AGGI', 'Lotto'], i: 'lotto' },
-    { r: 'chiusura-gev', l: ['AGGI Gratta', 'e Vinci'], i: 'scratch' },
-    { r: 'spese', l: 'Spese', i: 'cart' },
-    { r: 'altro', l: 'Altro', i: 'dots' },
-  ];
-  // le due caselle centrali seguono il locale: bar -> Comande e Listino; altrimenti AGGI Lotto / Gratta e Vinci (se accesi)
-  CT.tabs = () => {
-    const mid = [];
-    if (CT.modOn('bar')) mid.push({ r: 'comande', l: 'Comande', i: 'coffee' }, { r: 'listino', l: ['Listino', 'Bar'], i: 'list' });
-    if (mid.length < 2 && CT.modOn('lotto')) mid.push(TABS[2]);
-    if (mid.length < 2 && CT.modOn('gev')) mid.push(TABS[3]);
-    if (mid.length < 2 && CT.modOn('tabacchi')) mid.push({ r: 'chiusura-tabacchi', l: ['AGGI', 'Tabacchi'], i: 'tobacco' });
-    if (mid.length < 2 && CT.modOn('servizi')) mid.push({ r: 'chiusura-servizi', l: ['Incassi', 'Servizi'], i: 'services' });
-    if (mid.length < 2) mid.push({ r: 'pos', l: ['Incassi', 'POS'], i: 'pos' });
-    return [TABS[0], TABS[1], ...mid.slice(0, 2), TABS[4], TABS[5]];
+  // ---------- Barra inferiore: Home · Inserisci · Chiusura · Listino · Altro (rifatta il 27/10/2026) ----------
+  // «Inserisci» apre la scelta di cosa inserire; «Chiusura» porta alla chiusura guidata e mostra i passi fatti oggi; «Listino» segue la modalità
+  CT.scegliInserimento = () => {
+    const d = CT.today(); const st = CT.statoGiornata(d);
+    const voci = st.passi.map((p, i) => { const fatto = st.fatti.includes(p); return { icon: p.icon, color: p.color, label: p.l, sub: fatto ? 'già inserito oggi · tocca per correggere' : 'di oggi, da inserire', fatto, fn: () => { CT.listState.giornata = { d, i }; CT.go('chiusura-giornata'); } }; });
+    if (CT.routeOn('spese')) voci.push({ icon: 'cart', color: 'red', label: 'Spesa', sub: 'fornitori, bollette, acquisti', fn: () => { CT._apriNuovo = true; CT.go('spese'); } });
+    if (CT.modOn('bar') && CT.routeOn('comande')) voci.push({ icon: 'coffee', color: 'brown', label: 'Comanda', sub: 'tavolo o banco, articoli dal listino', fn: () => { CT._apriNuovo = true; CT.go('comande'); } });
+    if (CT.routeOn('inventario')) voci.push({ icon: 'box', color: 'blue', label: 'Prodotto in archivio', sub: 'con prezzi, IVA e giacenza', fn: () => { CT._apriNuovo = true; CT.go('inventario'); } });
+    const s = CT.sheet({ title: 'Cosa vuoi inserire?', color: 'blue', body: h('div', { class: 'menu' }, voci.map((v) => h('button', { class: 'mi c-' + v.color, onclick: () => { s.close(); v.fn(); } }, h('div', { class: 'ic' }, CT.svg(v.fatto ? 'check' : v.icon)), h('span', null, v.label, h('small', null, v.sub)), CT.svg('chevR')))) });
   };
+  CT.listini = () => {
+    const l = [];
+    if (CT.routeOn('listino-tabacchi')) l.push({ r: 'listino-tabacchi', icon: 'tobacco', color: 'blue', label: 'Listino Tabacchi', sub: 'tariffa ufficiale ADM' });
+    if (CT.modOn('bar') && CT.routeOn('listino')) l.push({ r: 'listino', icon: 'coffee', color: 'brown', label: 'Listino Bar', sub: 'i tuoi prezzi del bar' });
+    if (CT.routeOn('inventario')) l.push({ r: 'inventario', icon: 'box', color: 'green', label: 'Archivio prodotti', sub: 'prezzi, IVA, margini e giacenze' });
+    return l;
+  };
+  CT.apriListino = () => {
+    const l = CT.listini(); if (!l.length) return CT.go('inventario');
+    if (l.length === 1) return CT.go(l[0].r);
+    const s = CT.sheet({ title: 'Quale listino?', color: 'blue', body: h('div', { class: 'menu' }, l.map((v) => h('button', { class: 'mi c-' + v.color, onclick: () => { s.close(); CT.go(v.r); } }, h('div', { class: 'ic' }, CT.svg(v.icon)), h('span', null, v.label, h('small', null, v.sub)), CT.svg('chevR')))) });
+  };
+  CT.tabs = () => [
+    { k: 'home', l: 'Home', i: 'home', on: (n) => n === 'home', fn: () => CT.go('home') },
+    { k: 'inserisci', l: 'Inserisci', i: 'plus', ins: true, on: () => false, fn: CT.scegliInserimento },
+    { k: 'chiusura', l: 'Chiusura', i: 'moon', on: (n) => n === 'chiusura-giornata', fn: () => { CT.listState.giornata = { d: CT.today(), i: null }; CT.go('chiusura-giornata'); } },
+    { k: 'listino', l: CT.listini().length > 1 ? 'Listini' : 'Listino', i: 'list', on: (n) => ['listino', 'listino-tabacchi', 'inventario'].includes(n), fn: CT.apriListino },
+    { k: 'altro', l: 'Altro', i: 'dots', on: (n) => n === 'altro', fn: () => CT.go('altro') },
+  ];
   CT.tabbar = (name) => {
     let bar = document.querySelector('.tabbar');
-    const tabs = CT.tabs(); const sig = tabs.map((t) => t.r).join(',');
+    const tabs = CT.tabs(); const sig = tabs.map((t) => t.k + ':' + t.l).join(',');
     if (bar && bar.dataset.sig !== sig) { bar.remove(); bar = null; }
-    if (!bar) { bar = h('div', { class: 'tabbar', 'data-sig': sig }, h('nav', null, tabs.map((t) => h('button', { 'data-r': t.r, onclick: () => CT.go(t.r) }, CT.svg(t.i), h('span', null, Array.isArray(t.l) ? [t.l[0], h('br'), t.l[1]] : t.l))))); document.body.appendChild(bar); }
-    bar.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.r === name));
+    if (!bar) {
+      bar = h('div', { class: 'tabbar', 'data-sig': sig }, h('nav', null, tabs.map((t) => h('button', { 'data-k': t.k, class: t.ins ? 'ins' : '', 'aria-label': t.l, onclick: t.fn },
+        h('span', { class: t.ins ? 'ic' : 'ib' }, CT.svg(t.i), t.k === 'chiusura' ? h('span', { class: 'bdg', hidden: true }) : null),
+        h('span', { class: 'lb' }, t.l)))));
+      document.body.appendChild(bar);
+    }
+    tabs.forEach((t) => { const b = bar.querySelector('button[data-k="' + t.k + '"]'); if (b) b.classList.toggle('on', !!t.on(name)); });
+    // pallino sull'icona «Chiusura»: passi di oggi già fatti / totali; spunta quando la giornata è chiusa
+    const bc = bar.querySelector('button[data-k="chiusura"]'); const bdg = bc && bc.querySelector('.bdg');
+    if (bdg) { const st = CT.statoGiornata(CT.today()); const ic = bc.querySelector('.ib svg'); if (st.completa) { bdg.hidden = true; ic.replaceWith(CT.svg('check')); bc.classList.add('done'); } else { bdg.hidden = !st.tot; bdg.textContent = st.n + '/' + st.tot; bc.classList.remove('done'); if (ic) ic.replaceWith(CT.svg('moon')); } }
   };
+  // il contapassi si aggiorna anche quando si salva senza cambiare schermata (es. dentro la chiusura guidata)
+  CT.DB.onChange(() => { if (document.querySelector(".tabbar")) CT.tabbar(CT.current()); });
 
   // ---------- Ora in alto (Home e schermate interne) ----------
   CT.clockText = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
