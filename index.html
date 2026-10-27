@@ -4478,7 +4478,8 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         CT.modOn('tabacchi') ? card('aggiTabacchi', 'Aggi Tabacchi', 'tobacco', 'green', 'chiusura-tabacchi') : null,
         CT.modOn('lotto') ? card('aggiLotto', 'Aggi Lotto', 'lotto', 'orange', 'chiusura-lotto') : null,
         CT.modOn('gev') ? card('aggiGev', 'Aggi Gratta e Vinci', 'scratch', 'purple', 'chiusura-gev') : null,
-        CT.modOn('servizi') && !CT.modOn('tabacchi') ? card('compensiServizi', 'Compensi Servizi', 'services', 'cyan', 'chiusura-servizi') : null,
+        // compensi dei servizi (Lis, Mooney, Drop Point, servizi in rete, ricariche, servizi vari): sempre tra i contatori quando il modulo è acceso (richiesta del 27/10/2026)
+        CT.modOn('servizi') ? card('compensiServizi', 'Compensi Servizi', 'services', 'cyan', 'chiusura-servizi') : null,
         CT.modOn('bar') ? card('barCaffetteria', 'Caffetteria', 'coffee', 'brown', 'comande') : null,
         CT.modOn('bar') ? card('barBevande', 'Bevande e Alcolici', 'cash', 'cyan', 'comande') : null,
         CT.modOn('bar') ? card('barCibo', 'Cibo e Gelati', 'cart', 'orange', 'comande') : null,
