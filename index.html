@@ -715,19 +715,18 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .btn-link span { display: block; font-weight: 700; font-size: 14px; line-height: 1.15; min-width: 0; }
 .btn-link small { display: block; font-weight: 500; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 /* ---------- contapassi ---------- */
-.btn-passi { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 12px; padding: 7px 14px 7px 10px; border-radius: 22px; border: 1.5px solid color-mix(in srgb, var(--green) 55%, var(--line)); background: var(--green-t); color: var(--text); font-size: 14px; max-width: 100%; }
-.btn-passi svg { width: 24px; height: 24px; color: var(--green); flex: none; }
-.btn-passi b { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--green); }
+.btn-passi { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 12px; padding: 7px 14px 7px 10px; border-radius: 22px; border: 1.5px solid color-mix(in srgb, var(--modo) 55%, var(--line)); background: var(--modo-t); color: var(--text); font-size: 14px; max-width: 100%; }
+.btn-passi svg { width: 24px; height: 24px; color: var(--modo); flex: none; }
+.btn-passi b { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--modo); }
 .btn-passi span { color: var(--muted); font-weight: 600; white-space: nowrap; }
 .btn-passi.off { background: var(--surface); border-style: dashed; }
-.btn-passi.off span { color: var(--green); }
+.btn-passi.off span { color: var(--modo); }
 .welcome .btn-passi { display: flex; width: max-content; }
 .passi-oggi { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
-.passi-oggi .ic { width: 56px; height: 56px; border-radius: 50%; background: var(--green-t); color: var(--green); display: grid; place-items: center; grid-row: 1 / 2; }
+.passi-oggi .ic { width: 56px; height: 56px; border-radius: 50%; background: var(--modo-t); color: var(--modo); display: grid; place-items: center; grid-row: 1 / 2; }
 .passi-oggi .ic svg { width: 32px; height: 32px; }
-.passi-oggi .num b { display: block; font-size: 34px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--green); }
+.passi-oggi .num b { display: block; font-size: 34px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--modo); }
 .passi-oggi .num span { font-size: 14px; color: var(--muted); font-weight: 600; }
-.passi-bars .and-col .and-bar { background: var(--green-t); } .passi-bars .and-col .and-bar > div { background: var(--green); } .passi-bars .and-col.oggi small { color: var(--green); }
 .passi-oggi .frase { grid-column: 1 / -1; margin: 6px 0 0; font-size: 14.5px; line-height: 1.4; font-style: italic; color: var(--text); border-top: 1px solid var(--line); padding-top: 10px; }
 /* ---------- andamento e obiettivo in Home ---------- */
 .and-panel { padding: 12px 14px; }
@@ -4399,15 +4398,16 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     };
     CT.route('passi', (app) => {
       const st = CT.listState.passi || (CT.listState.passi = { ym: CT.ym(CT.today()) });
-      const body = CT.screen(app, { title: 'Contapassi', subtitle: 'unisci il lavoro all’attività fisica', color: 'green', home: true });
+      const col = (CT.TIPI_ATTIVITA.find((t) => t.v === CT.tipoAttivita()) || {}).color || 'blue'; // stesso colore dell'attività scelta
+      const body = CT.screen(app, { title: 'Contapassi', subtitle: 'unisci il lavoro all’attività fisica', color: col, home: true });
       const cont = h('div'); body.appendChild(cont);
       const draw = () => {
         cont.replaceChildren();
         const oggi = CT.today(); const g = giorni(); const n = g[oggi] || 0;
-        if (!CT.passi.disponibile()) { cont.appendChild(h('div', { class: 'empty c-green' }, CT.svg('passi'), h('b', null, 'Il contapassi funziona nell’app installata'), h('span', null, 'Usa il sensore passi del telefono (Android e iPhone). Nella versione aperta dal browser non è disponibile.'))); return; }
-        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-green', style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica».'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
+        if (!CT.passi.disponibile()) { cont.appendChild(h('div', { class: 'empty c-' + col }, CT.svg('passi'), h('b', null, 'Il contapassi funziona nell’app installata'), h('span', null, 'Usa il sensore passi del telefono (Android e iPhone). Nella versione aperta dal browser non è disponibile.'))); return; }
+        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-' + col, style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica».'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
         // oggi
-        cont.appendChild(h('div', { class: 'panel passi-oggi c-green' },
+        cont.appendChild(h('div', { class: 'panel passi-oggi c-' + col },
           h('div', { class: 'ic' }, CT.svg('passi')),
           h('div', { class: 'num' }, h('b', null, CT.qty(n)), h('span', null, 'passi oggi · ' + CT.passi.kmTxt(n))),
           h('p', { class: 'frase' }, CT.passi.frase(n, oggi))));
@@ -4422,18 +4422,18 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         const mese = Object.keys(g).filter((d) => d.startsWith(st.ym)).sort().reverse();
         const tot = CT.sum(mese, (d) => g[d]);
         cont.appendChild(h('div', { class: 'sec-title', style: { marginTop: '16px' } }, h('h2', null, 'GIORNO PER GIORNO')));
-        cont.appendChild(CT.monthNav(st.ym, (v) => { st.ym = v; draw(); }, { color: 'green' }));
-        cont.appendChild(h('div', { class: 'kpis c-green', style: { marginTop: '10px' } }, CT.kpi('Passi nel mese', CT.qty(tot), { main: true, color: 'green', sub: mese.length ? mese.length + ' giorni · media ' + CT.qty(Math.round(tot / mese.length)) + ' al giorno' : 'nessun giorno registrato' }), CT.kpi('Chilometri', CT.passi.kmTxt(tot))));
+        cont.appendChild(CT.monthNav(st.ym, (v) => { st.ym = v; draw(); }, { color: col }));
+        cont.appendChild(h('div', { class: 'kpis c-' + col, style: { marginTop: '10px' } }, CT.kpi('Passi nel mese', CT.qty(tot), { main: true, color: col, sub: mese.length ? mese.length + ' giorni · media ' + CT.qty(Math.round(tot / mese.length)) + ' al giorno' : 'nessun giorno registrato' }), CT.kpi('Chilometri', CT.passi.kmTxt(tot))));
         const list = h('div', { class: 'list', style: { marginTop: '10px' } });
-        if (!mese.length) list.appendChild(h('div', { class: 'empty c-green' }, CT.svg('passi'), h('b', null, 'Nessun passo registrato in ' + CT.monthLabel(st.ym)), h('span', null, 'I passi si registrano da quando il contapassi è attivo.')));
-        mese.forEach((d) => list.appendChild(h('div', { class: 'item c-green' }, h('div', { class: 'dot' }, h('b', null, String(Number(d.slice(8, 10)))), h('span', null, CT.MESI3[Number(d.slice(5, 7)) - 1])), h('div', { class: 'mid' }, h('b', null, CT.dateLong(d)), h('small', null, CT.passi.kmTxt(g[d]))), h('div', { class: 'amt' }, CT.qty(g[d]), h('small', null, 'passi')))));
+        if (!mese.length) list.appendChild(h('div', { class: 'empty c-' + col }, CT.svg('passi'), h('b', null, 'Nessun passo registrato in ' + CT.monthLabel(st.ym)), h('span', null, 'I passi si registrano da quando il contapassi è attivo.')));
+        mese.forEach((d) => list.appendChild(h('div', { class: 'item c-' + col }, h('div', { class: 'dot' }, h('b', null, String(Number(d.slice(8, 10)))), h('span', null, CT.MESI3[Number(d.slice(5, 7)) - 1])), h('div', { class: 'mid' }, h('b', null, CT.dateLong(d)), h('small', null, CT.passi.kmTxt(g[d]))), h('div', { class: 'amt' }, CT.qty(g[d]), h('small', null, 'passi')))));
         cont.appendChild(list);
         // altezza per stimare i chilometri + disattivazione
         const alt = h('input', { type: 'text', inputmode: 'numeric', value: S().passiAltezza || '', placeholder: 'es. 175', id: 'passi-altezza' });
         cont.appendChild(h('div', { class: 'panel', style: { marginTop: '16px' } },
           h('h3', null, 'Chilometri'),
           h('p', { class: 'muted small' }, 'I chilometri sono stimati dai passi: con la tua altezza la stima è più precisa (lunghezza del passo ≈ 41,5% dell’altezza). Senza altezza si usano 73 cm a passo.'),
-          h('div', { class: 'fgrid c-green' }, h('div', { class: 'field half' }, h('label', { for: 'passi-altezza' }, 'Altezza (cm)'), alt), h('div', { class: 'field half', style: { justifyContent: 'flex-end', display: 'flex', flexDirection: 'column' } }, h('button', { class: 'btn', onclick: async () => { const v = CT.parseNum(alt.value) || 0; await DB().saveSettings({ passiAltezza: v > 100 && v < 230 ? Math.round(v) : 0 }); CT.toast(v > 100 && v < 230 ? 'Altezza salvata' : 'Altezza non impostata: si usano 73 cm a passo'); draw(); } }, CT.svg('check'), 'Salva'))),
+          h('div', { class: 'fgrid c-' + col }, h('div', { class: 'field half' }, h('label', { for: 'passi-altezza' }, 'Altezza (cm)'), alt), h('div', { class: 'field half', style: { justifyContent: 'flex-end', display: 'flex', flexDirection: 'column' } }, h('button', { class: 'btn', onclick: async () => { const v = CT.parseNum(alt.value) || 0; await DB().saveSettings({ passiAltezza: v > 100 && v < 230 ? Math.round(v) : 0 }); CT.toast(v > 100 && v < 230 ? 'Altezza salvata' : 'Altezza non impostata: si usano 73 cm a passo'); draw(); } }, CT.svg('check'), 'Salva'))),
           h('button', { class: 'link', style: { marginTop: '10px', color: 'var(--red)' }, onclick: async () => { if (await CT.confirm('Disattivare il contapassi? I giorni già registrati restano.')) { await CT.passi.disattiva(); draw(); } } }, 'Disattiva il contapassi')));
       };
       draw();
@@ -4570,7 +4570,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         CT.passi ? CT.passi.pill() : null,
         h('div', { class: 'attivita' }, h('small', null, 'LA TUA ATTIVITÀ'),
           h('div', { class: 'att-grid', role: 'group', 'aria-label': 'Tipo di attività' }, CT.TIPI_ATTIVITA.map((t) => h('button', { type: 'button', class: 'att-btn c-' + t.color + (CT.tipoAttivita() === t.v ? ' on' : ''), 'aria-pressed': CT.tipoAttivita() === t.v ? 'true' : 'false', onclick: () => CT.setTipoAttivita(t.v) }, h('div', { class: 'ic' }, CT.svg(t.icon)), h('b', null, t.l)))),
-          h('p', { class: 'hint' }, 'Tocca la tua attività: l’app mostra solo le voci che servono. Dettagli e tavoli in Altro → Tipo di attività.')),
+          h('p', { class: 'hint' }, CT.descrAttivita())),
         h('div', { class: 'welcome-actions' },
           h('button', { class: 'btn-turni', onclick: () => CT.go('turni') }, CT.svg('people'), h('span', null, 'Turni Dipendenti/', h('br'), 'Titolare')),
           h('button', { class: 'btn-oggi', onclick: CT.pickPeriodo }, CT.svg('calendar'), h('span', null, CT.homeMonth ? CT.monthShort(ym) : 'Oggi'), CT.svg('chevD')))),
@@ -4843,6 +4843,22 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   CT.tipoAttivita = () => (CT.DB.settings.tipoAttivita || 'tabaccheria');
   CT.modOn = (k) => { const m = CT.DB.settings.moduli || {}; const d = CT.DEFAULT_SETTINGS.moduli || {}; return m[k] == null ? !!d[k] : !!m[k]; };
   CT.sottotitolo = () => 'Il gestionale per tabaccheria, bar e bar tabacchi';
+  // frase sotto «LA TUA ATTIVITÀ» in Home: dice cosa gestisce l'app con l'attività scelta (richiesta del 27/10/2026)
+  CT.descrAttivita = () => {
+    const t = CT.tipoAttivita();
+    const voci = [];
+    if (CT.modOn('bar')) voci.push('comande', 'listino bar');
+    voci.push('corrispettivi');
+    if (CT.modOn('tabacchi')) voci.push('tabacchi');
+    if (CT.modOn('lotto')) voci.push('Lotto');
+    if (CT.modOn('gev')) voci.push('Gratta e Vinci');
+    if (CT.modOn('servizi')) voci.push('servizi');
+    voci.push('POS', 'cassa', 'spese');
+    const elenco = voci.slice(0, -1).join(', ') + ' e ' + voci[voci.length - 1];
+    if (t === 'bar') return 'Modalità Bar: ' + elenco + '. Tavoli, banco e voci da accendere o spegnere in Altro → Tipo di attività.';
+    if (t === 'bartabacchi') return 'Modalità Bar Tabacchi: ' + elenco + ', tutto in un’unica chiusura serale. Tavoli e voci in Altro → Tipo di attività.';
+    return 'Modalità Tabaccheria: ' + elenco + ', con la chiusura guidata della sera. Voci da accendere o spegnere in Altro → Tipo di attività.';
+  };
   // schermate che esistono solo con il loro modulo acceso
   CT.ROUTE_MOD = {
     'chiusura-tabacchi': 'tabacchi', 'aggi-tabacchi': 'tabacchi', 'listino-tabacchi': 'tabacchi', 'ricavi-complementi': 'tabacchi', 'ricavi-svapo': 'tabacchi',
