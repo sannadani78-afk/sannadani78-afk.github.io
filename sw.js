@@ -1,5 +1,5 @@
 // ContabilyTab versione web di prova: dopo la prima apertura funziona anche senza rete (i dati stanno solo nel telefono)
-const C = 'contabilytab-web-1.4.5';
+const C = 'contabilytab-web-1.4.6';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icona-192.png', './icona-512.png', './icona-180.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(C).then((c) => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== C).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });

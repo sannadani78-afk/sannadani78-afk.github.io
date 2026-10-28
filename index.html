@@ -4027,7 +4027,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 <p>In <a href="#impostazioni-notifiche"><b>Notifiche e promemoria</b></a> imposti il <b>promemoria giornaliero</b> di inserimento dati (con l'ora), il riepilogo settimanale, il <b>controllo automatico dei dati mancanti</b> (avviso in Home e notifica) e le notifiche per fatture e scadenze. Le notifiche sono locali: le genera il telefono, non un server. Alla prima apertura l'app chiede il permesso; «Notifica di prova» serve a verificarle.</p>` },
 
     { k: 'passi', t: 'Contapassi: lavoro e benessere', icon: 'passi', color: 'green', route: 'passi', html: `
-<p>In cima alla Home c'è il <b>contapassi</b>: passi e chilometri di oggi. Tocca <b>Attiva il contapassi</b> una volta: Android chiede il permesso «Attività fisica» e da lì il telefono conta da solo con il suo sensore, anche ad app chiusa, <b>senza GPS</b> e senza consumare batteria. I passi restano solo nel telefono.</p>
+<p>In cima alla Home c'è il <b>contapassi</b>: passi e chilometri di oggi. Tocca <b>Attiva il contapassi</b> una volta: Android chiede il permesso «Attività fisica» e da lì il telefono conta da solo con il suo sensore, anche ad app chiusa, <b>senza GPS</b> e senza consumare batteria, da mezzanotte a mezzanotte. Android chiede anche «Consentire all'app di funzionare sempre in sottofondo?»: rispondi Consenti, così il risparmio energetico (Samsung e simili) non addormenta l'app e la lettura di mezzanotte non salta; lo stato si vede in fondo alla schermata del contapassi. I passi restano solo nel telefono.</p>
 <p>Toccando il contatore si apre la schermata con i passi di oggi, gli ultimi 7 giorni e l'elenco <b>giorno per giorno</b>, mese per mese. I chilometri sono stimati dai passi: inserisci la tua <b>altezza</b> per una stima più precisa. Nella versione aperta dal browser (iPhone di prova) il contapassi non c'è: il browser non arriva ai sensori.</p>` },
     { k: 'backup', t: 'Backup, importazione ed esportazioni', icon: 'cloud', color: 'blue', route: 'backup', html: `
 <p><a href="#backup"><b>Backup</b></a>: imposta una <b>password dei backup</b> (scrivila in un posto sicuro fuori dal telefono: senza di essa i file non si riaprono, nemmeno dallo sviluppatore). «Crea e salva backup cifrato» produce un file cifrato (AES-256) da salvare o condividere dove vuoi. Il <b>backup automatico</b> salva periodicamente un file cifrato nella cartella Download → ContabilyTab del telefono. «Importa da file» ripristina un backup: puoi aggiungere o sostituire tutto.</p>
@@ -4397,8 +4397,13 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         if (r.sensore === false) { CT.toast('Questo telefono non ha il sensore passi'); return false; }
         await DB().saveSettings({ passiAttivo: true });
         await CT.passi.integra(r.letture);
-        CT.toast('Contapassi attivato: conta anche ad app chiusa'); return true;
+        CT.toast('Contapassi attivato: conta anche ad app chiusa');
+        // risparmio energetico (Samsung e simili): chiede una volta di non addormentare l'app, così la lettura di mezzanotte non salta
+        try { const b = await pl.batteria(); if (b && b.esente === false) await pl.chiediBatteria(); } catch (e) { /* niente */ }
+        return true;
       },
+      async batteriaOk() { const pl = P(); if (!pl) return true; try { const b = await pl.batteria(); return !b || b.esente !== false; } catch (e) { return true; } },
+      async chiediBatteria() { const pl = P(); if (!pl) return; try { await pl.chiediBatteria(); } catch (e) { /* niente */ } },
       async disattiva() { const pl = P(); try { if (pl) await pl.disattiva(); } catch (e) { /* niente */ } await DB().saveSettings({ passiAttivo: false }); await DB().kvSet('passiUltimaLettura', 0); CT.toast('Contapassi disattivato'); },
       // contatorino in cima alla Home: passi e chilometri di oggi; si aggiorna da solo dopo la lettura del sensore
       pill() {
@@ -4425,7 +4430,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         cont.replaceChildren();
         const oggi = CT.today(); const g = giorni(); const n = g[oggi] || 0;
         if (!CT.passi.disponibile()) { cont.appendChild(h('div', { class: 'empty c-' + col }, CT.svg('passi'), h('b', null, 'Il contapassi funziona nell’app installata'), h('span', null, 'Usa il sensore passi del telefono (Android e iPhone). Nella versione aperta dal browser non è disponibile.'))); return; }
-        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-' + col, style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica». Conta da mezzanotte a mezzanotte: sui telefoni Samsung non mettere ContabilyTab tra le «app in sospensione profonda», altrimenti il telefono le impedisce la lettura di mezzanotte.'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
+        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-' + col, style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica». Conta da mezzanotte a mezzanotte. All’attivazione Android chiede anche «Consentire all’app di funzionare sempre in sottofondo?»: rispondi Consenti, così il risparmio energetico (Samsung e simili) non addormenta l’app e la lettura di mezzanotte non salta.'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
         // oggi
         cont.appendChild(h('div', { class: 'panel passi-oggi c-' + col },
           h('div', { class: 'ic' }, CT.svg('passi')),
@@ -4454,6 +4459,12 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
           h('p', { class: 'muted small' }, 'I chilometri sono stimati dai passi: con la tua altezza la stima è più precisa (lunghezza del passo ≈ 41,5% dell’altezza). Senza altezza si usano 73 cm a passo.'),
           h('div', { class: 'fgrid c-' + col }, h('div', { class: 'field half' }, h('label', { for: 'passi-altezza' }, 'Altezza (cm)'), alt), h('div', { class: 'field half', style: { justifyContent: 'flex-end', display: 'flex', flexDirection: 'column' } }, h('button', { class: 'btn', onclick: async () => { const v = CT.parseNum(alt.value) || 0; await DB().saveSettings({ passiAltezza: v > 100 && v < 230 ? Math.round(v) : 0 }); CT.toast(v > 100 && v < 230 ? 'Altezza salvata' : 'Altezza non impostata: si usano 73 cm a passo'); draw(); } }, CT.svg('check'), 'Salva'))),
           h('button', { class: 'link', style: { marginTop: '10px', color: 'var(--red)' }, onclick: async () => { if (await CT.confirm('Disattivare il contapassi? I giorni già registrati restano.')) { await CT.passi.disattiva(); draw(); } } }, 'Disattiva il contapassi')));
+        // risparmio energetico: se il telefono può addormentare l'app, la lettura di mezzanotte salta
+        const batt = h('div', { class: 'panel', style: { marginTop: '12px' } }, h('h3', null, 'Letture in sottofondo'), h('p', { class: 'muted small' }, 'Controllo in corso…'));
+        cont.appendChild(batt);
+        CT.passi.batteriaOk().then((ok) => { batt.replaceChildren(h('h3', null, 'Letture in sottofondo'), ...(ok
+          ? [h('p', { class: 'muted small', style: { margin: 0 } }, 'Consentite: il telefono non addormenta ContabilyTab, la lettura di mezzanotte è garantita.')]
+          : [h('p', { class: 'muted small' }, 'Il risparmio energetico del telefono può addormentare l’app e far saltare la lettura di mezzanotte. Tocca e rispondi «Consenti».'), h('button', { class: 'btn block', onclick: async () => { await CT.passi.chiediBatteria(); setTimeout(draw, 1500); } }, 'Consenti le letture in sottofondo')])); });
       };
       draw();
       const ricarica = () => { if (document.hidden || CT.current() !== 'passi') return; CT.passi.aggiorna().then((r) => { if (r && CT.current() === 'passi') draw(); }); };
