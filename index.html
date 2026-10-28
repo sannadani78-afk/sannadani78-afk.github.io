@@ -724,16 +724,16 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .btn-passi .tx > div { display: flex; align-items: baseline; gap: 6px; }
 .btn-passi.off { background: var(--surface); border-style: dashed; }
 .btn-passi.off span { color: var(--modo); }
-/* contatorino in alto a sinistra della scheda del saluto, piccolo (richiesta del 28/10/2026) */
-.welcome { position: relative; }
-.welcome .btn-passi { position: absolute; left: 10px; top: 10px; margin: 0; padding: 4px 10px 4px 7px; gap: 6px; border-radius: 16px; font-size: 12px; z-index: 1; }
+/* contatorino piccolo, centrato sotto la data, con il motto sotto (richiesta del 28/10/2026) */
+.passi-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.passi-motto { font-size: 12.5px; font-weight: 600; color: var(--muted); text-align: center; }
+.welcome .btn-passi { position: static; margin: 0; padding: 4px 10px 4px 7px; gap: 6px; border-radius: 16px; font-size: 12px; }
 .welcome .btn-passi svg { width: 18px; height: 18px; }
 .welcome .btn-passi b { font-size: 14px; }
 .welcome .btn-passi .tx small { font-size: 9px; letter-spacing: .05em; }
 .welcome .btn-passi .tx > div { gap: 4px; }
 .welcome .btn-passi span { font-size: 11.5px; }
 .welcome .btn-passi.off span { font-size: 11.5px; }
-.welcome:has(.btn-passi) .hello { padding-top: 38px; } /* il saluto scende quanto basta: il contatorino non copre l'icona */
 .passi-oggi { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
 .passi-oggi .ic { width: 56px; height: 56px; border-radius: 50%; background: var(--modo-t); color: var(--modo); display: grid; place-items: center; grid-row: 1 / 2; }
 .passi-oggi .ic svg { width: 32px; height: 32px; }
@@ -4391,11 +4391,12 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       // contatorino in cima alla Home: passi e chilometri di oggi; si aggiorna da solo dopo la lettura del sensore
       pill() {
         if (!CT.passi.disponibile()) return null;
-        if (!CT.passi.attivo()) return h('button', { class: 'btn-passi off', onclick: async () => { if (await CT.passi.attiva()) CT.render(); } }, CT.svg('passi'), h('span', null, 'Attiva il contapassi'));
+        const motto = h('small', { class: 'passi-motto' }, 'Unisci il tuo lavoro al tuo benessere');
+        if (!CT.passi.attivo()) return h('div', { class: 'passi-box' }, h('button', { class: 'btn-passi off', onclick: async () => { if (await CT.passi.attiva()) CT.render(); } }, CT.svg('passi'), h('span', null, 'Attiva il contapassi')), motto);
         const n = CT.passi.oggi();
         const el = h('button', { class: 'btn-passi', 'aria-label': 'Contapassi', onclick: () => CT.go('passi') }, CT.svg('passi'), h('div', { class: 'tx' }, h('small', null, 'Contapassi'), h('div', null, h('b', null, CT.qty(n)), h('span', null, 'passi · ' + CT.passi.kmTxt(n)))));
         CT.passi.aggiorna().then((r) => { if (!r || !el.isConnected) return; const m = CT.passi.oggi(); el.querySelector('b').textContent = CT.qty(m); el.querySelector('span').textContent = 'passi · ' + CT.passi.kmTxt(m); });
-        return el;
+        return h('div', { class: 'passi-box' }, el, motto);
       },
     };
     CT.route('passi', (app) => {
