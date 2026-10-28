@@ -467,6 +467,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; font-varian
 .preview-doc table { width: 100%; border-collapse: collapse; margin-top: 10px; font-variant-numeric: tabular-nums; }
 .preview-doc th, .preview-doc td { border-bottom: 1px solid #ddd; padding: 5px 6px; text-align: right; }
 .preview-doc th:first-child, .preview-doc td:first-child { text-align: left; }
+/* tabella compatta del riepilogo annuale: 6 colonne centrate che stanno in 360 px */
+.preview-doc table.compatta { table-layout: fixed; font-size: 11px; margin-top: 6px; font-variant-numeric: normal; letter-spacing: -.02em; }
+.preview-doc table.compatta th, .preview-doc table.compatta td { text-align: center; padding: 6px 1px; white-space: nowrap; overflow: hidden; }
+.preview-doc table.compatta th { font-size: 10px; text-transform: uppercase; letter-spacing: 0; color: #555; }
+.preview-doc table.compatta th:first-child, .preview-doc table.compatta td:first-child { width: 11%; text-align: center; font-weight: 600; }
+.preview-doc:has(table.compatta) { padding-left: 6px; padding-right: 6px; }
+.preview-doc table.compatta tr.tot td { font-weight: 700; border-top: 2px solid #999; }
+.preview-doc h4, .preview-doc > div { text-align: center; }
 
 .notice { background: var(--yellow-t); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; display: flex; gap: 8px; align-items: flex-start; }
 .notice svg { width: 20px; height: 20px; flex: none; color: var(--orange); }
@@ -2801,9 +2809,11 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         h('h4', null, 'Riepilogo annuale aggi e compensi · Anno ' + d.y),
         h('div', null, (s.attivita || 'Attività') + (s.titolare ? ' · ' + s.titolare : '') + (s.piva ? ' · P.IVA ' + s.piva : '') + (s.codiceRivendita ? ' · Rivendita n. ' + s.codiceRivendita : '')),
         h('div', { class: 'muted small' }, 'Documento riepilogativo generato con ContabilyTab dai dati inseriti dall’utente. Non sostituisce le certificazioni ufficiali dei concessionari o dell’Agenzia delle Dogane e dei Monopoli.'),
-        h('table', null, h('thead', null, h('tr', null, ['Mese', 'Aggi tabacchi', 'Aggi Lotto', 'Aggi G&V', 'Compensi servizi', 'Totale'].map((x) => h('th', null, x)))),
-          h('tbody', null, d.months.map((m) => h('tr', null, [m.label, CT.eur(m.t.aggiTabacchi), CT.eur(m.t.aggiLotto), CT.eur(m.t.aggiGev), CT.eur(m.t.compensiServizi), CT.eur(m.t.aggiTotali)].map((x) => h('td', null, x)))),
-            h('tr', { style: { fontWeight: 700 } }, ['Totale anno', CT.eur(d.tot.aggiTabacchi), CT.eur(d.tot.aggiLotto), CT.eur(d.tot.aggiGev), CT.eur(d.tot.compensiServizi), CT.eur(d.tot.aggiTabacchi + d.tot.aggiLotto + d.tot.aggiGev + d.tot.compensiServizi)].map((x) => h('td', null, x))))),
+        // tabella compatta e centrata: sta tutta nello schermo del telefono (importi in euro, senza il simbolo nelle celle); il PDF e l'Excel restano completi
+        h('div', { class: 'muted small', style: { marginTop: '8px', textAlign: 'center' } }, 'Aggi e compensi del mese, in euro'),
+        h('table', { class: 'compatta' }, h('thead', null, h('tr', null, ['Mese', 'Tabacchi', 'Lotto', 'G&V', 'Servizi', 'Totale'].map((x) => h('th', null, x)))),
+          h('tbody', null, d.months.map((m, i) => h('tr', null, [CT.MESI3[i] || m.label, CT.num(m.t.aggiTabacchi), CT.num(m.t.aggiLotto), CT.num(m.t.aggiGev), CT.num(m.t.compensiServizi), CT.num(m.t.aggiTotali)].map((x) => h('td', null, x)))),
+            h('tr', { class: 'tot' }, ['Anno', CT.num(d.tot.aggiTabacchi), CT.num(d.tot.aggiLotto), CT.num(d.tot.aggiGev), CT.num(d.tot.compensiServizi), CT.num(d.tot.aggiTabacchi + d.tot.aggiLotto + d.tot.aggiGev + d.tot.compensiServizi)].map((x) => h('td', null, x))))),
         h('div', { style: { marginTop: '8px' } }, 'Aggi da prospetti settimanali inseriti: tabacchi ' + CT.eur(d.sett.tabacchi) + ' · Lotto ' + CT.eur(d.sett.lotto) + ' · G&V ' + CT.eur(d.sett.gev) + ' · servizi ' + CT.eur(d.sett.servizi)),
         h('div', null, 'Corrispettivi anno: ' + CT.eur(d.tot.corrispettivi) + ' · Spese: ' + CT.eur(d.tot.spese) + ' · Versamenti: ' + CT.eur(d.tot.versamenti)));
       cont.append(
