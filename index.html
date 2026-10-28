@@ -824,6 +824,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   const S = (p, vb = '0 0 24 24') => `<svg viewBox="${vb}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
   const F = (p, vb = '0 0 24 24') => `<svg viewBox="${vb}" fill="currentColor">${p}</svg>`;
   window.CT = window.CT || {};
+  CT.VERSION = '1.4.7'; // la costruzione su GitHub la allinea a versione.json (scripts/build.sh); definita qui, prima di ogni schermata che la mostra
   CT.icons = {
     menu: S('<path d="M3 6h18M3 12h18M3 18h18"/>'),
     bell: S('<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
@@ -3412,11 +3413,11 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     <h3>Dove sono i tuoi dati</h3><p>ContabilyTab salva tutti i dati (corrispettivi, aggi, spese, fatture, inventario, turni, impostazioni) <b>esclusivamente nella memoria di questo dispositivo</b>. L'app non ha server, non richiede registrazione, non invia dati a terzi, non usa strumenti di analisi o pubblicità.</p>
     <h3>Connessione a internet</h3><p>L'app funziona completamente offline. Nessuna funzione trasmette dati personali, contabili o finanziari all'esterno in modo automatico.</p>
     <h3>Backup ed esportazioni</h3><p>I file di backup, Excel e PDF vengono creati solo su tua richiesta e salvati o condivisi dove decidi tu (memoria del telefono, email, cloud personale). Da quel momento la loro custodia è sotto il tuo controllo. Tutti i backup, compresi quelli automatici salvati periodicamente nella cartella Download → ContabilyTab del telefono, sono cifrati (AES-256-GCM) con la password dei backup che scegli tu. La password resta solo nella memoria privata dell'app sul tuo dispositivo e non viene mai scritta nei file: se la dimentichi, i file di backup non sono recuperabili, nemmeno dallo sviluppatore.</p>
-    <h3>Permessi del dispositivo</h3><p><b>Fotocamera</b>: solo per leggere i codici a barre dei prodotti e allegare foto alle fatture; nessuna immagine lascia il dispositivo. <b>Notifiche</b>: per i promemoria locali. <b>Archiviazione</b>: per salvare i file che esporti.</p>
+    <h3>Permessi del dispositivo</h3><p><b>Fotocamera</b>: solo per leggere i codici a barre dei prodotti e allegare foto alle fatture; nessuna immagine lascia il dispositivo. <b>Notifiche</b>: per i promemoria locali. <b>Archiviazione</b>: per salvare i file che esporti. <b>Attività fisica</b> (contapassi, se lo attivi): lettura del sensore passi del telefono, senza GPS; i passi e i chilometri stimati restano solo nel dispositivo. <b>Funzionamento in sottofondo</b> (se lo consenti): serve solo alla lettura del sensore passi a mezzanotte.</p>
     <h3>Dati di terzi</h3><p>Nomi di dipendenti, fornitori o clienti che inserisci restano nel dispositivo. Sei tu il titolare del trattamento di questi dati ai sensi del GDPR; l'app è uno strumento sotto il tuo controllo.</p>
     <h3>Cancellazione</h3><p>Puoi cancellare tutto in qualsiasi momento da Altro → Cancella tutti i dati, oppure disinstallando l'app.</p>
     <h3>Titolare del trattamento</h3><p>Lo sviluppatore dell'app non riceve né tratta alcun dato degli utenti. Per domande sull'informativa usa i contatti nella sezione Assistenza.</p>
-    <p class="muted small">Ultimo aggiornamento: ottobre 2026.</p>`);
+    <p class="muted small">Ultimo aggiornamento: 28 ottobre 2026 (aggiunto il contapassi).</p>`);
   textScreen('gdpr', 'GDPR e i tuoi diritti', 'green', `
     <p>ContabilyTab è progettata secondo i principi del Regolamento (UE) 2016/679: <b>privacy by design e by default</b>, minimizzazione dei dati, nessun trasferimento verso terzi.</p>
     <h3>Diritti dell'interessato</h3><ul><li><b>Accesso</b>: tutti i dati sono visibili nell'app e esportabili in Excel/JSON.</li><li><b>Portabilità</b>: esporta l'archivio in formato aperto (JSON) o Excel da Altro → Esportazione dati.</li><li><b>Rettifica</b>: ogni registrazione è modificabile.</li><li><b>Cancellazione</b>: elimina singole voci o l'intero archivio.</li><li><b>Limitazione e opposizione</b>: non esistono trattamenti automatizzati o profilazione.</li></ul>
@@ -4342,7 +4343,6 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   'use strict';
   const CT = window.CT;
   const h = CT.h;
-  CT.VERSION = '1.3.7';
   CT.homeMonth = null; // mese mostrato nel riepilogo (null = corrente)
 
   // ---------- Contapassi (richiesta del 27/10/2026): sensore passi del telefono, niente GPS; una lettura ogni 15 minuti anche ad app chiusa; tutto resta nel telefono ----------
@@ -5340,7 +5340,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       const tipoSeg = h('div', { class: 'seg c-blue', id: 'acc-tipo' });
       const drawTipo = () => tipoSeg.replaceChildren(...CT.TIPI_ATTIVITA.map((t) => h('button', { type: 'button', class: tipo === t.v ? 'on' : '', onclick: () => { tipo = t.v; drawTipo(); } }, t.l)));
       drawTipo();
-      const accSave = async () => { await CT.DB.saveSettings({ accepted: true, acceptedAt: new Date().toISOString(), titolare: nome.value.trim(), tipoAttivita: tipo, moduli: Object.assign({}, CT.PRESET_MODULI[tipo]) }); if (CT.PRESET_MODULI[tipo].bar) await CT.listinoInit(); };
+      const accSave = async () => { await CT.DB.saveSettings({ accepted: true, acceptedAt: new Date().toISOString(), privacyVer: CT.PRIVACY_VER, titolare: nome.value.trim(), tipoAttivita: tipo, moduli: Object.assign({}, CT.PRESET_MODULI[tipo]) }); if (CT.PRESET_MODULI[tipo].bar) await CT.listinoInit(); };
       const btn = h('button', { class: 'btn', disabled: true, onclick: async () => { await accSave(); s.close(); res(true); } }, 'Accetto e inizio');
       chk.addEventListener('change', () => (btn.disabled = !chk.checked));
       const s = CT.sheet({ title: 'Benvenuto in ContabilyTab', color: 'blue', wide: true, locked: true,
@@ -5358,12 +5358,30 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     });
   }
 
+  // ---------- Informativa aggiornata: chi ha già accettato una versione precedente la rilegge e riconferma ----------
+  CT.PRIVACY_VER = '2026-10-28';
+  function showPrivacyUpdate() {
+    return new Promise((res) => {
+      const chk = h('input', { type: 'checkbox', id: 'acc-chk2' });
+      const btn = h('button', { class: 'btn', disabled: true, onclick: async () => { await CT.DB.saveSettings({ privacyVer: CT.PRIVACY_VER, privacyAcceptedAt: new Date().toISOString() }); s.close(); res(true); } }, 'Ho letto e accetto');
+      chk.addEventListener('change', () => (btn.disabled = !chk.checked));
+      const s = CT.sheet({ title: 'Informativa privacy aggiornata', color: 'green', locked: true,
+        body: h('div', { class: 'prose' },
+          h('p', null, 'Con questa versione l’informativa privacy è cambiata. ', h('b', null, 'Niente di nuovo sui tuoi dati: restano solo sul telefono.'), ' Le novità riguardano il contapassi:'),
+          h('ul', null, h('li', null, h('b', null, 'Attività fisica'), ': se attivi il contapassi, l’app legge il sensore passi del telefono (senza GPS). Passi e chilometri restano nel dispositivo.'), h('li', null, h('b', null, 'Funzionamento in sottofondo'), ': se lo consenti, serve solo alla lettura del sensore a mezzanotte.')),
+          h('p', { class: 'muted small' }, 'Il testo completo è sempre in Altro → Privacy e Altro → GDPR.'),
+          h('label', { class: 'switch', for: 'acc-chk2', style: { marginTop: '8px' } }, h('span', null, 'Ho letto l’informativa aggiornata'), chk)),
+        footer: btn, onClose: () => { if (CT.DB.settings.privacyVer !== CT.PRIVACY_VER) showPrivacyUpdate().then(res); } });
+    });
+  }
+
   // ---------- Avvio ----------
   async function boot() {
     try { await CT.DB.init(); } catch (e) { console.error(e); }
     CT.applyTheme();
     if (CT.lock && CT.lock.isOn()) await CT.lock.show();
     if (!CT.DB.settings.accepted) { CT.render(); await showAcceptance(); }
+    else if (CT.DB.settings.privacyVer !== CT.PRIVACY_VER) { CT.render(); await showPrivacyUpdate(); }
     CT.render();
     CT.DB.onChange(() => { if (CT.current() === 'home') { clearTimeout(boot._t); boot._t = setTimeout(() => { if (CT.sheets.length) CT._homeDirty = true; else CT.render(); }, 50); } clearTimeout(boot._n); boot._n = setTimeout(() => CT.notif.schedule().catch(() => {}), 1500); });
     // controllo automatico dati mancanti (una volta al giorno, ad app aperta)
