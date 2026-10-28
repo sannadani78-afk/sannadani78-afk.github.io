@@ -721,6 +721,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .scroll-arrows .sa-up svg { transform: rotate(180deg); }
 .scroll-arrows.top .sa-up, .scroll-arrows.bottom .sa-down { visibility: hidden; }
 .home-links { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; margin-top: 10px; }
+.home-links.n4 { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
 .btn-link { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 6px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 30%, var(--line)); background: var(--tint); color: var(--navy); text-align: center; min-height: 84px; }
 .btn-link svg { width: 28px; height: 28px; color: var(--c); flex: none; }
 .btn-link span { display: block; font-weight: 700; font-size: 14px; line-height: 1.15; min-width: 0; }
@@ -732,6 +733,8 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .acc-testi summary { font-weight: 700; color: var(--modo); cursor: pointer; font-size: 14px; }
 .acc-testi details > div { font-size: 13.5px; max-height: 260px; overflow: auto; margin-top: 6px; padding-right: 4px; }
 .acc-testi details > div h3 { font-size: 14px; margin: 10px 0 4px; }
+/* ---------- calcolo pro rata ---------- */
+.prosa-info p { margin: 6px 0 0; line-height: 1.45; } .prosa-info h3 { margin: 0 0 4px; }
 /* ---------- contapassi ---------- */
 .btn-passi { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 12px; padding: 7px 14px 7px 10px; border-radius: 22px; border: 1.5px solid color-mix(in srgb, var(--modo) 55%, var(--line)); background: var(--modo-t); color: var(--text); font-size: 14px; max-width: 100%; }
 .btn-passi svg { width: 24px; height: 24px; color: var(--modo); flex: none; }
@@ -4067,6 +4070,8 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 <p><a href="#promemoria"><b>Promemoria scadenze</b></a>: titolo, tipo (fattura, scadenza, versamento, compenso periodico, inventario…), ripetizione (una volta, ogni giorno, settimana, mese, anno), data, ora della notifica e importo facoltativo. Un promemoria settimanale con importo è comodo, per esempio, per l'addebito del Lotto o dei Gratta e Vinci.</p>
 <p>In <a href="#impostazioni-notifiche"><b>Notifiche e promemoria</b></a> imposti il <b>promemoria giornaliero</b> di inserimento dati (con l'ora), il riepilogo settimanale, il <b>controllo automatico dei dati mancanti</b> (avviso in Home e notifica) e le notifiche per fatture e scadenze. Le notifiche sono locali: le genera il telefono, non un server. Alla prima apertura l'app chiede il permesso; «Notifica di prova» serve a verificarle.</p>` },
 
+    { k: 'prorata', t: 'Calcolo Pro Rata', icon: 'calc', color: 'purple', route: 'prorata', html: `
+<p>Dal tasto <b>Calcolo Pro Rata</b> in Home: inserisci prezzo di acquisto e di vendita (IVA inclusa), l'aliquota IVA e la tua percentuale di Pro Rata (quella della dichiarazione IVA annuale, quadro VF34 punto 9; l'app la ricorda), poi <b>Calcola</b>. Vedi l'IVA detraibile e quella indetraibile che diventa costo, il costo effettivo del prodotto, il margine lordo e il <b>margine effettivo</b> con le percentuali sul prezzo di vendita e sul costo.</p>` },
     { k: 'passi', t: 'Contapassi: lavoro e benessere', icon: 'passi', color: 'green', route: 'passi', html: `
 <p>In cima alla Home c'è il <b>contapassi</b>: passi e chilometri di oggi. Tocca <b>Attiva il contapassi</b> una volta: Android chiede il permesso «Attività fisica» e da lì il telefono conta da solo con il suo sensore, anche ad app chiusa, <b>senza GPS</b> e senza consumare batteria, da mezzanotte a mezzanotte. Android chiede anche «Consentire all'app di funzionare sempre in sottofondo?»: rispondi Consenti, così il risparmio energetico (Samsung e simili) non addormenta l'app e la lettura di mezzanotte non salta; lo stato si vede in fondo alla schermata del contapassi. I passi restano solo nel telefono.</p>
 <p>Toccando il contatore si apre la schermata con i passi di oggi, gli ultimi 7 giorni e l'elenco <b>giorno per giorno</b>, mese per mese. I chilometri sono stimati dai passi: inserisci la tua <b>altezza</b> per una stima più precisa. Nella versione aperta dal browser (iPhone di prova) il contapassi non c'è: il browser non arriva ai sensori.</p>` },
@@ -4385,6 +4390,61 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   const h = CT.h;
   CT.homeMonth = null; // mese mostrato nel riepilogo (null = corrente)
 
+  // ---------- Calcolo Pro Rata (richiesta del 28/10/2026): margine di un prodotto con IVA tenendo conto dell'IVA indetraibile del tabaccaio ----------
+  (() => {
+    const DB = () => CT.DB; const S = () => DB().settings;
+    CT.calcProRata = (acq, vend, iva, pr) => {
+      const k = 1 + (Number(iva) || 0) / 100; const p = Math.min(100, Math.max(0, Number(pr) || 0)) / 100;
+      const acqNetto = CT.r2(acq / k), ivaAcq = CT.r2(acq - acqNetto), ivaDetr = CT.r2(ivaAcq * p), ivaIndetr = CT.r2(ivaAcq - ivaDetr);
+      const vendNetto = CT.r2(vend / k), ivaVend = CT.r2(vend - vendNetto);
+      const margineLordo = CT.r2(vendNetto - acqNetto), margine = CT.r2(margineLordo - ivaIndetr), costo = CT.r2(acqNetto + ivaIndetr);
+      return { acqNetto, ivaAcq, ivaDetr, ivaIndetr, vendNetto, ivaVend, margineLordo, margine, costo, marginePct: vendNetto ? margine / vendNetto * 100 : 0, ricaricoPct: costo ? margine / costo * 100 : 0 };
+    };
+    CT.route('prorata', (app) => {
+      const body = CT.screen(app, { title: 'Calcolo Margine Tabaccai', subtitle: 'con il Pro Rata dell’IVA', color: 'purple', home: true });
+      const fields = [
+        { k: 'acq', label: 'Prezzo acquisto (IVA inclusa)', type: 'money', zeroOk: true },
+        { k: 'vend', label: 'Prezzo vendita (IVA inclusa)', type: 'money', zeroOk: true },
+        { k: 'iva', label: 'Aliquota IVA', type: 'select', options: [...S().aliquoteIva.map((a) => ({ v: a, l: a + '%' })), { v: 0, l: '0%' }].filter((o, i, a) => a.findIndex((x) => String(x.v) === String(o.v)) === i) },
+        { k: 'pr', label: 'Pro rata detraibile (%)', type: 'number', hint: 'Lo trovi nella dichiarazione IVA annuale, quadro VF34 punto 9' },
+      ];
+      const form = CT.form(fields, { iva: 22, pr: S().prorata != null && S().prorata !== '' ? S().prorata : 55 }, { color: 'purple' });
+      const ris = h('div', { class: 'panel', style: { marginTop: '12px' }, hidden: true });
+      const calcola = async () => {
+        const v = form.get(); const acq = Number(v.acq) || 0, vend = Number(v.vend) || 0;
+        if (!acq && !vend) { CT.toast('Inserisci il prezzo di acquisto e quello di vendita'); return; }
+        if (S().prorata !== v.pr) await DB().saveSettings({ prorata: v.pr });
+        const r = CT.calcProRata(acq, vend, v.iva, v.pr);
+        const riga = (l, x, cls) => h('div', { class: 'r' }, h('span', null, l), h('b', { class: cls || '' }, x));
+        ris.hidden = false;
+        ris.replaceChildren(h('h3', null, 'Risultato'),
+          h('div', { class: 'calc-box c-purple', style: { gridColumn: 'auto' } },
+            riga('Prezzo di acquisto senza IVA', CT.eur(r.acqNetto)),
+            riga('IVA sull’acquisto (' + CT.qty(v.iva) + '%)', CT.eur(r.ivaAcq)),
+            riga('IVA detraibile (' + CT.num(v.pr).replace(/,00$/, '') + '%)', CT.eur(r.ivaDetr)),
+            riga('IVA indetraibile, diventa costo (' + CT.num(100 - (Number(v.pr) || 0)).replace(/,00$/, '') + '%)', CT.eur(r.ivaIndetr), 'down'),
+            riga('Costo effettivo del prodotto', CT.eur(r.costo)),
+            riga('Prezzo di vendita senza IVA', CT.eur(r.vendNetto)),
+            riga('Margine lordo (vendita − acquisto, senza IVA)', CT.eur(r.margineLordo)),
+            riga('Margine effettivo (− IVA indetraibile)', CT.eur(r.margine), r.margine >= 0 ? 'up' : 'down'),
+            riga('Margine effettivo sul prezzo di vendita', (r.marginePct >= 0 ? '' : '−') + CT.num(Math.abs(r.marginePct)).replace(/,00$/, '') + '%'),
+            riga('Ricarico effettivo sul costo', (r.ricaricoPct >= 0 ? '' : '−') + CT.num(Math.abs(r.ricaricoPct)).replace(/,00$/, '') + '%')));
+        ris.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+      body.append(
+        h('div', { class: 'panel' }, form.el, h('button', { class: 'btn block', style: { marginTop: '12px' }, onclick: calcola }, CT.svg('calc'), 'Calcola')),
+        ris,
+        h('div', { class: 'panel prosa-info', style: { marginTop: '12px' } },
+          h('h3', null, 'Cos’è il Pro Rata per i tabaccai?'),
+          h('p', null, 'Il ', h('i', null, 'Pro Rata'), ' rappresenta la percentuale di IVA che può essere detratta da un’attività mista, come quella del tabaccaio, che vende sia prodotti soggetti a IVA (es. accendini, caramelle, liquidi per sigarette elettroniche) sia esenti (es. slot machine, lotterie nazionali - giochi).'),
+          h('p', null, 'Ad esempio, se il Pro Rata è del 55%, significa che il tabaccaio può detrarre solo il 55% dell’IVA pagata sugli acquisti. Il restante 45% diventa un costo (IVA indetraibile) che va sottratto dal margine.')),
+        h('div', { class: 'panel prosa-info', style: { marginTop: '12px' } },
+          h('h3', null, 'Dove trovo la percentuale del Pro Rata?'),
+          h('p', null, 'Puoi trovare il valore del Pro Rata nella tua ', h('i', null, 'dichiarazione IVA annuale'), ', precisamente nel ', h('b', null, 'quadro VF34, punto 9'), '.'),
+          h('p', null, 'Se hai dubbi, è sempre consigliabile consultare il tuo commercialista.')));
+    });
+  })();
+
   // ---------- Contapassi (richiesta del 27/10/2026): sensore passi del telefono, niente GPS; una lettura ogni 15 minuti anche ad app chiusa; tutto resta nel telefono ----------
   (() => {
     const DB = () => CT.DB;
@@ -4651,10 +4711,11 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
           h('button', { class: 'btn-oggi', onclick: CT.pickPeriodo }, CT.svg('calendar'), h('span', null, CT.homeMonth ? CT.monthShort(ym) : 'Oggi'), CT.svg('chevD')))),
       CT.chiudiGiornataBtn(),
       // collegamenti secondo la modalità: Tabaccheria = listino tabacchi + archivio; Bar = listino bar + archivio; Bar Tabacchi = tutti e tre
-      h('div', { class: 'home-links' },
+      h('div', { class: 'home-links' + (1 + (CT.modOn('tabacchi') ? 2 : 0) + (CT.modOn('bar') ? 1 : 0) >= 4 ? ' n4' : '') },
         CT.modOn('tabacchi') ? h('button', { class: 'btn-link c-green', onclick: () => CT.go('listino-tabacchi') }, CT.svg('tobacco'), h('span', null, 'Listino Tabacchi', h('small', null, 'tariffa ADM'))) : null,
         CT.modOn('bar') ? h('button', { class: 'btn-link c-brown', onclick: () => CT.go('listino') }, CT.svg('coffee'), h('span', null, 'Listino Bar', h('small', null, 'prezzi delle comande'))) : null,
-        h('button', { class: 'btn-link c-blue', onclick: () => { CT.listState.inventario = Object.assign(CT.listState.inventario || {}, { tab: 'prodotti' }); CT.go('inventario'); } }, CT.svg('box'), h('span', null, 'Archivio Prodotti', h('small', null, 'descrizione, fornitore, prezzo di acquisto e di vendita, IVA, margini, giacenze')))),
+        h('button', { class: 'btn-link c-blue', onclick: () => { CT.listState.inventario = Object.assign(CT.listState.inventario || {}, { tab: 'prodotti' }); CT.go('inventario'); } }, CT.svg('box'), h('span', null, 'Archivio Prodotti', h('small', null, 'descrizione, fornitore, prezzo di acquisto e di vendita, IVA, margini, giacenze'))),
+        CT.modOn('tabacchi') ? h('button', { class: 'btn-link c-purple', onclick: () => CT.go('prorata') }, CT.svg('calc'), h('span', null, 'Calcolo Pro Rata', h('small', null, 'margine con IVA indetraibile'))) : null),
       s.demo ? h('div', { class: 'demo-banner' }, h('span', null, 'Modalità DEMO: dati di esempio, non reali.'), h('button', { onclick: CT.exitDemo }, 'Esci dalla demo')) : null,
       alerts.length ? h('div', { class: 'demo-banner', role: 'button', tabindex: '0', style: { width: '100%', border: '1px solid color-mix(in srgb, var(--red) 40%, transparent)', background: 'var(--red-t)', cursor: 'pointer' }, onclick: CT.openNotifiche }, h('span', null, CT.svg('alert', ''), ' ', alerts[0].text), h('span', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px', flex: 'none' } }, h('span', { style: { fontWeight: 700, color: 'var(--red)' } }, 'Vedi'), h('button', { class: 'icon-btn', type: 'button', style: { width: '32px', height: '32px', color: 'var(--muted)', background: 'transparent', padding: '0', borderRadius: '8px' }, 'aria-label': 'Elimina avviso', onclick: async (e) => { e.stopPropagation(); await CT.chiudiAvvisi(alerts[0].key); CT.toast('Avviso eliminato'); } }, (() => { const ic = CT.svg('x'); ic.style.color = 'var(--muted)'; ic.style.marginRight = '0'; return ic; })()))) : null,
     ));
@@ -4936,7 +4997,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   };
   // schermate che esistono solo con il loro modulo acceso
   CT.ROUTE_MOD = {
-    'chiusura-tabacchi': 'tabacchi', 'aggi-tabacchi': 'tabacchi', 'listino-tabacchi': 'tabacchi', 'ricavi-complementi': 'tabacchi', 'ricavi-svapo': 'tabacchi',
+    'chiusura-tabacchi': 'tabacchi', 'aggi-tabacchi': 'tabacchi', 'listino-tabacchi': 'tabacchi', 'prorata': 'tabacchi', 'ricavi-complementi': 'tabacchi', 'ricavi-svapo': 'tabacchi',
     'chiusura-lotto': 'lotto', 'aggi-lotto': 'lotto', 'chiusura-gev': 'gev', 'aggi-gev': 'gev', 'chiusura-servizi': 'servizi', 'aggi-servizi': 'servizi',
     comande: 'bar', listino: 'bar',
   };
@@ -5199,6 +5260,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   const RIC_EXTRA = {
     home: 'inizio principale',
     passi: 'contapassi camminare chilometri km benessere salute cuore attivita fisica pedometro',
+    prorata: 'pro rata prorata iva indetraibile detraibile margine calcolo vf34 dichiarazione iva',
     corrispettivi: 'incasso giornaliero registratore di cassa scontrini serale contanti pos elettronico',
     'chiusura-tabacchi': 'serale aggio sigarette vendita lordo contanti pos levata giacenza',
     'chiusura-lotto': 'serale aggio giocate raccolta vincite contanti pos',
@@ -5235,6 +5297,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   };
   // voci del menu Altro e delle impostazioni (non stanno tra le azioni rapide)
   const RIC_VOCI = [
+    ['prorata', 'calc', 'purple', 'Calcolo Pro Rata', 'margine di un prodotto con l’IVA indetraibile del tabaccaio'],
     ['passi', 'passi', 'green', 'Contapassi', 'passi e chilometri di oggi, giorno per giorno'],
     ['moduli', 'store', 'blue', 'Tipo di attività', 'Tabaccheria, Bar, Bar Tabacchi · cosa c’è nel locale'],
     ['impostazioni', 'settings', 'grey', 'Impostazioni', 'Tema, giorni di chiusura, IVA predefinita'],
