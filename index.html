@@ -714,6 +714,12 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .btn-link svg { width: 28px; height: 28px; color: var(--c); flex: none; }
 .btn-link span { display: block; font-weight: 700; font-size: 14px; line-height: 1.15; min-width: 0; }
 .btn-link small { display: block; font-weight: 500; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+/* ---------- prima apertura: punti di responsabilità e testi completi a scomparsa ---------- */
+.acc-punti { margin: 6px 0 10px; padding-left: 18px; } .acc-punti li { margin: 6px 0; font-size: 14.5px; line-height: 1.4; }
+.acc-testi details { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 6px 0; background: var(--surface); }
+.acc-testi summary { font-weight: 700; color: var(--modo); cursor: pointer; font-size: 14px; }
+.acc-testi details > div { font-size: 13.5px; max-height: 260px; overflow: auto; margin-top: 6px; padding-right: 4px; }
+.acc-testi details > div h3 { font-size: 14px; margin: 10px 0 4px; }
 /* ---------- contapassi ---------- */
 .btn-passi { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 12px; padding: 7px 14px 7px 10px; border-radius: 22px; border: 1.5px solid color-mix(in srgb, var(--modo) 55%, var(--line)); background: var(--modo-t); color: var(--text); font-size: 14px; max-width: 100%; }
 .btn-passi svg { width: 24px; height: 24px; color: var(--modo); flex: none; }
@@ -1980,6 +1986,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   // ---------- Router ----------
   const routes = {};
   CT.route = (name, fn) => (routes[name] = fn);
+  CT.routeFn = (name) => routes[name]; // per mostrare una schermata di testo dentro una finestra (es. condizioni al primo avvio)
   CT.hasRoute = (name) => !!routes[name] || (String(name).startsWith('ins-') && !!routes._ins);
   CT.go = (name) => { if (location.hash === '#' + name) CT.render(); else location.hash = '#' + name; };
   CT.back = () => { if (history.length > 1) history.back(); else CT.go('home'); };
@@ -3017,6 +3024,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         mi(() => CT.toggleDemo(), 'idea', 'yellow', S().demo ? 'Esci dalla modalità Demo' : 'Modalità Demo', S().demo ? 'Rimuove i dati di esempio' : 'Carica dati di esempio per provare l’app')),
       h('div', { class: 'menu-h' }, 'Informazioni'),
       h('div', { class: 'menu' },
+        mi('condizioni', 'file', 'green', 'Condizioni d’uso', 'Responsabilità dell’utente e limiti dello sviluppatore'),
         mi('privacy', 'shield', 'green', 'Privacy', 'Informativa sul trattamento dei dati'),
         mi('gdpr', 'lock', 'green', 'GDPR', 'I tuoi diritti e come esercitarli'),
         mi('info-app', 'info', 'blue', 'Informazioni app', 'Versione ' + CT.VERSION),
@@ -3409,6 +3417,19 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 
   // ---------- Testi informativi ----------
   const textScreen = (route, title, color, html) => CT.route(route, (app) => { const body = CT.screen(app, { title, color }); body.appendChild(h('div', { class: 'panel prose', html })); });
+  textScreen('condizioni', 'Condizioni d’uso e responsabilità', 'green', `
+    <p><b>Leggi con attenzione: usando ContabilyTab accetti queste condizioni.</b> Versione del 28 ottobre 2026.</p>
+    <h3>1. Che cos'è l'app</h3><p>ContabilyTab è uno strumento di <b>annotazione, calcolo e raffronto</b> per l'attività dell'utente (tabaccheria, bar, bar tabacchi). <b>Non è</b> un software di contabilità ufficiale, non sostituisce il registratore telematico, i documenti dei concessionari, i registri e le dichiarazioni fiscali, né la consulenza di commercialisti, consulenti del lavoro o altri professionisti.</p>
+    <h3>2. A chi è destinata</h3><p>L'app è destinata a <b>titolari e addetti di attività commerciali</b>, maggiorenni, che la usano <b>nell'ambito della propria attività professionale</b>. Accettando, l'utente dichiara di rientrare in questa categoria.</p>
+    <h3>3. Responsabilità dell'utente</h3><p>L'utente è l'<b>unico responsabile</b>:</p><ul><li>della <b>correttezza, completezza e aggiornamento dei dati</b> che inserisce;</li><li>dell'<b>uso</b> che fa di calcoli, riepiloghi, confronti ed esportazioni dell'app;</li><li>degli <b>adempimenti fiscali, contabili, previdenziali e di legge</b> della propria attività;</li><li>della <b>custodia</b> del dispositivo, del PIN, delle password e dei backup;</li><li>della <b>conservazione dei dati</b>: senza un backup fatto dall'utente, i dati non sono recuperabili;</li><li>del <b>trattamento dei dati di terzi</b> (dipendenti, fornitori, clienti) che inserisce, di cui è titolare ai sensi del GDPR.</li></ul>
+    <h3>4. Nessuna garanzia</h3><p>L'app è fornita <b>«così com'è»</b> e «come disponibile». Non si garantisce che sia priva di errori, che i calcoli siano esatti in ogni situazione, che sia sempre disponibile o che funzioni su ogni dispositivo. Listini, tariffe e dati di riferimento incorporati (ad esempio la tariffa dei tabacchi) sono riportati <b>a titolo informativo</b>: fanno fede soltanto le fonti ufficiali.</p>
+    <h3>5. Limitazione di responsabilità</h3><p>Nei limiti massimi consentiti dalla legge, lo sviluppatore <b>non risponde</b> di danni diretti o indiretti, perdite di dati, mancati guadagni, sanzioni, errori di calcolo, interruzioni dell'attività o decisioni prese sulla base dei dati e dei risultati mostrati dall'app. Resta ferma la responsabilità per dolo o colpa grave, non escludibile per legge (art. 1229 c.c.).</p>
+    <h3>6. Dati e privacy</h3><p>L'app non invia dati a nessuno e non richiede il permesso internet: lo sviluppatore <b>non riceve, non vede e non tratta</b> i dati dell'utente. Vedi <a href="#privacy">Informativa privacy</a> e <a href="#gdpr">GDPR</a>.</p>
+    <h3>7. Aggiornamenti</h3><p>Lo sviluppatore può aggiornare l'app e queste condizioni. Le novità vengono mostrate alla prima apertura dopo l'aggiornamento e vanno riaccettate per continuare a usare l'app.</p>
+    <h3>8. Licenza d'uso</h3><p>Licenza personale, non esclusiva e non trasferibile, per i dispositivi dell'utente. Sono vietati copia, modifica, decompilazione e rivendita dell'app.</p>
+    <h3>9. Legge applicabile</h3><p>Si applica la legge italiana. Per le controversie è competente il foro della sede dello sviluppatore, salvo diversa norma inderogabile.</p>
+    <h3>10. Accettazione</h3><p>L'uso dell'app è subordinato all'accettazione di queste condizioni al primo avvio. Data e versione dell'accettazione sono salvate nel dispositivo dell'utente.</p>
+`);
   textScreen('privacy', 'Informativa privacy', 'green', `
     <h3>Dove sono i tuoi dati</h3><p>ContabilyTab salva tutti i dati (corrispettivi, aggi, spese, fatture, inventario, turni, impostazioni) <b>esclusivamente nella memoria di questo dispositivo</b>. L'app non ha server, non richiede registrazione, non invia dati a terzi, non usa strumenti di analisi o pubblicità.</p>
     <h3>Connessione a internet</h3><p>L'app funziona completamente offline. Nessuna funzione trasmette dati personali, contabili o finanziari all'esterno in modo automatico.</p>
@@ -4037,7 +4058,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 
     { k: 'sicurezza', t: 'Sicurezza', icon: 'shield', color: 'green', route: 'blocco', html: `
 <p><a href="#blocco"><b>Blocco con PIN</b></a>: protegge l'apertura dell'app; sul telefono con il lettore di impronte puoi attivare anche lo <b>sblocco con impronta</b> (il PIN resta come alternativa). Il blocco protegge l'apertura, non cifra l'archivio: per i file usa il backup cifrato.</p>
-<p>L'app non chiede il permesso internet, non partecipa al backup automatico di Google e si installa solo nella memoria interna del telefono. Tutto quello che inserisci resta lì. Leggi anche <a href="#privacy">Privacy</a> e <a href="#gdpr">GDPR</a>.</p>` },
+<p>L'app non chiede il permesso internet, non partecipa al backup automatico di Google e si installa solo nella memoria interna del telefono. Tutto quello che inserisci resta lì. Leggi anche <a href="#condizioni">Condizioni d'uso</a> (responsabilità dell'utente e limiti dello sviluppatore, accettate al primo avvio), <a href="#privacy">Privacy</a> e <a href="#gdpr">GDPR</a>.</p>` },
 
     { k: 'impostazioni', t: 'Impostazioni e personalizzazioni', icon: 'settings', color: 'grey', route: 'altro', html: `
 <p><a href="#impostazioni"><b>Impostazioni</b></a>: aspetto (automatico, chiaro, scuro), IVA predefinita, <b>giorni di chiusura settimanale</b> (usati dal controllo dei dati mancanti e dalle previsioni; i turni mostrano comunque tutta la settimana).</p>
@@ -5188,7 +5209,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     dipendenti: 'personale lavoratori', categorie: 'voci elenchi metodi conti', aliquote: 'iva percentuali 22 10 4',
     'percentuali-aggi': 'percentuale aggio calcolo automatico',
     'impostazioni-notifiche': 'notifiche promemoria orari controllo dati mancanti campanella avvisi',
-    blocco: 'pin password sicurezza impronta', privacy: 'informativa dati', gdpr: 'diritti dati',
+    blocco: 'pin password sicurezza impronta', privacy: 'informativa dati', gdpr: 'diritti dati', condizioni: 'termini responsabilita garanzia licenza legge',
     'info-app': 'versione informazioni', manuale: 'guida istruzioni spiegazioni aiuto come si usa come funziona', assistenza: 'guida aiuto contatti', suggerimenti: 'idee migliorie prossimo aggiornamento',
     altro: 'strumenti impostazioni menu', calc: 'calcolatrice calcolo somma',
     comande: 'bar tavoli tavolo banco ordine ordini ordinazione caffè cappuccino preparare incasso bar', listino: 'bar prezzi prezzo menu articoli caffè brioche aperitivo listino', moduli: 'tipo di attività tabaccheria bar bar tabacchi interruttori lotto gratta e vinci servizi tavoli',
@@ -5206,6 +5227,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     ['percentuali-aggi', 'trend', 'green', 'Percentuali aggi', 'Tabacchi, Lotto, Gratta e Vinci, servizi'],
     ['impostazioni-notifiche', 'bell', 'red', 'Notifiche e promemoria', 'Orari e controllo dati mancanti'],
     ['blocco', 'lock', 'grey', 'Blocco con PIN', 'Sicurezza all’apertura'],
+    ['condizioni', 'file', 'green', 'Condizioni d’uso', 'Responsabilità dell’utente e limiti dello sviluppatore'],
     ['privacy', 'shield', 'green', 'Privacy', 'Informativa sul trattamento dei dati'],
     ['gdpr', 'lock', 'green', 'GDPR', 'I tuoi diritti e come esercitarli'],
     ['info-app', 'info', 'blue', 'Informazioni app', 'Versione e novità'],
@@ -5331,7 +5353,20 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     document.body.appendChild(box); upd();
   }
 
-  // ---------- Prima apertura: responsabilità e privacy ----------
+  // ---------- Prima apertura: condizioni d'uso, responsabilità e privacy (versione del 28/10/2026) ----------
+  CT.TERMS_VER = '2026-10-28';
+  // i testi completi si leggono dentro la finestra (che è bloccata finché non si accetta)
+  const testoRoute = (route) => { const d = h('div'); const app = h('div'); CT.routeFn(route)(app); const p = app.querySelector('.panel.prose'); d.innerHTML = p ? p.innerHTML : ''; d.querySelectorAll('a[href^="#"]').forEach((a) => { a.removeAttribute('href'); }); return d; };
+  const leggiTesti = () => h('div', { class: 'acc-testi' },
+    h('details', null, h('summary', null, 'Leggi le Condizioni d’uso complete'), testoRoute('condizioni')),
+    h('details', null, h('summary', null, 'Leggi l’Informativa privacy'), testoRoute('privacy')),
+    h('details', null, h('summary', null, 'Leggi GDPR e i tuoi diritti'), testoRoute('gdpr')));
+  const puntiResponsabilita = () => h('ul', { class: 'acc-punti' },
+    h('li', null, h('b', null, 'I dati restano sul telefono.'), ' Nessun server, nessun invio: lo sviluppatore non riceve né vede i tuoi dati.'),
+    h('li', null, h('b', null, 'Sei tu il responsabile'), ' dei dati che inserisci, dell’uso che fai di calcoli e riepiloghi, degli adempimenti fiscali e contabili della tua attività, dei backup e della custodia del telefono.'),
+    h('li', null, h('b', null, 'L’app è uno strumento di annotazione e calcolo,'), ' fornita «così com’è»: non sostituisce la contabilità ufficiale né il commercialista. Nei limiti di legge lo sviluppatore non risponde di errori, perdite di dati, sanzioni o danni.'),
+    h('li', null, h('b', null, 'Uso professionale.'), ' Dichiari di essere maggiorenne e di usare l’app nell’ambito della tua attività.'));
+  const DICHIARAZIONE = 'Ho letto e accetto le Condizioni d’uso (compresa la limitazione di responsabilità) e l’Informativa privacy. Uso l’app nell’ambito della mia attività e sotto la mia esclusiva responsabilità.';
   function showAcceptance() {
     return new Promise((res) => {
       const chk = h('input', { type: 'checkbox', id: 'acc-chk' });
@@ -5340,38 +5375,38 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
       const tipoSeg = h('div', { class: 'seg c-blue', id: 'acc-tipo' });
       const drawTipo = () => tipoSeg.replaceChildren(...CT.TIPI_ATTIVITA.map((t) => h('button', { type: 'button', class: tipo === t.v ? 'on' : '', onclick: () => { tipo = t.v; drawTipo(); } }, t.l)));
       drawTipo();
-      const accSave = async () => { await CT.DB.saveSettings({ accepted: true, acceptedAt: new Date().toISOString(), privacyVer: CT.PRIVACY_VER, titolare: nome.value.trim(), tipoAttivita: tipo, moduli: Object.assign({}, CT.PRESET_MODULI[tipo]) }); if (CT.PRESET_MODULI[tipo].bar) await CT.listinoInit(); };
+      const accSave = async () => { await CT.DB.saveSettings({ accepted: true, acceptedAt: new Date().toISOString(), termsVer: CT.TERMS_VER, titolare: nome.value.trim(), tipoAttivita: tipo, moduli: Object.assign({}, CT.PRESET_MODULI[tipo]) }); if (CT.PRESET_MODULI[tipo].bar) await CT.listinoInit(); };
       const btn = h('button', { class: 'btn', disabled: true, onclick: async () => { await accSave(); s.close(); res(true); } }, 'Accetto e inizio');
       chk.addEventListener('change', () => (btn.disabled = !chk.checked));
       const s = CT.sheet({ title: 'Benvenuto in ContabilyTab', color: 'blue', wide: true, locked: true,
         body: h('div', { class: 'prose' },
-          h('p', null, h('b', null, 'I tuoi dati restano sul telefono.'), ' ContabilyTab salva tutto localmente nel dispositivo: non usa server, non invia dati a nessuno e funziona senza connessione.'),
-          h('h3', null, 'Responsabilità sui dati inseriti'),
-          h('p', null, 'L’app è uno strumento di annotazione e raffronto: i calcoli si basano esclusivamente sui dati che inserisci. Resta tua la responsabilità della correttezza dei dati, degli adempimenti fiscali e contabili e della conservazione dei backup. I riepiloghi non sostituiscono documenti ufficiali né la consulenza del commercialista.'),
-          h('h3', null, 'Backup'),
-          h('p', null, 'Se cambi telefono o disinstalli l’app, i dati non sono recuperabili senza un backup fatto da te (menu Backup). L’app ti ricorda di farlo.'),
+          h('p', { style: { marginTop: 0 } }, 'Prima di iniziare, quattro cose chiare:'),
+          puntiResponsabilita(),
+          leggiTesti(),
           h('div', { class: 'field', style: { marginTop: '12px' } }, h('label', null, 'Che locale hai? (si può cambiare in Altro → Tipo di attività)'), tipoSeg),
           h('div', { class: 'field', style: { marginTop: '12px' } }, h('label', { for: 'acc-nome' }, 'Come ti chiami? (per il saluto in Home)'), nome),
-          h('label', { class: 'switch', for: 'acc-chk', style: { marginTop: '8px' } }, h('span', null, 'Ho letto e accetto le condizioni d’uso e l’informativa privacy'), chk),
-          h('div', { class: 'btn-row', style: { marginTop: '10px' } }, h('button', { class: 'btn ghost', onclick: async () => { await accSave(); s.close(); await CT.loadDemo(); res(true); } }, 'Prova con dati DEMO'))),
+          h('label', { class: 'switch', for: 'acc-chk', style: { marginTop: '8px' } }, h('span', null, DICHIARAZIONE), chk),
+          h('div', { class: 'btn-row', style: { marginTop: '10px' } }, h('button', { class: 'btn ghost', disabled: true, onclick: async () => { await accSave(); s.close(); await CT.loadDemo(); res(true); } }, 'Prova con dati DEMO'))),
         footer: btn, onClose: () => { if (!CT.DB.settings.accepted) showAcceptance().then(res); } });
+      // anche il tasto DEMO richiede la spunta
+      chk.addEventListener('change', () => { const d = s.el.querySelector('.btn.ghost'); if (d) d.disabled = !chk.checked; });
     });
   }
 
-  // ---------- Informativa aggiornata: chi ha già accettato una versione precedente la rilegge e riconferma ----------
-  CT.PRIVACY_VER = '2026-10-28';
+  // condizioni o informativa cambiate dopo l'ultima accettazione: si rileggono e si riaccettano prima di continuare
   function showPrivacyUpdate() {
     return new Promise((res) => {
       const chk = h('input', { type: 'checkbox', id: 'acc-chk2' });
-      const btn = h('button', { class: 'btn', disabled: true, onclick: async () => { await CT.DB.saveSettings({ privacyVer: CT.PRIVACY_VER, privacyAcceptedAt: new Date().toISOString() }); s.close(); res(true); } }, 'Ho letto e accetto');
+      const btn = h('button', { class: 'btn', disabled: true, onclick: async () => { await CT.DB.saveSettings({ termsVer: CT.TERMS_VER, termsAcceptedAt: new Date().toISOString() }); s.close(); res(true); } }, 'Accetto e continuo');
       chk.addEventListener('change', () => (btn.disabled = !chk.checked));
-      const s = CT.sheet({ title: 'Informativa privacy aggiornata', color: 'green', locked: true,
+      const s = CT.sheet({ title: 'Condizioni d’uso e privacy aggiornate', color: 'green', wide: true, locked: true,
         body: h('div', { class: 'prose' },
-          h('p', null, 'Con questa versione l’informativa privacy è cambiata. ', h('b', null, 'Niente di nuovo sui tuoi dati: restano solo sul telefono.'), ' Le novità riguardano il contapassi:'),
-          h('ul', null, h('li', null, h('b', null, 'Attività fisica'), ': se attivi il contapassi, l’app legge il sensore passi del telefono (senza GPS). Passi e chilometri restano nel dispositivo.'), h('li', null, h('b', null, 'Funzionamento in sottofondo'), ': se lo consenti, serve solo alla lettura del sensore a mezzanotte.')),
-          h('p', { class: 'muted small' }, 'Il testo completo è sempre in Altro → Privacy e Altro → GDPR.'),
-          h('label', { class: 'switch', for: 'acc-chk2', style: { marginTop: '8px' } }, h('span', null, 'Ho letto l’informativa aggiornata'), chk)),
-        footer: btn, onClose: () => { if (CT.DB.settings.privacyVer !== CT.PRIVACY_VER) showPrivacyUpdate().then(res); } });
+          h('p', { style: { marginTop: 0 } }, 'Con questa versione sono cambiate le Condizioni d’uso e l’Informativa privacy. ', h('b', null, 'Sui tuoi dati niente di nuovo: restano solo sul telefono.'), ' In sintesi:'),
+          puntiResponsabilita(),
+          h('p', { class: 'muted small' }, 'Novità dell’informativa: il contapassi (permesso «Attività fisica» e funzionamento in sottofondo, solo se li attivi; passi e chilometri restano nel telefono).'),
+          leggiTesti(),
+          h('label', { class: 'switch', for: 'acc-chk2', style: { marginTop: '8px' } }, h('span', null, DICHIARAZIONE), chk)),
+        footer: btn, onClose: () => { if (CT.DB.settings.termsVer !== CT.TERMS_VER) showPrivacyUpdate().then(res); } });
     });
   }
 
@@ -5381,7 +5416,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
     CT.applyTheme();
     if (CT.lock && CT.lock.isOn()) await CT.lock.show();
     if (!CT.DB.settings.accepted) { CT.render(); await showAcceptance(); }
-    else if (CT.DB.settings.privacyVer !== CT.PRIVACY_VER) { CT.render(); await showPrivacyUpdate(); }
+    else if (CT.DB.settings.termsVer !== CT.TERMS_VER) { CT.render(); await showPrivacyUpdate(); }
     CT.render();
     CT.DB.onChange(() => { if (CT.current() === 'home') { clearTimeout(boot._t); boot._t = setTimeout(() => { if (CT.sheets.length) CT._homeDirty = true; else CT.render(); }, 50); } clearTimeout(boot._n); boot._n = setTimeout(() => CT.notif.schedule().catch(() => {}), 1500); });
     // controllo automatico dati mancanti (una volta al giorno, ad app aperta)
