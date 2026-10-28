@@ -364,10 +364,13 @@ input, select, textarea { font: inherit; color: var(--text); }
 
 /* tables */
 .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
-.tbl th, .tbl td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-.tbl th:first-child, .tbl td:first-child { text-align: left; }
-.tbl th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); background: var(--surface-2); font-weight: 700; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; table-layout: auto; }
+.tbl th, .tbl td { padding: 8px 5px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; white-space: normal; overflow-wrap: normal; word-break: normal; line-height: 1.25; }
+.tbl td.num { white-space: nowrap; }
+.tbl th { font-size: 11px; text-transform: uppercase; letter-spacing: .02em; color: var(--muted); background: var(--surface-2); font-weight: 700; }
+/* 4 colonne: caratteri un po' più piccoli; 5 o più: ancora più compatti. Così stanno in 360 px senza scorrere */
+.tbl.c4 { font-size: 11.5px; } .tbl.c4 th, .tbl.c4 td { padding: 7px 3px; } .tbl.c4 th { font-size: 10.5px; letter-spacing: 0; }
+.tbl.stretta { font-size: 11px; } .tbl.stretta th, .tbl.stretta td { padding: 7px 2px; } .tbl.stretta th { font-size: 10px; letter-spacing: 0; }
 .tbl tr:last-child td { border-bottom: 0; }
 .tbl tfoot td { font-weight: 800; background: var(--surface-2); }
 /* griglia dei turni: ogni cella leggermente contornata */
@@ -2218,10 +2221,15 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
   CT.kpi = (label, value, { delta, color, main, sub } = {}) => h('div', { class: 'kpi' + (main ? ' main' : '') + (color ? ' c-' + color : '') }, h('div', { class: 'k' }, label), h('div', { class: 'v' }, value), delta != null ? h('div', { class: 'd ' + (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat') }, CT.fmtPct(delta) + ' vs mese prec.') : sub ? h('div', { class: 'd muted' }, sub) : null);
 
   // tabella semplice
-  CT.table = (head, rows, { foot, align } = {}) => h('div', { class: 'tbl-wrap' }, h('table', { class: 'tbl' },
+  // tabelle dei riepiloghi: tutto centrato; i numeri stanno su una riga, le scritte lunghe vanno a capo; con 5 o più colonne caratteri più piccoli,
+  // così la tabella sta nello schermo del telefono senza scorrere di lato (richiesta del 28/10/2026)
+  const testoCella = (c) => (c == null ? '' : typeof c === 'object' && c.textContent != null ? c.textContent : String(c)).trim();
+  const isNum = (c) => /^[-+−]?\s*(€\s*)?[\d.,]+\s*(%|€|h|pz)?$/.test(testoCella(c)) || /^[-+−]?\s*€\s*[\d.,]+/.test(testoCella(c)) || /^\d{1,2}:\d{2}(\s*[-–]\s*\d{1,2}:\d{2})?$/.test(testoCella(c));
+  const cella = (tag, c, i, align) => h(tag, { class: isNum(c) ? 'num' : null, style: align && align[i] ? { textAlign: align[i] } : null }, c);
+  CT.table = (head, rows, { foot, align } = {}) => h('div', { class: 'tbl-wrap' }, h('table', { class: 'tbl' + (head.length >= 5 ? ' stretta' : head.length === 4 ? ' c4' : '') },
     h('thead', null, h('tr', null, head.map((x) => h('th', null, x)))),
-    h('tbody', null, rows.map((r) => h('tr', null, r.map((c, i) => h('td', { style: align && align[i] ? { textAlign: align[i] } : null }, c))))),
-    foot ? h('tfoot', null, h('tr', null, foot.map((c) => h('td', null, c)))) : null));
+    h('tbody', null, rows.map((r) => h('tr', null, r.map((c, i) => cella('td', c, i, align))))),
+    foot ? h('tfoot', null, h('tr', null, foot.map((c, i) => cella('td', c, i, align)))) : null));
 })();
 
 /* ContabilyTab — schermate giornaliere: corrispettivi, chiusure serali, aggi settimanali, POS, contanti */
