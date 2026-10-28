@@ -4367,10 +4367,22 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         if (L.length < 2) return;
         const ultimo = Number(DB().kv('passiUltimaLettura')) || 0;
         const g = Object.assign({}, giorni()); let cambiato = false; let prev = null;
+        // ogni lettura è [istante, valore]; i passi tra due letture vanno al giorno (da mezzanotte a mezzanotte) in cui sono stati fatti:
+        // se l'intervallo scavalca la mezzanotte, si dividono in proporzione al tempo passato prima e dopo (c'è comunque una lettura apposta a mezzanotte)
+        const aggiungi = (t1, t2, d) => {
+          let t = t1, resto = d; const tot = t2 - t1;
+          while (resto > 0) {
+            const g0 = new Date(t); const mezzanotte = new Date(g0.getFullYear(), g0.getMonth(), g0.getDate() + 1).getTime();
+            const fine = Math.min(t2, mezzanotte); const quota = fine >= t2 ? resto : Math.round(d * (fine - t) / tot);
+            const k = CT.iso(g0); g[k] = (g[k] || 0) + quota; resto -= quota; t = fine;
+            if (fine >= t2) break;
+          }
+          cambiato = true;
+        };
         for (const r of L) {
           if (prev && r[0] > ultimo) {
             const d = r[1] >= prev[1] ? r[1] - prev[1] : r[1]; // dopo un riavvio il contatore riparte da zero
-            if (d > 0 && d < 200000) { const k = CT.iso(new Date(r[0])); g[k] = (g[k] || 0) + d; cambiato = true; }
+            if (d > 0 && d < 200000) aggiungi(prev[0], r[0], d);
           }
           prev = r;
         }
@@ -4395,7 +4407,12 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         if (!CT.passi.attivo()) return h('div', { class: 'passi-box' }, h('button', { class: 'btn-passi off', onclick: async () => { if (await CT.passi.attiva()) CT.render(); } }, CT.svg('passi'), h('span', null, 'Attiva il contapassi')), motto);
         const n = CT.passi.oggi();
         const el = h('button', { class: 'btn-passi', 'aria-label': 'Contapassi', onclick: () => CT.go('passi') }, CT.svg('passi'), h('div', { class: 'tx' }, h('small', null, 'Contapassi'), h('div', null, h('b', null, CT.qty(n)), h('span', null, 'passi · ' + CT.passi.kmTxt(n)))));
-        CT.passi.aggiorna().then((r) => { if (!r || !el.isConnected) return; const m = CT.passi.oggi(); el.querySelector('b').textContent = CT.qty(m); el.querySelector('span').textContent = 'passi · ' + CT.passi.kmTxt(m); });
+        // si aggiorna da solo: subito, poi ogni 20 secondi finché la Home è a video, e ogni volta che si torna sull'app
+        const mostra = () => { if (!el.isConnected) return false; const m = CT.passi.oggi(); el.querySelector('b').textContent = CT.qty(m); el.querySelector('span').textContent = 'passi · ' + CT.passi.kmTxt(m); return true; };
+        const ricarica = () => { if (!el.isConnected || document.hidden) return; CT.passi.aggiorna().then((r) => { if (r) mostra(); }); };
+        setTimeout(ricarica, 0); // appena il contatorino è a video
+        clearInterval(CT.passi._timer); CT.passi._timer = setInterval(() => { if (!el.isConnected) { clearInterval(CT.passi._timer); return; } ricarica(); }, 20000);
+        CT.passi._ricarica = ricarica;
         return h('div', { class: 'passi-box' }, el, motto);
       },
     };
@@ -4408,7 +4425,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
         cont.replaceChildren();
         const oggi = CT.today(); const g = giorni(); const n = g[oggi] || 0;
         if (!CT.passi.disponibile()) { cont.appendChild(h('div', { class: 'empty c-' + col }, CT.svg('passi'), h('b', null, 'Il contapassi funziona nell’app installata'), h('span', null, 'Usa il sensore passi del telefono (Android e iPhone). Nella versione aperta dal browser non è disponibile.'))); return; }
-        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-' + col, style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica».'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
+        if (!CT.passi.attivo()) { cont.appendChild(h('div', { class: 'panel c-' + col, style: { textAlign: 'center' } }, h('p', null, h('b', null, 'Unisci il lavoro all’attività fisica'), h('br'), 'per il benessere della testa e del cuore.'), h('p', { class: 'muted small' }, 'Il telefono conta i passi con il suo sensore, anche ad app chiusa, senza GPS e senza consumare batteria. I passi restano solo nel telefono. Al primo avvio Android chiede il permesso «Attività fisica». Conta da mezzanotte a mezzanotte: sui telefoni Samsung non mettere ContabilyTab tra le «app in sospensione profonda», altrimenti il telefono le impedisce la lettura di mezzanotte.'), h('button', { class: 'btn block', onclick: async () => { if (await CT.passi.attiva()) draw(); } }, CT.svg('passi'), 'Attiva il contapassi'))); return; }
         // oggi
         cont.appendChild(h('div', { class: 'panel passi-oggi c-' + col },
           h('div', { class: 'ic' }, CT.svg('passi')),
@@ -4439,8 +4456,13 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
           h('button', { class: 'link', style: { marginTop: '10px', color: 'var(--red)' }, onclick: async () => { if (await CT.confirm('Disattivare il contapassi? I giorni già registrati restano.')) { await CT.passi.disattiva(); draw(); } } }, 'Disattiva il contapassi')));
       };
       draw();
-      CT.passi.aggiorna().then((r) => { if (r) draw(); });
+      const ricarica = () => { if (document.hidden || CT.current() !== 'passi') return; CT.passi.aggiorna().then((r) => { if (r && CT.current() === 'passi') draw(); }); };
+      ricarica();
+      clearInterval(CT.passi._timer); CT.passi._timer = setInterval(() => { if (CT.current() !== 'passi') { clearInterval(CT.passi._timer); return; } ricarica(); }, 30000);
+      CT.passi._ricarica = ricarica;
     });
+    // quando si torna sull'app (da un'altra app o dallo schermo spento) il contatore si rilegge subito
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && CT.passi._ricarica) setTimeout(CT.passi._ricarica, 300); });
   })();
 
   // ---------- Barra inferiore: Home · Inserisci · Chiusura · Listino · Altro (rifatta il 27/10/2026) ----------
