@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="it">
+<head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1F6FE6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ContabilyWork"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>ContabilyWork</title>
+<style>
+/* ContabilyWork — turni del personale settimana per settimana: mattina/sera, ore, riepilogo del mese. Tutto nel telefono, niente rete. */
+:root {
+  --bg: #ffffff; --surface: #ffffff; --surface-2: #f5f7fb; --text: #16203a; --muted: #5b6684; --line: #e2e8f3;
+  --c: #1f6fe6; --c-t: #eaf2fe; --c-scuro: #1430c4; --c-fondo: #1f6fe6; --oro: #1f6fe6; --titolo: #1430c4; --green: #2c9b3c; --green-t: #ecf7ee; --rol: #1d6fa5; --rol-t: #e3f1fb; --sep: #cfd6e4; --fest: #8a6400; --fest-t: #fff2cc; --red: #e2393a; --red-t: #fdeced; --toast: #16203a;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --tab-h: 64px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1420; --surface: #171e2d; --surface-2: #1c2436; --text: #e9eefa; --muted: #9aa6c2; --line: #2a3448; --c: #5b9bff; --c-t: #1a2a47; --c-scuro: #8fa6ff; --c-fondo: #2457c5; --oro: #5b9bff; --titolo: #8fa6ff; --green: #4cc463; --green-t: #173022; --rol: #7cc3f0; --rol-t: #16303f; --sep: #3a4560; --fest: #f2c94c; --fest-t: #3a3115; --red: #ff6466; --red-t: #3c1d22; --toast: #33405e; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1420; --surface: #171e2d; --surface-2: #1c2436; --text: #e9eefa; --muted: #9aa6c2; --line: #2a3448; --c: #5b9bff; --c-t: #1a2a47; --c-scuro: #8fa6ff; --c-fondo: #2457c5; --oro: #5b9bff; --titolo: #8fa6ff; --green: #4cc463; --green-t: #173022; --rol: #7cc3f0; --rol-t: #16303f; --sep: #3a4560; --fest: #f2c94c; --fest-t: #3a3115; --red: #ff6466; --red-t: #3c1d22; --toast: #33405e; color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.35; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.top { background: var(--c-fondo); color: #fff; padding-block: 10px 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 11; background: var(--c-fondo); }
+.marca { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 12%, var(--bg)), var(--bg)); color: var(--text); padding-block: 10px 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); text-align: center; }
+.marca .barra { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; margin-bottom: 8px; }
+.marca .barra > :first-child { justify-self: start; } .marca .barra > :last-child { justify-self: end; }
+.marca .barra .pill { padding: 6px 10px; gap: 6px; max-width: 100%; min-width: 0; }
+.marca .barra .pill span { white-space: nowrap; }
+/* se i tre tasti non entrano nella riga (telefono stretto o caratteri grandi): prima via le icone, poi testo un po' più piccolo */
+.marca .barra.stretta .pill svg { display: none; }
+.marca .barra.stretta .pill { padding: 6px 9px; }
+.marca .barra.strettissima .pill { font-size: 14px; padding: 5px 7px; }
+.marca .pill { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(20,30,60,.10); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.marca button.pill { font-size: 16px; }
+.marca .pill svg { width: 22px; height: 22px; flex: none; color: var(--c); }
+.marca button.pill:active { background: var(--c-t); }
+.marca h2 { margin: 0; font-size: clamp(34px, 9.5vw, 52px); line-height: 1; font-weight: 800; letter-spacing: -.02em; color: var(--titolo); }
+.marca h2 span { color: var(--oro); }
+.marca .motto { margin: 4px 0 0; font-size: clamp(17px, 4.2vw, 22px); font-weight: 700; color: var(--text); }
+.marca .oggi { margin: 4px 0 0; font-size: 16px; color: var(--muted); text-transform: capitalize; }
+.cerca-in { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 0 12px; min-height: 48px; margin-bottom: 12px; }
+.cerca-in svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.cerca-in input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 17px; min-width: 0; }
+.ris { display: grid; gap: 8px; }
+.ris .voce .ic { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--c-t); color: var(--c); display: grid; place-items: center; }
+.ris .voce .ic svg { width: 22px; height: 22px; }
+.top h1 { margin: 0; font-size: 22px; font-weight: 800; }
+.top small { display: block; opacity: .9; font-size: 14px; margin-top: 2px; }
+main { padding-block: 12px calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 16px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 640px; margin: 0 auto; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.panel h3 { margin: 0 0 6px; font-size: 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.panel h3 span { color: var(--muted); font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
+.riga { display: grid; grid-template-columns: 78px 1fr 92px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.riga:last-child { border-bottom: 0; }
+.nota { height: 42px; border-radius: 6px; display: grid; place-items: center; font-weight: 800; font-size: 16px; color: #1b2433; border: 1px solid rgba(0,0,0,.12); }
+.moneta { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #3a2a00; margin: 0 auto; border: 1px solid rgba(0,0,0,.15); }
+.step { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.step button { width: 40px; height: 42px; flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; font-size: 22px; font-weight: 700; color: var(--c); padding: 0; }
+.step input { width: 100%; min-width: 0; height: 42px; border: 1px solid var(--line); border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; background: var(--surface); }
+.riga .sub { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.totale { position: sticky; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 8px); background: var(--c); color: #fff; border-radius: 14px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 12px; z-index: 5; }
+.totale span { font-weight: 700; letter-spacing: .03em; }
+.totale b { font-size: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.campo { display: grid; gap: 4px; margin-bottom: 10px; }
+.campo label { font-weight: 600; color: var(--muted); font-size: 14px; }
+.soldi { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 0 12px; height: 46px; }
+.soldi span { color: var(--muted); margin-right: 6px; }
+.soldi input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 18px; font-weight: 700; }
+.campo textarea, .campo input.testo { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 12px; min-height: 46px; width: 100%; }
+.conto { background: var(--c-t); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; }
+.conto .r { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.conto .r b { white-space: nowrap; }
+.su { color: var(--green); } .giu { color: var(--red); }
+.tasti { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.btn { flex: 1 1 auto; white-space: nowrap; min-height: 48px; border-radius: 12px; border: 0; background: var(--c-fondo); color: #fff; font-weight: 700; font-size: 16px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.ghost { background: var(--surface); color: var(--c); border: 1.5px solid var(--line); }
+.btn.rosso { background: var(--red-t); color: var(--red); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.lista { display: grid; gap: 8px; }
+.voce { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.voce .data { flex: none; width: 52px; height: 52px; border-radius: 12px; background: var(--c-t); color: var(--c); display: grid; place-items: center; line-height: 1.05; text-align: center; }
+.voce .data b { font-size: 18px; } .voce .data small { font-size: 12px; font-weight: 700; }
+.voce .mid { flex: 1; min-width: 0; } .voce .mid b { display: block; } .voce .mid small { color: var(--muted); display: block; }
+.voce .imp { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vuoto { text-align: center; color: var(--muted); padding: 30px 10px; border: 1.5px dashed var(--line); border-radius: 14px; }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, 1fr); z-index: 20; }
+.tabbar button { border: 0; background: none; display: grid; place-items: center; align-content: center; gap: 2px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.tabbar button svg { width: 24px; height: 24px; }
+.tabbar button.on { color: var(--c); }
+.foglio-ov { position: fixed; inset: 0; background: rgba(10,15,30,.45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.foglio { background: var(--bg); width: 100%; max-width: 640px; max-height: 92vh; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.foglio .fh { background: var(--c-fondo); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.foglio .fh b { font-size: 18px; }
+.foglio .fh button { border: 0; background: none; color: #fff; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; }
+.foglio .fb { padding: 14px 16px; overflow: auto; }
+.foglio .ff { padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; }
+table.dett { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.dett td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+table.dett td:nth-child(2), table.dett td:nth-child(3) { text-align: right; white-space: nowrap; }
+.toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 76px); transform: translateX(-50%); background: var(--toast); color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 60; max-width: 86vw; text-align: center; }
+.prosa p { margin: 0 0 10px; } .prosa h4 { margin: 14px 0 6px; }
+.prosa ul, ul.punti { margin: 0 0 10px; padding-left: 20px; } .prosa li, ul.punti li { margin-bottom: 6px; }
+.prosa .agg { color: var(--muted); font-size: 13px; }
+.docs { display: grid; gap: 8px; }
+details.doc { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+details.doc summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; font-weight: 700; min-height: 48px; }
+details.doc summary::-webkit-details-marker { display: none; }
+details.doc summary .chev { color: var(--c); font-size: 22px; transition: transform .15s; flex: none; }
+details.doc[open] summary .chev { transform: rotate(90deg); }
+details.doc > .prosa { padding: 0 14px 4px; border-top: 1px solid var(--line); padding-top: 10px; }
+.btn:disabled { opacity: .45; }
+.avviso-info { background: var(--c-t); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.avviso-info p { margin: 0 0 10px; }
+.avviso-info .btn { width: 100%; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+
+/* griglia dei turni */
+.nav-sett { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.nav-sett button.freccia { flex: none; width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--c); font-size: 22px; font-weight: 800; padding: 0; }
+.nav-sett .lbl { flex: 1; min-width: 0; height: 46px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--c-t); color: var(--c-scuro); font-weight: 800; text-align: center; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.griglia-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; margin-bottom: 8px; background: var(--surface); }
+table.griglia { border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 100%; }
+table.griglia th, table.griglia td { border: 1px solid var(--line); text-align: center; font-size: 13px; padding: 0; }
+table.griglia th { background: var(--surface-2); padding: 6px 4px; font-weight: 700; white-space: nowrap; }
+table.griglia th.slot { font-weight: 500; color: var(--muted); }
+table.griglia td.pers { position: sticky; left: 0; z-index: 1; background: var(--surface); padding: 6px 8px; text-align: left; font-weight: 800; white-space: nowrap; }
+table.griglia td.pers i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+table.griglia th.pers-h { position: sticky; left: 0; z-index: 2; }
+table.griglia td.cella button { width: 66px; min-height: 42px; border: 0; background: transparent; color: var(--line); font-size: 13px; font-weight: 700; padding: 2px; line-height: 1.15; }
+table.griglia td.cella button.pieno { color: #fff; }
+table.griglia td.cella button.libero { color: var(--muted); font-weight: 600; }
+table.griglia td.tot { font-weight: 800; padding: 6px 8px; white-space: nowrap; }
+table.griglia tr.ore td { color: var(--muted); font-size: 12px; padding: 3px; }
+.persona { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.persona:last-child { border-bottom: 0; }
+.persona i { width: 22px; height: 22px; border-radius: 50%; flex: none; }
+.persona b { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.persona button { flex: none; }
+.colori { display: flex; flex-wrap: wrap; gap: 10px; }
+.colori button { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; padding: 0; }
+.colori button.on { border-color: var(--text); }
+.ora { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); height: 46px; padding: 0 10px; font-size: 17px; font-weight: 700; width: 100%; }
+.due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; }
+.riep td:last-child { text-align: right; font-weight: 700; }
+details.mese { border-top: 1px solid var(--line); padding: 10px 0; }
+details.mese summary { cursor: pointer; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; list-style: none; }
+details.mese summary::-webkit-details-marker { display: none; }
+details.mese summary span { color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+.chips-riga { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.chip { flex: none; border: 1.5px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; min-height: 40px; padding: 0 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.chip i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.chip.on { background: var(--c-fondo); border-color: var(--c-fondo); color: #fff; }
+.stati { display: flex; flex-wrap: wrap; gap: 8px; }
+table.giorn { border-collapse: collapse; width: 100%; table-layout: fixed; font-variant-numeric: tabular-nums; }
+table.giorn th { background: var(--c-fondo); color: #fff; font-size: 13px; padding: 8px 4px; text-align: center; line-height: 1.15; border-left: 1px solid color-mix(in srgb, #fff 35%, transparent); }
+table.giorn th:first-child { border-left: 0; }
+table.giorn td { border-top: 1px solid var(--sep); border-left: 1px solid var(--sep); padding: 8px 4px; text-align: center; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+table.giorn td:first-child { border-left: 0; }
+table.giorn tbody tr { cursor: pointer; }
+table.giorn tr.dom td { background: var(--surface-2); color: var(--muted); }
+table.giorn tr.oggi td { box-shadow: inset 0 2px 0 var(--c), inset 0 -2px 0 var(--c); }
+table.giorn td.num { font-weight: 700; }
+table.giorn td.gg { text-align: left; padding-left: 12px; }
+table.giorn th:first-child { text-align: left; padding-left: 12px; }
+@media (max-width: 380px) { table.giorn th, table.giorn td { padding: 8px 2px; font-size: 13px; } table.giorn td.gg, table.giorn th:first-child { padding-left: 8px; } table.giorn .pill { padding: 2px 6px; } }
+table.giorn tfoot td { background: var(--c-t); font-weight: 800; border-top: 2px solid var(--c); }
+.pill { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 800; }
+.pill.lavoro { background: var(--c-t); color: var(--c-scuro); }
+.pill.libero { background: var(--surface-2); color: var(--muted); }
+.pill.ferie { background: var(--green-t); color: var(--green); }
+.pill.rol { background: var(--rol-t); color: var(--rol); }
+.pill.malattia { background: var(--red-t); color: var(--red); }
+
+/* giornaliera: due tipi */
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 12px; }
+.seg button { border: 0; background: transparent; border-radius: 9px; min-height: 42px; font-weight: 700; color: var(--muted); padding: 0 6px; }
+.seg button.on { background: var(--c-fondo); color: #fff; }
+.pill.riposo { background: var(--surface-2); color: var(--muted); }
+.pill.festivita { background: var(--fest-t); color: var(--fest); }
+/* orari preimpostati */
+.veloci .btn.veloce { flex: 1 1 96px; flex-direction: column; gap: 0; min-height: 58px; line-height: 1.15; font-size: 15px; padding: 0 6px; }
+.veloci .btn.veloce small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.link { border: 0; background: none; color: var(--c); font-weight: 700; padding: 4px 0 12px; text-decoration: underline; text-underline-offset: 3px; }
+.orario { border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; }
+.orario-testa { display: flex; gap: 8px; margin-bottom: 8px; }
+.orario-testa input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 12px; min-height: 46px; }
+.orario .campo { margin-bottom: 0; }
+/* turni: come la griglia di ContabilyTab */
+.due-tasti .btn { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.2; padding: 6px 8px; text-align: center; font-size: 15px; gap: 6px; }
+.due-tasti .btn svg { width: 18px; height: 18px; }
+.top.con-tasto { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.icona-top { flex: none; width: 44px; height: 44px; border: 0; background: transparent; color: #fff; padding: 0; display: grid; place-items: center; }
+.icona-top svg { width: 26px; height: 26px; }
+.monthnav { display: flex; align-items: center; justify-content: space-between; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.monthnav button { border: 0; background: transparent; width: 44px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--c); font-size: 26px; font-weight: 700; padding: 0; }
+.monthnav .lbl { flex: 1; width: auto; text-align: center; font-weight: 700; font-size: 16px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { padding: 8px 5px; border-bottom: 1px solid var(--sep); border-left: 1px solid var(--sep); text-align: center; vertical-align: middle; line-height: 1.25; }
+.tbl th:first-child, .tbl td:first-child { border-left: 0; }
+.tbl th { font-size: 11px; text-transform: uppercase; letter-spacing: .02em; color: var(--muted); background: var(--surface-2); font-weight: 700; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tfoot td { font-weight: 800; background: var(--surface-2); }
+.tbl.grid { table-layout: fixed; width: max-content; min-width: 100%; }
+.tbl.grid th, .tbl.grid td { border: 1px solid color-mix(in srgb, var(--c) 28%, var(--line)); overflow: hidden; text-overflow: ellipsis; padding-inline: 4px; white-space: nowrap; }
+.tbl.grid th:first-child, .tbl.grid td:first-child { border-left: 0; }
+.tbl.grid th:last-child, .tbl.grid td:last-child { border-right: 0; }
+.tbl.grid tr:first-child th { border-top: 0; }
+.tbl.grid th.gs { text-transform: none; letter-spacing: 0; }
+/* separatore marcato tra un giorno e l'altro */
+.tbl.grid .gg-inizio { border-left: 2.5px solid var(--c-scuro) !important; }
+.tbl.grid tr.pr td { border-top: 2px solid color-mix(in srgb, var(--c) 45%, var(--line)); }
+.tbl.grid th.sl { font-weight: 500; }
+.tbl.grid td.cella { padding: 0; }
+.tbl.grid td.cella button { width: 100%; min-height: 42px; border: 0; border-radius: 0; background: transparent; color: var(--line); font-size: 13px; font-weight: 700; padding: 0 2px; }
+.tbl.grid td.cella button.libero { color: var(--muted); font-weight: 600; }
+.tbl.grid td.cella button.pieno { font-weight: 500; }
+.tbl.grid tr.pr td.pers b { color: var(--pc); }
+.tbl.grid tr.pr td.pers { background: color-mix(in srgb, var(--pc) 16%, var(--surface)); }
+.tbl.grid tr.pr td.pers b { color: color-mix(in srgb, var(--pc) 80%, var(--text)); }
+.tbl.grid tr.ore td { background: color-mix(in srgb, var(--pc) 7%, var(--surface)); color: var(--muted); font-size: 12px; }
+.riga-spunta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 4px 0 12px; }
+.spunta { width: 26px; height: 26px; flex: none; accent-color: var(--c); }
+.storico-mese summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+.storico-mese summary::-webkit-details-marker { display: none; }
+.storico-mese summary small { font-size: 12.5px; line-height: 1.3; }
+.storico-mese .chev { margin-left: auto; flex: none; font-size: 24px; color: var(--muted); transition: transform .2s; }
+.storico-mese[open] .chev { transform: rotate(90deg); }
+.storico-mese + .storico-mese { border-top: 1px solid var(--line); }
+.storico-mese .tbl td { white-space: nowrap; }
+.tbl.fisse { table-layout: fixed; }
+.tbl.fisse th, .tbl.fisse td { padding-inline: 2px; overflow-wrap: break-word; white-space: normal; line-height: 1.25; }
+.tbl.fisse th { letter-spacing: 0; font-size: 10.5px; }
+@media (max-width: 380px) { .tbl.fisse td { font-size: 12px; } }
+.mese-dot { width: 42px; height: 42px; border-radius: 12px; background: var(--c-t); color: var(--c); display: grid; place-items: center; font-weight: 700; font-size: 12px; flex: none; }
+
+/* calendario */
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--sep); border-radius: 12px; overflow: hidden; background: var(--surface); margin-bottom: 12px; }
+.cal-testa { background: var(--c-fondo); color: #fff; text-align: center; font-size: 12px; font-weight: 700; padding: 6px 0; border-left: 1px solid color-mix(in srgb, #fff 35%, transparent); }
+.cal-testa:nth-child(7n+1) { border-left: 0; }
+.cal-giorno, .cal-vuoto { min-height: 66px; border-top: 1px solid var(--sep); border-left: 1px solid var(--sep); background: var(--surface); padding: 4px 3px; text-align: left; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cal > :nth-child(7n+1) { border-left: 0; }
+.cal-vuoto { background: var(--surface-2); }
+.cal-giorno { border-radius: 0; border-right: 0; border-bottom: 0; color: var(--text); font: inherit; cursor: pointer; }
+.cal-giorno b { font-size: 14px; }
+.cal-giorno.festa { background: var(--surface-2); } .cal-giorno.festa b { color: var(--muted); }
+.cal-giorno.oggi b { background: var(--c-fondo); color: #fff; border-radius: 999px; padding: 0 6px; align-self: flex-start; }
+.cal-segni { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cal-barra { display: block; height: 13px; border-radius: 4px; font-size: 9px; line-height: 13px; font-weight: 800; color: #1b1b1b; text-align: center; overflow: hidden; white-space: nowrap; }
+.cal-segno { display: inline-grid; place-items: center; height: 13px; min-width: 14px; padding: 0 3px; border-radius: 4px; font-size: 9px; font-weight: 800; overflow: hidden; white-space: nowrap; }
+.cal-segno.ferie { background: var(--green-t); color: var(--green); } .cal-segno.rol { background: var(--rol-t); color: var(--rol); } .cal-segno.malattia { background: var(--red-t); color: var(--red); }
+.cal-segni .cal-segno { display: grid; width: 100%; }
+.cal-legenda { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; }
+.cal-legenda > span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-legenda i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.cal-legenda i.mini { display: none; }
+.cal-pers { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.cal-pers:last-child { border-bottom: 0; }
+.cal-nome { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cal-nome i { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+.cal-slot { flex-direction: column; gap: 0; min-height: 56px; line-height: 1.15; }
+.cal-slot small { font-size: 12px; font-weight: 600; opacity: .8; }
+.tabbar button { font-size: 12px; }
+
+/* avvisi e promemoria */
+.a-capo .btn { white-space: normal; line-height: 1.2; padding-block: 6px; text-align: center; }
+.panel.avvisi { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); background: color-mix(in srgb, var(--red-t) 60%, var(--surface)); }
+.panel.avvisi h3 { color: var(--red); }
+.panel.avvisi p { margin: 4px 0; font-size: 14px; }
+.avviso-fine { display: flex; gap: 10px; align-items: center; background: var(--fest-t); color: var(--fest); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-weight: 700; }
+.avviso-fine svg { width: 22px; height: 22px; flex: none; }
+td.su { color: var(--green); font-weight: 700; } td.giu { color: var(--red); font-weight: 700; }
+/* calcolatrice a scomparsa (come ContabilyTab) */
+.calcpad { position: fixed; z-index: 50; right: 12px; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 12px); width: min(340px, calc(100vw - 24px)); background: #1e2433; color: #fff; border-radius: 20px; box-shadow: 0 14px 40px rgba(0,0,0,.4); padding: 12px; }
+.calcpad .bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; }
+.calcpad .bar span { font-size: 14px; opacity: .75; }
+.calcpad .bar button { border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 10px; height: 36px; padding: 0 12px; font-size: 14px; }
+.calcpad .disp { text-align: right; padding: 4px 6px 10px; min-height: 76px; }
+.calcpad .expr { font-size: 15px; opacity: .65; min-height: 20px; overflow-wrap: anywhere; }
+.calcpad .res { font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calcpad .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.calcpad .keys button { height: 54px; border: 0; border-radius: 14px; background: #2f3748; color: #fff; font-size: 22px; padding: 0; }
+.calcpad .keys button.op { background: #3c4a6b; color: #9ec1ff; }
+.calcpad .keys button.eq { background: var(--c-fondo); color: #fff; }
+.calcpad .keys button.fn { background: #444c5c; font-size: 18px; }
+.calcpad .keys button:active { filter: brightness(1.25); }
+
+/* stile «Contabily» (30/10/2026): stessi colori, sfondo grigio-azzurro chiaro, schede con ombra morbida, barra in alto sfumata */
+:root:not([data-theme="dark"]) { --bg: #f1f4fa; --line: #e3e8f2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f1420; --line: #2a3448; } }
+:root[data-theme="dark"] { --bg: #0f1420; --line: #2a3448; }
+html, body { background: var(--bg); }
+.top { background: linear-gradient(135deg, var(--c-fondo, var(--c)), color-mix(in srgb, var(--c-fondo, var(--c)) 72%, #0b1d5e)); border-radius: 0 0 20px 20px; box-shadow: 0 6px 16px color-mix(in srgb, var(--c) 25%, transparent); }
+.panel, .voce, .monthnav, .mesenav, .cal, .tbl-wrap, .griglia-wrap { border-color: transparent !important; box-shadow: 0 1px 2px rgba(20,40,90,.05), 0 6px 18px rgba(20,40,90,.07); }
+.panel { border-radius: 16px; }
+
+/* firma */
+main::after{content:"by Contabily";display:block;clear:both;text-align:center;font-size:11px;letter-spacing:.04em;color:var(--muted);opacity:.85;padding:16px 0 6px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ContabilyWork — generazione file nel dispositivo: ZIP, Excel (.xlsx), PDF, backup cifrato, salvataggio/condivisione */
+(function () {
+  'use strict';
+  const CT = (window.CT = window.CT || {});
+  const enc = new TextEncoder();
+
+  // ---------- CRC32 + ZIP (solo "store", senza compressione: file piccoli) ----------
+  const CRC_T = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
+  const crc32 = (u8) => { let c = 0xffffffff; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  CT.zip = function (files) { // files: [{name, data: string|Uint8Array}]
+    const parts = [], central = []; let offset = 0;
+    const dosTime = (d) => ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xffff;
+    const dosDate = (d) => (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xffff;
+    const now = new Date();
+    files.forEach((f) => {
+      const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data;
+      const name = enc.encode(f.name); const crc = crc32(data);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosTime(now), true); lh.setUint16(12, dosDate(now), true); lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, data);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+      ch.setUint16(12, dosTime(now), true); ch.setUint16(14, dosDate(now), true); ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true);
+      ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true); ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    const cdSize = central.reduce((a, p) => a + p.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(4, 0, true); end.setUint16(6, 0, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cdSize, true); end.setUint32(16, offset, true); end.setUint16(20, 0, true);
+    const all = [...parts, ...central, new Uint8Array(end.buffer)];
+    const out = new Uint8Array(all.reduce((a, p) => a + p.length, 0)); let o = 0; all.forEach((p) => { out.set(p, o); o += p.length; });
+    return out;
+  };
+
+  // ---------- XLSX ----------
+  const xmlEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const colName = (n) => { let s = ''; n++; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+  // sheets: [{name, rows:[[cell,...]]}] — cell: number | string | {v, t:'eur'|'date'|'pct'|'int', f?}
+  CT.xlsx = function (sheets) {
+    const sstMap = new Map(), sst = [];
+    const si = (s) => { if (!sstMap.has(s)) { sstMap.set(s, sst.length); sst.push(s); } return sstMap.get(s); };
+    const STYLES = { eur: 1, date: 2, pct: 3, int: 4, bold: 5, title: 6, eurBold: 7 };
+    // stili aggiuntivi creati al volo: una cella puo' avere fill (ARGB), border (bordo sottile), center, color (testo ARGB), size
+    const fonts = ['<font><sz val="11"/><color rgb="FF000000"/><name val="Calibri"/><family val="2"/></font>', '<font><b/><sz val="11"/><color rgb="FF000000"/><name val="Calibri"/><family val="2"/></font>', '<font><b/><sz val="14"/><color rgb="FF1430C4"/><name val="Calibri"/><family val="2"/></font>'];
+    const fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>', '<fill><patternFill patternType="solid"><fgColor rgb="FFEAF2FE"/><bgColor rgb="FFEAF2FE"/></patternFill></fill>'];
+    const borders = ['<border><left/><right/><top/><bottom/><diagonal/></border>', '<border><left style="thin"><color rgb="FF000000"/></left><right style="thin"><color rgb="FF000000"/></right><top style="thin"><color rgb="FF000000"/></top><bottom style="thin"><color rgb="FF000000"/></bottom><diagonal/></border>'];
+    const xfs = ['<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>', '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>', '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>', '<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>', '<xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>', '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>', '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>', '<xf numFmtId="164" fontId="1" fillId="2" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1"/>'];
+    const xfMap = new Map(), fontMap = new Map(), fillMap = new Map();
+    const NUMFMT = { eur: 164, date: 165, pct: 166, int: 1 };
+    const styleOf = (c) => {
+      if (!c.fill && !c.border && !c.center && !c.color && !c.size) { let st = STYLES[c.t] || 0; if (c.bold) st = c.t === 'eur' ? STYLES.eurBold : STYLES.bold; if (c.title) st = STYLES.title; return st; }
+      const key = [c.t || '', c.bold ? 1 : 0, c.fill || '', c.border ? 1 : 0, c.center ? 1 : 0, c.color || '', c.size || ''].join('|');
+      if (xfMap.has(key)) return xfMap.get(key);
+      let fontId = c.bold ? 1 : 0;
+      if (c.color || c.size) { const fk = (c.bold ? 'b' : '') + '|' + (c.color || '') + '|' + (c.size || ''); if (!fontMap.has(fk)) { fonts.push(`<font>${c.bold ? '<b/>' : ''}<sz val="${c.size || 11}"/><color rgb="${c.color || 'FF000000'}"/><name val="Calibri"/><family val="2"/></font>`); fontMap.set(fk, fonts.length - 1); } fontId = fontMap.get(fk); }
+      let fillId = 0;
+      if (c.fill) { if (!fillMap.has(c.fill)) { fills.push(`<fill><patternFill patternType="solid"><fgColor rgb="${c.fill}"/><bgColor rgb="${c.fill}"/></patternFill></fill>`); fillMap.set(c.fill, fills.length - 1); } fillId = fillMap.get(c.fill); }
+      const nf = NUMFMT[c.t] || 0;
+      xfs.push(`<xf numFmtId="${nf}" fontId="${fontId}" fillId="${fillId}" borderId="${c.border ? 1 : 0}" xfId="0"${nf ? ' applyNumberFormat="1"' : ''} applyFont="1" applyFill="1" applyBorder="1"${c.center ? ' applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' : '/>'}`);
+      xfMap.set(key, xfs.length - 1);
+      return xfs.length - 1;
+    };
+    const sheetXml = (sh) => {
+      let rows = ''; const widths = [];
+      sh.rows.forEach((r, ri) => {
+        let cells = '';
+        r.forEach((c, ci) => {
+          const ref = colName(ci) + (ri + 1);
+          let v = c, t = null, style = 0;
+          if (c && typeof c === 'object') { v = c.v; t = c.t; style = styleOf(c); }
+          const len = String(v == null ? '' : v).length; widths[ci] = Math.max(widths[ci] || 8, Math.min(len + 2, 48));
+          if (v == null || v === '') { if (style) cells += `<c r="${ref}" s="${style}"/>`; return; }
+          if (t === 'date' && typeof v === 'string') { const d = CT.toDate(v); const serial = Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(1899, 11, 30)) / 864e5); cells += `<c r="${ref}" s="${style}"><v>${serial}</v></c>`; }
+          else if (typeof v === 'number') cells += `<c r="${ref}" s="${style}"><v>${v}</v></c>`;
+          else if (c && c.f) cells += `<c r="${ref}" s="${style}"><f>${xmlEsc(c.f)}</f></c>`;
+          else cells += `<c r="${ref}" s="${style}" t="s"><v>${si(String(v))}</v></c>`;
+        });
+        rows += `<row r="${ri + 1}">${cells}</row>`;
+      });
+      if (sh.colWidths) sh.colWidths.forEach((w, i) => { if (w) widths[i] = w; });
+      const cols = widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('');
+      const merges = sh.merges && sh.merges.length ? `<mergeCells count="${sh.merges.length}">${sh.merges.map((m) => `<mergeCell ref="${m}"/>`).join('')}</mergeCells>` : '';
+      const pr = sh.landscape ? '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>' : '';
+      const ps = sh.landscape ? '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/>' : '';
+      const maxCols = Math.max(1, ...sh.rows.map((r) => r.length));
+      const dim = `<dimension ref="A1:${colName(maxCols - 1)}${Math.max(1, sh.rows.length)}"/>`;
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${pr}${dim}<sheetViews><sheetView workbookViewId="0"${sh.freeze ? '><pane ySplit="' + sh.freeze + '" topLeftCell="A' + (sh.freeze + 1) + '" activePane="bottomLeft" state="frozen"/></sheetView' : '/'}></sheetViews><cols>${cols}</cols><sheetData>${rows}</sheetData>${merges}${ps}</worksheet>`;
+    };
+    // i fogli vanno generati prima di styles.xml, che contiene gli stili creati al volo
+    const sheetXmls = sheets.map(sheetXml);
+    const files = [];
+    files.push({ name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>` });
+    files.push({ name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>` });
+    files.push({ name: 'docProps/app.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>ContabilyWork</Application></Properties>` });
+    files.push({ name: 'docProps/core.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>ContabilyWork</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:created></cp:coreProperties>` });
+    files.push({ name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${xmlEsc(s.name.slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>` });
+    files.push({ name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId${sheets.length + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/></Relationships>` });
+    files.push({ name: 'xl/styles.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0.00\\ &quot;€&quot;"/><numFmt numFmtId="165" formatCode="dd/mm/yyyy"/><numFmt numFmtId="166" formatCode="0.0%"/></numFmts><fonts count="${fonts.length}">${fonts.join('')}</fonts><fills count="${fills.length}">${fills.join('')}</fills><borders count="${borders.length}">${borders.join('')}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xfs.length}">${xfs.join('')}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/><tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleLight16"/></styleSheet>` });
+    sheetXmls.forEach((x, i) => files.push({ name: `xl/worksheets/sheet${i + 1}.xml`, data: x }));
+    files.push({ name: 'xl/sharedStrings.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${sst.length}" uniqueCount="${sst.length}">${sst.map((s) => `<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}</sst>` });
+    return CT.zip(files);
+  };
+
+  // ---------- PDF (testo + tabelle, font Helvetica WinAnsi) ----------
+  const WIN = { '€': 0x80, '‘': 0x91, '’': 0x92, '“': 0x93, '”': 0x94, '–': 0x96, '—': 0x97, '…': 0x85 };
+  const pdfStr = (s) => { let out = ''; for (const ch of String(s)) { let c = ch.charCodeAt(0); if (WIN[ch] != null) c = WIN[ch]; else if (c > 255) c = 63; out += c === 0x28 || c === 0x29 || c === 0x5c ? '\\' + ch : c < 32 || c > 126 ? '\\' + c.toString(8).padStart(3, '0') : ch; } return '(' + out + ')'; };
+  // larghezze Helvetica approssimate (per allineamento a destra)
+  const HW = { ' ': 278, '!': 278, '"': 355, '#': 556, '$': 556, '%': 889, '&': 667, "'": 191, '(': 333, ')': 333, '*': 389, '+': 584, ',': 278, '-': 333, '.': 278, '/': 278, ':': 278, ';': 278, '<': 584, '=': 584, '>': 584, '?': 556, '@': 1015, '[': 278, ']': 278, '_': 556, '€': 556, 'i': 222, 'j': 222, 'l': 222, 'f': 278, 't': 278, 'r': 333, 'I': 278, 'm': 833, 'w': 722, 'M': 833, 'W': 944 };
+  const tw = (s, size) => { let w = 0; for (const ch of String(s)) w += HW[ch] != null ? HW[ch] : /[0-9a-z]/.test(ch) ? 556 : /[A-Z]/.test(ch) ? 667 : 556; return (w / 1000) * size; };
+  CT.pdfWidth = tw;
+
+  // doc: {title, subtitle, meta:[], sections:[{heading, lines:[], table:{head:[], rows:[[]], align:[], widths:[]}}], footer}
+  CT.pdf = function (doc) {
+    const PW = 595.28, PH = 841.89, M = 40;
+    const pages = []; let ops = []; let y = PH - M;
+    const newPage = () => { if (ops.length) pages.push(ops); ops = []; y = PH - M; };
+    const ensure = (h) => { if (y - h < M + 20) { newPage(); } };
+    const text = (s, x, yy, size = 10, bold = false, color = '0 0 0') => ops.push(`BT /${bold ? 'F2' : 'F1'} ${size} Tf ${color} rg ${x.toFixed(2)} ${yy.toFixed(2)} Td ${pdfStr(s)} Tj ET`);
+    const line = (x1, y1, x2, y2, w = 0.5, color = '0.8 0.8 0.8') => ops.push(`${color} RG ${w} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
+    const rect = (x, yy, w, h, color) => ops.push(`${color} rg ${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+    const wrap = (s, size, maxW) => { const words = String(s).split(/\s+/); const lines = []; let cur = ''; words.forEach((w) => { const t = cur ? cur + ' ' + w : w; if (tw(t, size) > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }); if (cur) lines.push(cur); return lines; };
+    newPage();
+    // intestazione
+    rect(0, PH - 70, PW, 70, '0.918 0.949 0.996');
+    text('ContabilyWork', M, PH - 32, 20, true, '0.122 0.435 0.902');
+    text(doc.title || '', M, PH - 52, 13, true, '0.09 0.125 0.227');
+    if (doc.subtitle) text(doc.subtitle, PW - M - tw(doc.subtitle, 10), PH - 32, 10, false, '0.3 0.3 0.3');
+    y = PH - 90;
+    (doc.meta || []).forEach((m) => { text(m, M, y, 9, false, '0.35 0.35 0.35'); y -= 12; });
+    y -= 6;
+    (doc.sections || []).forEach((sec) => {
+      if (sec.heading) { ensure(30); y -= 8; text(sec.heading, M, y, 12, true, '0.122 0.435 0.902'); y -= 6; line(M, y, PW - M, y, 1, '0.122 0.435 0.902'); y -= 14; }
+      (sec.lines || []).forEach((l) => { wrap(l, 10, PW - 2 * M).forEach((ln) => { ensure(14); text(ln, M, y, 10); y -= 13; }); });
+      if (sec.table) {
+        const t = sec.table; const ncol = t.head.length; const totalW = PW - 2 * M;
+        const widths = t.widths ? t.widths.map((w) => (w / t.widths.reduce((a, b) => a + b, 0)) * totalW) : t.head.map(() => totalW / ncol);
+        const align = t.align || t.head.map((_, i) => (i === 0 ? 'l' : 'r'));
+        const drawHead = () => { rect(M, y - 4, totalW, 16, '0.918 0.949 0.996'); let x = M; t.head.forEach((h, i) => { const s = String(h); text(s, align[i] === 'r' ? x + widths[i] - 4 - tw(s, 9) : x + 4, y, 9, true); x += widths[i]; }); y -= 16; };
+        ensure(40); drawHead();
+        t.rows.forEach((r, ri) => {
+          ensure(15); if (y === PH - M) drawHead();
+          const bold = t.boldLast && ri === t.rows.length - 1;
+          if (bold) rect(M, y - 4, totalW, 15, '0.95 0.95 0.95');
+          let x = M; r.forEach((c, i) => { let s = String(c == null ? '' : c); while (tw(s, 9) > widths[i] - 8 && s.length > 3) s = s.slice(0, -2) + '…'; text(s, align[i] === 'r' ? x + widths[i] - 4 - tw(s, 9) : x + 4, y, 9, bold); x += widths[i]; });
+          line(M, y - 4, PW - M, y - 4, 0.3, '0.88 0.88 0.88'); y -= 15;
+        });
+        y -= 6;
+      }
+    });
+    if (ops.length) pages.push(ops);
+    // assemblaggio
+    const objs = [];
+    const add = (s) => { objs.push(s); return objs.length; };
+    const fontN = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    const fontB = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    const pagesIdx = add('');
+    const pageIds = pages.map((p, i) => {
+      const footer = (doc.footer || 'Generato con ContabilyWork') + ' · pagina ' + (i + 1) + ' di ' + pages.length;
+      const content = p.join('\n') + `\nBT /F1 8 Tf 0.45 0.45 0.45 rg ${M} 22 Td ${pdfStr(footer)} Tj ET`;
+      const cid = add(`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
+      return add(`<< /Type /Page /Parent ${pagesIdx} 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 ${fontN} 0 R /F2 ${fontB} 0 R >> >> /Contents ${cid} 0 R >>`);
+    });
+    objs[pagesIdx - 1] = `<< /Type /Pages /Kids [${pageIds.map((i) => i + ' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
+    const catalog = add(`<< /Type /Catalog /Pages ${pagesIdx} 0 R >>`);
+    const info = add(`<< /Producer (ContabilyWork) /Title ${pdfStr(doc.title || 'Documento')} /CreationDate (D:${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}) >>`);
+    let out = '%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'; const offsets = [];
+    const bytes = (s) => { let n = 0; for (const ch of s) n += ch.charCodeAt(0) > 127 ? 1 : 1; return n; };
+    objs.forEach((o, i) => { offsets.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+    const xref = out.length;
+    out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offsets.map((o) => String(o).padStart(10, '0') + ' 00000 n \n').join('') + `trailer\n<< /Size ${objs.length + 1} /Root ${catalog} 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    void bytes;
+    const u8 = new Uint8Array(out.length); for (let i = 0; i < out.length; i++) u8[i] = out.charCodeAt(i) & 0xff;
+    return u8;
+  };
+
+  // ---------- Cifratura backup (AES-256-GCM, chiave da password con PBKDF2) ----------
+  const b64 = (u8) => { let s = ''; u8.forEach((b) => (s += String.fromCharCode(b))); return btoa(s); };
+  const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function deriveKey(password, salt) {
+    const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+  CT.encryptBackup = async function (obj, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+    return JSON.stringify({ app: 'ContabilyWork', encrypted: true, kdf: 'PBKDF2-SHA256-200000', cipher: 'AES-256-GCM', salt: b64(salt), iv: b64(iv), data: b64(new Uint8Array(ct)), exportedAt: new Date().toISOString() });
+  };
+  CT.decryptBackup = async function (wrapper, password) {
+    const key = await deriveKey(password, unb64(wrapper.salt));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(wrapper.iv) }, key, unb64(wrapper.data));
+    return JSON.parse(new TextDecoder().decode(pt));
+  };
+
+  // ---------- salvataggio / condivisione file ----------
+  const MIME = { xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', pdf: 'application/pdf', png: 'image/png', json: 'application/json', ctab: 'application/json', csv: 'text/csv', txt: 'text/plain' };
+  CT.saveFile = async function (filename, data, { share = true } = {}) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const mime = MIME[ext] || 'application/octet-stream';
+    const blob = data instanceof Blob ? data : new Blob([data], { type: mime });
+    // 1) App nativa (Capacitor): scrive nella cartella Documenti e apre il foglio di condivisione
+    const Cap = window.Capacitor;
+    if (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Filesystem) {
+      try {
+        const buf = new Uint8Array(await blob.arrayBuffer());
+        const FS = Cap.Plugins.Filesystem; let res, where;
+        if (Cap.getPlatform && Cap.getPlatform() === 'android') {
+          // Android: cartella Download del telefono (visibile in "Archivio" / "I miei file")
+          try { if (FS.requestPermissions) await FS.requestPermissions(); res = await FS.writeFile({ path: 'Download/ContabilyWork/' + filename, data: b64(buf), directory: 'EXTERNAL_STORAGE', recursive: true }); where = 'Download/ContabilyWork/' + filename; }
+          catch (e) { res = await FS.writeFile({ path: 'ContabilyWork/' + filename, data: b64(buf), directory: 'DOCUMENTS', recursive: true }); where = 'Documents/ContabilyWork/' + filename; }
+        } else { res = await FS.writeFile({ path: 'ContabilyWork/' + filename, data: b64(buf), directory: 'DOCUMENTS', recursive: true }); where = 'File/ContabilyWork/' + filename; }
+        if (share) {
+          // 1) apre subito il file con l'app del telefono (PDF, Excel…) se il plugin FileOpener è presente nell'app installata
+          const opened = await CT.openFile(res.uri, mime).catch((e) => { console.warn('Apertura file non riuscita', e); return false; });
+          // 2) altrimenti il foglio di sistema: da qui si può scegliere l'app con cui aprirlo (Acrobat, Excel, Fogli…) o condividerlo
+          if (!opened && Cap.Plugins.Share) { CT.toast('Salvato in ' + where); await Cap.Plugins.Share.share({ title: filename, url: res.uri, dialogTitle: 'Apri o condividi ' + filename }); }
+        }
+        return { ok: true, where };
+      } catch (e) { console.warn('Salvataggio nativo non riuscito', e); }
+    }
+    // 2) Anteprima su claude.ai: capacità downloads
+    try {
+      if (window.claude && window.claude.use) {
+        const dl = await window.claude.use('downloads');
+        if (dl) { await dl.save({ filename, data: blob }); return { ok: true, where: filename }; }
+      }
+    } catch (e) { if (e && e.code === 'declined') return { ok: false, declined: true }; if (e && e.code && e.code !== 'unavailable' && e.code !== 'not_granted') return { ok: false, error: e.message || e.code }; console.warn(e); }
+    // 3) Browser: download diretto nella cartella Download; condivisione nativa solo se richiesta
+    try {
+      if (share === 'share' && navigator.canShare && navigator.share) {
+        const f = new File([blob], filename, { type: mime });
+        if (navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: filename }); return { ok: true, where: filename }; }
+      }
+    } catch (e) { if (e && e.name === 'AbortError') return { ok: false, declined: true }; }
+    const url = URL.createObjectURL(blob);
+    const a = CT.h('a', { href: url, download: filename, style: { display: 'none' } });
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+    return { ok: true, where: filename };
+  };
+
+  // Apre un file salvato con l'app predefinita del telefono (lettore PDF, Excel, Fogli…).
+  // Richiede il plugin nativo @capacitor-community/file-opener nell'app installata; senza plugin ritorna false.
+  CT.openFile = async (uri, mime) => {
+    const P = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FileOpener;
+    if (!P || !uri) return false;
+    let filePath = String(uri);
+    if (filePath.startsWith('file://')) { try { filePath = decodeURI(filePath.slice(7)); } catch (e) { filePath = filePath.slice(7); } }
+    await P.open({ filePath, contentType: mime || 'application/octet-stream', openWithDefault: true });
+    return true;
+  };
+
+  // salvataggio silenzioso (solo app installata), usato dal backup automatico: nessuna finestra di condivisione
+  CT.saveFileNative = async function (filename, data) {
+    const Cap = window.Capacitor;
+    if (!(Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Filesystem)) return { ok: false };
+    const FS = Cap.Plugins.Filesystem;
+    const buf = typeof data === 'string' ? enc.encode(data) : data;
+    try {
+      if (Cap.getPlatform && Cap.getPlatform() === 'android') {
+        try { if (FS.requestPermissions) await FS.requestPermissions(); await FS.writeFile({ path: 'Download/ContabilyWork/' + filename, data: b64(buf), directory: 'EXTERNAL_STORAGE', recursive: true }); return { ok: true, where: 'Download/ContabilyWork/' + filename }; }
+        catch (e) { await FS.writeFile({ path: 'ContabilyWork/' + filename, data: b64(buf), directory: 'DOCUMENTS', recursive: true }); return { ok: true, where: 'Documents/ContabilyWork/' + filename }; }
+      }
+      await FS.writeFile({ path: 'ContabilyWork/' + filename, data: b64(buf), directory: 'DOCUMENTS', recursive: true });
+      return { ok: true, where: 'File/ContabilyWork/' + filename };
+    } catch (e) { console.warn('Salvataggio automatico non riuscito', e); return { ok: false, error: String((e && e.message) || e) }; }
+  };
+
+  CT.pickFile = (accept) => new Promise((res) => {
+    const inp = CT.h('input', { type: 'file', accept, style: { display: 'none' } });
+    inp.addEventListener('change', () => { const f = inp.files && inp.files[0]; inp.remove(); res(f || null); });
+    document.body.appendChild(inp);
+    inp.click();
+    // se l'utente annulla, l'evento change non arriva: rimuovi dopo un po'
+    setTimeout(() => { if (document.body.contains(inp)) { /* lasciato: alcuni browser inviano change in ritardo */ } }, 60000);
+  });
+  CT.readFileText = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsText(file); });
+  CT.readFileBuf = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(file); });
+  // lettura di un file Excel .xlsx (primo foglio) tutto nel telefono: zip aperto a mano + XML; restituisce righe di celle (testo o numero)
+  CT.leggiXlsx = async (buf) => {
+    const u8 = new Uint8Array(buf), dv = new DataView(buf);
+    let e = u8.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) throw new Error('Non è un file Excel (.xlsx)');
+    const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const files = {};
+    const td = new TextDecoder();
+    for (let i = 0; i < n; i++) {
+      const met = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      files[td.decode(u8.subarray(p + 46, p + 46 + nl))] = { met, csize, off }; p += 46 + nl + xl + cl;
+    }
+    const leggi = async (nome) => {
+      const f = files[nome]; if (!f) return null;
+      const lo = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true);
+      const dati = u8.subarray(lo, lo + f.csize);
+      if (f.met === 0) return td.decode(dati);
+      const st = new Blob([dati]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return td.decode(await new Response(st).arrayBuffer());
+    };
+    const xml = (t) => new DOMParser().parseFromString(t, 'application/xml');
+    const ss = []; const sst = await leggi('xl/sharedStrings.xml');
+    if (sst) [...xml(sst).getElementsByTagName('si')].forEach((si) => ss.push([...si.getElementsByTagName('t')].map((t) => t.textContent).join('')));
+    let foglio = 'xl/worksheets/sheet1.xml';
+    if (!files[foglio]) foglio = Object.keys(files).find((k) => /^xl\/worksheets\/[^/]+\.xml$/.test(k));
+    const doc = xml(await leggi(foglio));
+    const col = (ref) => { let c = 0; for (const ch of ref.replace(/\d+/g, '')) c = c * 26 + ch.charCodeAt(0) - 64; return c - 1; };
+    return [...doc.getElementsByTagName('row')].map((r) => {
+      const out = [];
+      [...r.getElementsByTagName('c')].forEach((c) => {
+        const t = c.getAttribute('t'); const v = c.getElementsByTagName('v')[0]; let val = null;
+        if (t === 's') val = v ? ss[Number(v.textContent)] : null;
+        else if (t === 'inlineStr') val = [...c.getElementsByTagName('t')].map((x) => x.textContent).join('');
+        else if (t === 'str' || t === 'e') val = v ? v.textContent : null;
+        else if (t === 'b') val = v ? v.textContent === '1' : null;
+        else val = v && v.textContent !== '' ? Number(v.textContent) : null;
+        out[col(c.getAttribute('r') || 'A')] = val;
+      });
+      return out;
+    });
+  };
+  CT.readFileDataURL = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+  // riduce un'immagine (allegati fattura) per non appesantire l'archivio
+  CT.shrinkImage = (file, max = 1400) => new Promise((res) => {
+    if (!/^image\//.test(file.type)) return CT.readFileDataURL(file).then(res);
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.8)); };
+    img.onerror = () => { URL.revokeObjectURL(url); CT.readFileDataURL(file).then(res); };
+    img.src = url;
+  });
+})();
+(function () {
+  'use strict';
+  const NOME = 'ContabilyWork';
+  const NOME_STORE = 'ContabilyWork: turni di lavoro';
+  const VERSIONE = '1.0.0';
+  const TERMINI_VER = 2; // 2 = informativa privacy/GDPR e condizioni del 30/10/2026
+  const CT = (window.CT = window.CT || {});
+  // ---------- utilità ----------
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === 'style' && typeof v === 'object') Object.entries(v).forEach(([sk, sv]) => { if (sk.startsWith('--')) el.style.setProperty(sk, sv); else el.style[sk] = sv; });
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'html') el.innerHTML = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    kids.flat(9).forEach((c) => { if (c != null && c !== false) el.append(c.nodeType ? c : String(c)); });
+    return el;
+  };
+  const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const num = (s) => { const t = String(s == null ? '' : s).replace(/\s/g, '').replace(',', '.'); const v = parseFloat(t); return isNaN(v) ? 0 : v; };
+  const qty = (n) => new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2 }).format(r2(n));
+  const oreFmt = (n) => qty(n) + ' h';
+  const pad = (n) => String(n).padStart(2, '0');
+  const iso = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const toDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  CT.toDate = toDate;
+  const oggi = () => iso(new Date());
+  const addDays = (s, n) => { const d = toDate(s); d.setDate(d.getDate() + n); return iso(d); };
+  const lunedi = (s) => { const d = toDate(s); const g = (d.getDay() + 6) % 7; d.setDate(d.getDate() - g); return iso(d); };
+  const ymOf = (s) => s.slice(0, 7);
+  const addMesi = (ym, n) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); };
+  const giorniNelMese = (ym) => { const [y, m] = ym.split('-').map(Number); return new Date(y, m, 0).getDate(); };
+  const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+  const GIORNI = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
+  const GIORNI3 = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+  const meseLabel = (ym) => { const [y, m] = ym.split('-').map(Number); return MESI[m - 1].replace(/^./, (c) => c.toUpperCase()) + ' ' + y; };
+  const min = (t) => { if (!t) return null; const [a, b] = t.split(':').map(Number); return isNaN(a) ? null : a * 60 + (b || 0); };
+  const fmtT = (t) => (t || '').replace(/^0(\d)/, '$1').replace(':00', '').replace(':', ',');
+  const ICONE = {
+    calendario: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><circle cx="8" cy="14" r="1.2"/><circle cx="12" cy="14" r="1.2"/><circle cx="16" cy="14" r="1.2"/><circle cx="8" cy="18" r="1.2"/>',
+    turni: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h3M14 13h3M7 17h3"/>',
+    giornaliera: '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 15h7M9 19h4"/>',
+    persone: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.6c2.6.2 4.6 1.9 5.3 5.4"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    salva: '<path d="M5 12l4 4 10-10"/>', azzera: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>', chiudi: '<path d="M6 6l12 12M18 6L6 18"/>',
+    xls: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 11l5 6M14 11l-5 6"/>', condividi: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 11l7.6-3.8M8.2 13l7.6 3.8"/>',
+    copia: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', piu: '<path d="M12 5v14M5 12h14"/>',
+    giu: '<path d="M12 4v12M6 10l6 6 6-6M5 20h14"/>', calc: '<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8 6.5h8v3H8zM8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/>', cerca: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', ora: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', su: '<path d="M12 20V8M6 14l6-6 6 6M5 4h14"/>',
+  };
+  const svg = (n) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = ICONE[n] || ''; return s; };
+  const toastF = (t, ms) => { document.querySelectorAll('.toast').forEach((x) => x.remove()); const el = h('div', { class: 'toast', role: 'status' }, t); document.body.append(el); setTimeout(() => el.remove(), ms || 2400); };
+  const toast = toastF; CT.toast = toastF; CT.h = h;
+
+  // ---------- archivio: solo nel telefono ----------
+  const CHIAVE = 'contabilywork';
+  try { if (!localStorage.getItem(CHIAVE) && localStorage.getItem('turnilavoro')) { localStorage.setItem(CHIAVE, localStorage.getItem('turnilavoro')); if (localStorage.getItem('turnilavoro_copia')) localStorage.setItem('contabilywork_copia', localStorage.getItem('turnilavoro_copia')); } } catch (e) { /* niente */ }
+  const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE)) || {}; } catch (e) { return {}; } };
+  const db = Object.assign({ persone: [], turni: {}, giorni: {}, accettato: 0, patrono: null, promemoria: { attivo: true, ora: '18:00' }, backupAuto: true, ultimaCopia: null }, leggi());
+  const salvaDb = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(db)); } catch (e) { toast('Spazio pieno: non riesco a salvare'); } if (typeof copiaAutoRif === 'function') setTimeout(copiaAutoRif, 50); };
+  let copiaAutoRif = null;
+  const nuovoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+  // colori delle persone (come la tabella dei turni di ContabilyTab: il primo giallo, il secondo azzurro…)
+  const COLORI = [['#f2c200', '#1b1b1b', 'FFFFFF66', 'FFFFFF00'], ['#3b8ae6', '#fff', 'FFBDD7EE', 'FFBDD7EE'], ['#2c9b3c', '#fff', 'FFC6EFCE', 'FFC6EFCE'], ['#f0661a', '#fff', 'FFFCE4D6', 'FFF8CBAD'], ['#8a4fd3', '#fff', 'FFE4DFEC', 'FFE4DFEC'], ['#e2393a', '#fff', 'FFFFC7CE', 'FFFFC7CE'], ['#18a2c0', '#fff', 'FFDDEBF7', 'FFDDEBF7'], ['#5a6170', '#fff', 'FFEDEDED', 'FFEDEDED']];
+  const col = (p) => COLORI[(p.colore || 0) % COLORI.length];
+  const CONTRATTI = ['Tempo indeterminato full-time', 'Tempo indeterminato part-time', 'Tempo determinato full-time', 'Tempo determinato part-time', 'Apprendistato', 'Titolare'];
+
+  // ---------- turni ----------
+  const SLOTS = ['mattina', 'sera'];
+  const chiaveT = (d, pid, s) => d + '|' + pid + '|' + s;
+  const turno = (d, pid, s) => db.turni[chiaveT(d, pid, s)] || null;
+  const oreTurno = (t) => { if (!t || t.libero) return 0; const a = min(t.entrata), b = min(t.uscita); if (a == null || b == null) return 0; let m = b - a; if (m < 0) m += 1440; m -= Number(t.pausa) || 0; return r2(Math.max(m, 0) / 60); };
+  const etichetta = (t) => (!t ? '' : t.libero ? 'libero' : fmtT(t.entrata) + ' ' + fmtT(t.uscita));
+  const oreTurniGiorno = (d, pid) => r2(SLOTS.reduce((a, s) => a + oreTurno(turno(d, pid, s)), 0));
+
+  // ---------- giornaliera: un giorno di una persona ----------
+  const STATI = [['lavoro', 'Lavoro'], ['libero', 'Libero'], ['ferie', 'Ferie'], ['rol', 'ROL'], ['malattia', 'Malattia']];
+  const ETICHETTE = { lavoro: 'Lavoro', libero: 'Libero', ferie: 'Ferie', rol: 'ROL', malattia: 'Malattia', riposo: 'Riposo', festivita: 'Festività' };
+  const statoLabel = (v) => ETICHETTE[v] || '';
+  // giorni lavorativi del contratto (0 = domenica … 6 = sabato): lunedì–sabato se 6 giorni, lunedì–venerdì se 5
+  const giorniContratto = (p) => (Array.isArray(p.giorniLav) && p.giorniLav.length ? p.giorniLav : (Number(p.giorniSett) === 5 ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6]));
+  const oreGiornoContratto = (p) => (p.oreGiorno ? Number(p.oreGiorno) : r2((Number(p.oreSett) || 0) / (giorniContratto(p).length || 6)));
+  // festività nazionali italiane (Pasquetta compresa)
+  const pasqua = (y) => { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), hh = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - hh - k) % 7, m = Math.floor((a + 11 * hh + 22 * l) / 451), mese = Math.floor((hh + l - 7 * m + 114) / 31), giorno = ((hh + l - 7 * m + 114) % 31) + 1; return iso(new Date(y, mese - 1, giorno)); };
+  const FESTE = ['01-01', '01-06', '04-25', '05-01', '06-02', '08-15', '11-01', '12-08', '12-25', '12-26'];
+  const festivo = (d) => FESTE.includes(d.slice(5)) || d === addDays(pasqua(Number(d.slice(0, 4))), 1) || (db.patrono && db.patrono.giorno === d.slice(5));
+  const giornoDiContratto = (d, p) => giorniContratto(p).includes(toDate(d).getDay()) && !festivo(d);
+  const orePreviste = (ym, p) => { let n = 0; for (let i = 1; i <= giorniNelMese(ym); i++) if (giornoDiContratto(ym + '-' + pad(i), p)) n++; return { giorni: n, ore: r2(n * oreGiornoContratto(p)) }; };
+  // giornaliera per il consulente: ogni giorno di contratto vale le ore giornaliere del contratto (ferie, ROL e malattia segnati nella giornaliera interna)
+  const giornoConsulente = (d, p) => {
+    const g = giorno(d, p); const og = oreGiornoContratto(p); const dd = toDate(d);
+    if (!giorniContratto(p).includes(dd.getDay())) return { d, stato: 'riposo', lavorate: 0, ferie: 0, rol: 0, note: '' };
+    if (festivo(d)) return { d, stato: 'festivita', lavorate: 0, ferie: 0, rol: 0, note: '' };
+    if (g.stato === 'ferie') return { d, stato: 'ferie', lavorate: 0, ferie: r2(g.ferie || og), rol: 0, note: g.note };
+    if (g.stato === 'malattia') return { d, stato: 'malattia', lavorate: 0, ferie: 0, rol: 0, note: g.note };
+    if (g.stato === 'rol') { const rl = r2(Math.min(g.rol || og, og)); return { d, stato: 'rol', lavorate: r2(og - rl), ferie: 0, rol: rl, note: g.note }; }
+    return { d, stato: 'lavoro', lavorate: og, ferie: 0, rol: 0, note: '' };
+  };
+  const giorno = (d, p) => {
+    const g = db.giorni[d + '|' + p.id] || {};
+    const daTurni = oreTurniGiorno(d, p.id);
+    const tutto = SLOTS.map((s) => turno(d, p.id, s));
+    let stato = g.stato || (daTurni > 0 ? 'lavoro' : tutto.some((t) => t && t.libero) ? 'libero' : '');
+    const lavorate = g.lavorate != null ? Number(g.lavorate) : ['lavoro', ''].includes(stato) ? daTurni : 0;
+    if (!g.stato && lavorate > 0) stato = 'lavoro';
+    const ferie = g.ferie != null ? Number(g.ferie) : stato === 'ferie' ? oreGiornoContratto(p) : 0;
+    const rol = g.rol != null ? Number(g.rol) : 0;
+    return { d, stato, lavorate: r2(lavorate), ferie: r2(ferie), rol: r2(rol), note: g.note || '', daTurni, manuale: g.lavorate != null };
+  };
+  const meseDi = (ym, p, tipo) => { const out = []; for (let i = 1; i <= giorniNelMese(ym); i++) { const d = ym + '-' + pad(i); out.push(tipo === 'consulente' ? giornoConsulente(d, p) : giorno(d, p)); } return out; };
+  const totali = (righe) => ({ lavorate: r2(righe.reduce((a, r) => a + r.lavorate, 0)), ferie: r2(righe.reduce((a, r) => a + r.ferie, 0)), rol: r2(righe.reduce((a, r) => a + r.rol, 0)), gFerie: righe.filter((r) => r.stato === 'ferie').length, gRol: righe.filter((r) => r.stato === 'rol').length, gLibero: righe.filter((r) => r.stato === 'libero').length, gMalattia: righe.filter((r) => r.stato === 'malattia').length, gLavoro: righe.filter((r) => r.lavorate > 0).length, gFestivi: righe.filter((r) => r.stato === 'festivita').length });
+
+  // saldo ferie e ROL dell'anno: disponibili a inizio anno (scheda del dipendente) meno quelli segnati nella giornaliera
+  const saldo = (p, anno) => {
+    const ini = ((p.saldi || {})[anno]) || {}; let gF = 0, oF = 0, oR = 0;
+    Object.entries(db.giorni).forEach(([k, g]) => { const [d, pid] = k.split('|'); if (pid !== p.id || d.slice(0, 4) !== String(anno)) return; if (g.stato === 'ferie') { gF++; oF += Number(g.ferie) || oreGiornoContratto(p); } if (g.stato === 'rol') oR += Number(g.rol) || 0; });
+    return { ferieIni: ini.ferie, rolIni: ini.rol, gFerie: gF, oFerie: r2(oF), oRol: r2(oR), ferieRes: ini.ferie != null && ini.ferie !== '' ? r2(Number(ini.ferie) - gF) : null, rolRes: ini.rol != null && ini.rol !== '' ? r2(Number(ini.rol) - oR) : null };
+  };
+  // banca ore: da gennaio al mese indicato, ore realmente fatte meno ore previste dal contratto
+  // conta solo i mesi in cui la persona ha turni o giorni segnati (prima di iniziare a usare l'app non c'è niente da confrontare)
+  const haDati = (p, mm) => Object.keys(db.turni).some((k) => k.startsWith(mm) && k.split('|')[1] === p.id) || Object.keys(db.giorni).some((k) => k.startsWith(mm) && k.split('|')[1] === p.id);
+  const bancaOre = (p, ym) => { const y = ym.slice(0, 4); let tot = 0; for (let m = 1; m <= Number(ym.slice(5, 7)); m++) { const mm = y + '-' + pad(m); if (!haDati(p, mm)) continue; const t = totali(meseDi(mm, p)); tot += t.lavorate - orePreviste(mm, p).ore; } return r2(tot); };
+  // ore previste in una settimana (solo i giorni del mese indicato)
+  const previsteSett = (p, ws, ym) => { let n = 0; for (let i = 0; i < 7; i++) { const d = addDays(ws, i); if ((!ym || ymOf(d) === ym) && giornoDiContratto(d, p)) n++; } return r2(n * oreGiornoContratto(p)); };
+  // avvisi sui riposi (D.Lgs. 66/2003): più di 6 giorni di lavoro di fila, meno di 11 ore di riposo tra un turno e il successivo
+  const lavoraIl = (d, pid) => SLOTS.some((s) => { const t = turno(d, pid, s); return t && !t.libero && t.entrata && t.uscita; });
+  const fineGiorno = (d, pid) => { let f = null; SLOTS.forEach((s) => { const t = turno(d, pid, s); if (!t || t.libero || !t.entrata || !t.uscita) return; let e = min(t.uscita); if (e <= min(t.entrata)) e += 1440; f = f == null ? e : Math.max(f, e); }); return f; };
+  const inizioGiorno = (d, pid) => { let f = null; SLOTS.forEach((s) => { const t = turno(d, pid, s); if (!t || t.libero || !t.entrata) return; const e = min(t.entrata); f = f == null ? e : Math.min(f, e); }); return f; };
+  const avvisi = (da, a) => {
+    const out = [];
+    db.persone.filter((p) => !/titolare/i.test(p.contratto || '')).forEach((p) => {
+      let fila = 0; for (let k = 1; k <= 13; k++) { if (lavoraIl(addDays(da, -k), p.id)) fila++; else break; }
+      for (let d = da; d <= a; d = addDays(d, 1)) {
+        if (lavoraIl(d, p.id)) { fila++; if (fila === 7) out.push({ p, d, testo: p.nome + ' lavora da 7 giorni di fila (fino a ' + dataBreve(d) + '): serve un giorno di riposo.' }); } else fila = 0;
+        const f = fineGiorno(addDays(d, -1), p.id), i = inizioGiorno(d, p.id);
+        if (f != null && i != null) { const riposo = (i + 1440 - f) / 60; if (riposo < 11) out.push({ p, d, testo: p.nome + ': solo ' + qty(r2(riposo)) + ' ore di riposo prima del turno di ' + dataBreve(d) + ' (minimo 11).' }); }
+      }
+    });
+    return out;
+  };
+
+  // ---------- fogli (finestre dal basso) e conferme ----------
+  const foglio = (titolo, corpo, piede) => {
+    const ov = h('div', { class: 'foglio-ov', onclick: (e) => { if (e.target === ov) chiudi(); } });
+    const chiudi = () => ov.remove();
+    ov.append(h('div', { class: 'foglio', role: 'dialog', 'aria-label': titolo }, h('div', { class: 'fh' }, h('b', null, titolo), h('button', { 'aria-label': 'Chiudi', onclick: chiudi }, svg('chiudi'))), h('div', { class: 'fb' }, corpo), piede ? h('div', { class: 'ff' }, piede(chiudi)) : null));
+    document.body.append(ov); return chiudi;
+  };
+  const chiedi = (testo, ok) => new Promise((res) => { let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); }; const chiudi = foglio('Conferma', h('p', { style: { margin: 0, fontSize: '16px' } }, testo), () => [h('button', { class: 'btn ghost', onclick: () => fine(false) }, 'Annulla'), h('button', { class: 'btn rosso', onclick: () => fine(true) }, ok || 'Conferma')]); });
+  const campo = (label, input) => h('div', { class: 'campo' }, h('label', null, label), input);
+  const inputOre = (v, aria) => h('input', { class: 'ora', inputmode: 'decimal', value: v == null || v === '' ? '' : String(v).replace('.', ','), placeholder: '0', 'aria-label': aria });
+
+  // ---------- struttura ----------
+  const app = document.getElementById('app');
+  const st = { scheda: 'turni', ws: lunedi(oggi()), ym: ymOf(oggi()), gm: ymOf(oggi()), gp: null };
+  // ---------- intestazione: ora, cerca, nome dell'app e data di oggi ----------
+  const oraTesto = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const dataTesto = () => new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const marca = () => h('div', { class: 'marca' },
+    h('div', { class: 'barra' },
+      h('div', { class: 'pill', 'aria-label': 'Ora attuale' }, svg('ora'), h('b', { 'data-ora': '' }, oraTesto())),
+      h('button', { class: 'pill', 'aria-label': 'Apri la calcolatrice', onclick: apriCalc }, svg('calc'), h('span', { 'data-calc': '' }, testoTastoCalc())),
+      h('button', { class: 'pill', 'aria-label': 'Cerca una funzione o un dipendente', onclick: apriCerca }, svg('cerca'), 'Cerca')),
+    h('h2', null, 'Contabily', h('span', null, 'Work')),
+    h('p', { class: 'motto' }, 'turni di lavoro'),
+    h('p', { class: 'oggi', 'data-oggi': '' }, dataTesto()));
+  setInterval(() => { document.querySelectorAll('[data-ora]').forEach((e) => (e.textContent = oraTesto())); document.querySelectorAll('[data-oggi]').forEach((e) => (e.textContent = dataTesto())); }, 15000);
+  // controlla che i tre tasti in alto stiano nella riga senza toccarsi né uscire dallo schermo
+  function adattaBarra() {
+    const b = document.querySelector('.marca .barra'); if (!b) return;
+    const ok = () => { const r = [...b.children].map((e) => e.getBoundingClientRect()); const W = b.getBoundingClientRect(); return r.every((x) => x.left >= W.left - 0.5 && x.right <= W.right + 0.5) && r[1].left >= r[0].right + 4 && r[2].left >= r[1].right + 4; };
+    b.classList.remove('stretta', 'strettissima');
+    if (ok()) return; b.classList.add('stretta');
+    if (ok()) return; b.classList.add('strettissima');
+  }
+  window.addEventListener('resize', () => adattaBarra());
+  const normT = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const vaiA = (scheda, extra) => { Object.assign(st, { scheda }, extra || {}); disegna(); window.scrollTo(0, 0); };
+  const indiceCerca = () => [
+    { t: 'Turni della settimana', d: 'Mattina e sera, dipendenti e titolare', ic: 'turni', k: 'turni settimana orario mattina sera titolare', vai: () => vaiA('turni') },
+    { t: 'Orari preimpostati', d: 'Orari dei turni, inverno ed estate', ic: 'ora', k: 'orari ingresso uscita inverno estate preimpostati', vai: () => { vaiA('turni'); apriOrari(); } },
+    { t: 'Avvisi sui riposi', d: 'Nella schermata Turni', ic: 'turni', k: 'riposo riposi avvisi', vai: () => vaiA('turni') },
+    { t: 'Banca ore', d: 'Ore in più e in meno da gennaio', ic: 'giornaliera', k: 'banca ore piu meno straordinari', vai: () => vaiA('giornaliera', { gtipo: 'interna' }) },
+    { t: 'Turni del mese in Excel', d: 'File da mandare su WhatsApp o e-mail', ic: 'xls', k: 'excel esporta turni mese whatsapp email', vai: () => { if (!db.persone.length) return vaiA('persone'); esportaTurni(st.ym); } },
+    { t: 'Calendario del mese', d: 'Chi lavora, ferie, ROL, malattia, feste', ic: 'calendario', k: 'calendario mese giorni feste', vai: () => vaiA('calendario') },
+    { t: 'Giornaliera interna', d: 'Ore realmente fatte', ic: 'giornaliera', k: 'giornaliera interna ore reali fatte', vai: () => vaiA('giornaliera', { gtipo: 'interna' }) },
+    { t: 'Giornaliera per il consulente', d: 'Ore del contratto, da mandare al consulente', ic: 'giornaliera', k: 'giornaliera consulente commercialista contratto excel', vai: () => vaiA('giornaliera', { gtipo: 'consulente' }) },
+    { t: 'Ferie, ROL e malattia', d: 'Nella giornaliera, giorno per giorno', ic: 'giornaliera', k: 'ferie rol malattia permesso libero assenza', vai: () => vaiA('giornaliera') },
+    { t: 'Dipendenti', d: 'Nome, contratto e ore previste', ic: 'persone', k: 'dipendenti persone contratto', vai: () => vaiA('persone') },
+    { t: 'Aggiungi dipendente', d: 'Nuovo dipendente o titolare', ic: 'piu', k: 'aggiungi nuovo dipendente persona', vai: () => { vaiA('persone'); apriPersona(null); } },
+    { t: 'Festa del patrono e promemoria', d: 'Impostazioni, in Info', ic: 'info', k: 'patrono festa promemoria fine mese impostazioni notifica', vai: () => vaiA('info') },
+    { t: 'Salva backup', d: 'File protetto da password', ic: 'giu', k: 'backup salva copia esporta', vai: () => { vaiA('info'); esporta(); } },
+    { t: 'Carica backup', d: 'Da questo o da un altro telefono', ic: 'su', k: 'backup carica ripristina importa', vai: () => { vaiA('info'); importa(); } },
+    { t: 'Manuale', d: 'Come si usa l’app, capitolo per capitolo', ic: 'giornaliera', k: 'manuale aiuto guida istruzioni come si usa', vai: () => apriManuale() },
+    { t: 'Privacy e GDPR', d: 'Informativa sul trattamento dei dati personali', ic: 'info', k: 'privacy gdpr dati personali trattamento garante diritti informativa', vai: () => apriTesto('Informativa privacy e GDPR', PRIVACY) },
+    { t: 'Condizioni d’uso', d: 'Responsabilità e limiti dell’app', ic: 'info', k: 'condizioni uso responsabilita termini', vai: () => apriTesto('Condizioni d’uso', CONDIZIONI) },
+    ...db.persone.flatMap((p) => [
+      { t: p.nome, d: (p.contratto || 'Dipendente') + ' · scheda', ic: 'persone', k: 'dipendente scheda contratto', vai: () => { vaiA('persone'); apriPersona(p); } },
+      { t: 'Giornaliera di ' + p.nome, d: 'Ore e assenze del mese', ic: 'giornaliera', k: 'giornaliera ore', vai: () => vaiA('giornaliera', { gp: p.id }) }]),
+  ];
+  function apriCerca() {
+    const inp = h('input', { type: 'search', placeholder: 'Scrivi una parola: ferie, Excel, backup…', autocomplete: 'off', 'aria-label': 'Cerca' });
+    const lista = h('div', { class: 'ris' });
+    const disegnaRis = () => {
+      const parole = normT(inp.value).split(/\s+/).filter(Boolean);
+      const tutte = indiceCerca();
+      const trovate = parole.length ? tutte.filter((v) => { const s = normT(v.t + ' ' + v.d + ' ' + v.k); return parole.every((w) => s.includes(w)); }) : tutte;
+      lista.replaceChildren(...(trovate.length ? trovate.map((v) => h('button', { class: 'voce', onclick: () => { chiudi(); v.vai(); } }, h('div', { class: 'ic' }, svg(v.ic)), h('div', { class: 'mid' }, h('b', null, v.t), h('small', null, v.d)))) : [h('div', { class: 'vuoto' }, 'Nessun risultato per «' + inp.value.trim() + '».', h('div', { class: 'tasti', style: { margin: '10px 0 0' } }, h('button', { class: 'btn ghost', onclick: () => { const q = inp.value.trim(); chiudi(); apriManuale(q); } }, 'Cerca nel manuale')))]));
+    };
+    inp.addEventListener('input', disegnaRis);
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const b = lista.querySelector('button.voce'); if (b) { e.preventDefault(); b.click(); } } });
+    const chiudi = foglio('Cerca', [h('div', { class: 'cerca-in' }, svg('cerca'), inp), lista]);
+    disegnaRis(); setTimeout(() => inp.focus(), 60);
+  }
+  // ---------- calcolatrice a scomparsa: resta sopra l'app, si riduce a un tasto ----------
+  // conto fatto da un piccolo interprete (niente eval): numeri, + − × ÷, parentesi e %
+  const calcolo = (e) => {
+    const s = String(e).replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!s || !/^[\d.+\-*/()%]+$/.test(s)) return null;
+    let i = 0;
+    const numero = () => { const m = /^\d*\.?\d+|^\d+\./.exec(s.slice(i)); if (!m) throw 0; i += m[0].length; let v = parseFloat(m[0]); while (s[i] === '%') { v /= 100; i++; } return v; };
+    const fattore = () => { if (s[i] === '-') { i++; return -fattore(); } if (s[i] === '+') { i++; return fattore(); } if (s[i] === '(') { i++; const v = somma(); if (s[i] !== ')') throw 0; i++; return v; } return numero(); };
+    const prodotto = () => { let v = fattore(); while (s[i] === '*' || s[i] === '/') { const o = s[i++]; const w = fattore(); v = o === '*' ? v * w : v / w; } return v; };
+    const somma = () => { let v = prodotto(); while (s[i] === '+' || s[i] === '-') { const o = s[i++]; const w = prodotto(); v = o === '+' ? v + w : v - w; } return v; };
+    try { const v = somma(); return i === s.length && isFinite(v) ? r2(v) : null; } catch (err) { return null; }
+  };
+  const numTesto = (v) => new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+  const calc = { expr: '', mini: false };
+  const testoTastoCalc = () => { if (!calc.mini || !calc.expr) return 'Calcolatrice'; const v = calcolo(calc.expr); return v != null ? numTesto(v) : 'Calcolatrice'; };
+  function apriCalc() { const ex = document.querySelector('.calcpad'); if (ex) { ex.remove(); return; } calc.mini = false; disegnaCalc(); }
+  function disegnaCalc() {
+    document.querySelectorAll('.calcpad').forEach((e) => e.remove());
+    document.querySelectorAll('[data-calc]').forEach((e) => (e.textContent = testoTastoCalc())); adattaBarra();
+    if (calc.mini) return; // ridotta: il risultato resta scritto nel tasto in alto
+    const expr = h('div', { class: 'expr' }), res = h('div', { class: 'res' });
+    const upd = () => { expr.textContent = calc.expr; const v = calcolo(calc.expr); res.textContent = calc.expr ? (v == null ? '…' : numTesto(v)) : '0,00'; };
+    const premi = (k) => {
+      if (k === 'C') calc.expr = '';
+      else if (k === '⌫') calc.expr = calc.expr.slice(0, -1);
+      else if (k === '=') { const v = calcolo(calc.expr); if (v != null) calc.expr = String(v).replace('.', ','); }
+      else calc.expr += k;
+      upd();
+    };
+    const tasti = ['C', '⌫', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '00', '0', ',', '='];
+    const box = h('div', { class: 'calcpad', role: 'dialog', 'aria-label': 'Calcolatrice' },
+      h('div', { class: 'bar' }, h('span', null, 'Calcolatrice'), h('div', { style: { display: 'flex', gap: '6px' } },
+        h('button', { onclick: async () => { const v = calcolo(calc.expr); if (v == null) return; try { await navigator.clipboard.writeText(numTesto(v)); toast('Copiato: ' + numTesto(v)); } catch (e) { toast(numTesto(v)); } } }, 'Copia'),
+        h('button', { onclick: () => { calc.mini = true; disegnaCalc(); } }, 'Riduci'),
+        h('button', { 'aria-label': 'Chiudi la calcolatrice', onclick: () => { box.remove(); calc.mini = false; document.querySelectorAll('[data-calc]').forEach((e) => (e.textContent = 'Calcolatrice')); adattaBarra(); } }, '✕'))),
+      h('div', { class: 'disp' }, expr, res),
+      h('div', { class: 'keys' }, tasti.map((k) => h('button', { type: 'button', class: /[÷×−+]/.test(k) ? 'op' : k === '=' ? 'eq' : /[C⌫%]/.test(k) ? 'fn' : '', onclick: () => premi(k) }, k))));
+    document.body.append(box); upd();
+  }
+
+  const TABS = [['turni', 'Turni', 'turni'], ['calendario', 'Calendario', 'calendario'], ['giornaliera', 'Giornaliera', 'giornaliera'], ['persone', 'Dipendenti', 'persone'], ['info', 'Info', 'info']];
+  const TITOLI = { turni: ['Turni Dipendenti / Titolare', 'Settimana per settimana'], calendario: ['Calendario', 'Chi lavora, giorno per giorno'], giornaliera: ['Giornaliera', 'Ore lavorate, ferie e ROL del mese'], persone: ['Dipendenti', 'Nome, contratto e ore previste'], info: ['Info', 'Manuale, impostazioni, backup e privacy'] };
+  const disegna = () => {
+    app.replaceChildren();
+    const main = h('main');
+    { const agg = main.append.bind(main); main.append = (...k) => agg(...k.flat(9).filter((x) => x != null && x !== false)); } // i pezzi vuoti non diventano la scritta «null»
+    { const agg = main.append.bind(main); main.append = (...k) => agg(...k.flat(9).filter((x) => x != null && x !== false)); } // i pezzi vuoti (null) non diventano la scritta «null»
+    app.append(marca(), h('header', { class: 'top' + (st.scheda === 'turni' ? ' con-tasto' : '') }, h('div', null, h('h1', null, TITOLI[st.scheda][0]), h('small', null, TITOLI[st.scheda][1])), st.scheda === 'turni' && db.persone.length ? h('button', { class: 'icona-top', 'aria-label': 'Esporta i turni del mese in Excel', onclick: () => esportaTurni(st.ym) }, svg('condividi')) : null), main,
+      h('nav', { class: 'tabbar', style: { gridTemplateColumns: 'repeat(5, 1fr)' } }, TABS.map(([k, l, ic]) => h('button', { class: st.scheda === k ? 'on' : '', 'aria-label': l, onclick: () => { st.scheda = k; disegna(); window.scrollTo(0, 0); } }, svg(ic), l))));
+    adattaBarra();
+    ({ turni: schermataTurni, calendario: schermataCalendario, giornaliera: schermataGiornaliera, persone: schermataPersone, info: schermataInfo })[st.scheda](main);
+  };
+  const nessunaPersona = (main) => main.append(h('div', { class: 'vuoto' }, h('b', null, 'Nessun dipendente'), h('br'), 'Aggiungi chi lavora con te (anche il titolare) per compilare turni e giornaliera.', h('div', { class: 'tasti', style: { margin: '14px 0 0' } }, h('button', { class: 'btn', onclick: () => apriPersona(null) }, svg('piu'), 'Aggiungi dipendente'))));
+
+  // ---------- schermata turni (uguale a «Turni Dipendenti / Titolare» di ContabilyTab) ----------
+  const MESI3 = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+  const GIORNI3M = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+  const oreHm = (x) => { const tot = Math.round((x || 0) * 60); return Math.floor(tot / 60) + 'h ' + pad(tot % 60) + 'm'; };
+  const settN = (s) => { const d = toDate(s); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const g = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - g); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); };
+  const dataBreve = (s) => { const d = toDate(s); return GIORNI3M[d.getDay()] + ' ' + d.getDate() + ' ' + MESI3[d.getMonth()]; };
+  const giorniSett = () => { const out = []; for (let i = 0; i < 7; i++) { const d = addDays(st.ws, i); if (ymOf(d) === st.ym) out.push(d); } return out; };
+  const avanti = () => { const fine = addDays(st.ws, 6); if (ymOf(fine) > st.ym) st.ym = ymOf(fine); else { st.ws = addDays(st.ws, 7); st.ym = ymOf(st.ws); } };
+  const indietro = () => { if (ymOf(st.ws) < st.ym) st.ym = ymOf(st.ws); else { st.ws = addDays(st.ws, -7); st.ym = ymOf(addDays(st.ws, 6)); } };
+  const etichettaSett = () => { const wd = giorniSett(); const a = toDate(wd[0]), b = toDate(wd[wd.length - 1]); return (wd.length === 1 ? GIORNI3M[a.getDay()] + ' ' + a.getDate() : a.getDate() + ' – ' + b.getDate()) + ' ' + MESI3[b.getMonth()] + ' ' + b.getFullYear(); };
+  const etichettaVuota = (t) => (!t || t.libero ? 'libero' : fmtT(t.entrata) + ' ' + fmtT(t.uscita)); // nel file Excel una cella vuota vale «libero», come in ContabilyTab
+  // orari preimpostati: un elenco che si modifica (nome, dalle, alle); quelli che iniziano prima delle 14 valgono per la mattina, gli altri per la sera
+  if (!Array.isArray(db.orari)) { db.orari = [{ id: 'o1', nome: 'Mattina', da: '08:00', a: '13:00' }, { id: 'o2', nome: 'Sera inverno', da: '16:30', a: '20:00' }, { id: 'o3', nome: 'Sera estate', da: '17:00', a: '20:30' }]; salvaDb(); }
+  const slotDi = (o) => (min(o.da) < 14 * 60 ? 'mattina' : 'sera');
+  const orarioPer = (s) => db.orari.find((o) => slotDi(o) === s) || { da: s === 'mattina' ? '08:00' : '17:00', a: s === 'mattina' ? '13:00' : '20:30' };
+  function apriOrari(dopo) {
+    const lista = h('div');
+    const righe = db.orari.map((o) => ({ ...o }));
+    const disegnaLista = () => lista.replaceChildren(...righe.map((o, i) => {
+      const nome = h('input', { class: 'testo', value: o.nome, placeholder: 'Nome (es. Sera estate)', 'aria-label': 'Nome dell’orario' });
+      const da = h('input', { type: 'time', class: 'ora', value: o.da, 'aria-label': 'Dalle ore' }), a = h('input', { type: 'time', class: 'ora', value: o.a, 'aria-label': 'Alle ore' });
+      nome.addEventListener('input', () => { o.nome = nome.value; }); da.addEventListener('input', () => { o.da = da.value; }); a.addEventListener('input', () => { o.a = a.value; });
+      return h('div', { class: 'orario' }, h('div', { class: 'orario-testa' }, nome, h('button', { class: 'btn rosso', style: { flex: '0 0 auto', minHeight: '46px', padding: '0 12px' }, 'aria-label': 'Togli questo orario', onclick: () => { righe.splice(i, 1); disegnaLista(); } }, svg('azzera'))), h('div', { class: 'due' }, campo('Dalle ore', da), campo('Alle ore', a)));
+    }));
+    disegnaLista();
+    foglio('Orari preimpostati', [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Sono i tasti veloci che compaiono quando metti un turno. Cambiali quando vuoi, per esempio tra inverno ed estate.'), lista,
+      h('div', { class: 'tasti' }, h('button', { class: 'btn ghost', onclick: () => { righe.push({ id: nuovoId(), nome: '', da: '08:00', a: '13:00' }); disegnaLista(); } }, svg('piu'), 'Aggiungi un orario'))],
+    (ch) => [h('button', { class: 'btn', onclick: () => { const ok = righe.filter((o) => o.da && o.a).map((o) => ({ ...o, nome: (o.nome || '').trim() || (fmtT(o.da) + ' – ' + fmtT(o.a)) })); db.orari = ok; salvaDb(); ch(); toast('Orari salvati'); dopo ? dopo() : disegna(); } }, svg('salva'), 'Salva gli orari')]);
+  }
+  function apriTurno(d, p, s) {
+    const t = turno(d, p.id, s); const pr = orarioPer(s);
+    const ent = h('input', { type: 'time', class: 'ora', value: t && !t.libero ? t.entrata : pr.da, 'aria-label': 'Dalle ore' });
+    const usc = h('input', { type: 'time', class: 'ora', value: t && !t.libero ? t.uscita : pr.a, 'aria-label': 'Alle ore' });
+    const pau = inputOre(t && !t.libero ? (t.pausa || 0) : 0, 'Pausa in minuti');
+    const nota = h('input', { class: 'testo', value: (t && t.note) || '', 'aria-label': 'Note' });
+    const oreEl = h('b'); const calc = () => { oreEl.textContent = oreHm(oreTurno({ entrata: ent.value, uscita: usc.value, pausa: num(pau.value) })); };
+    [ent, usc, pau].forEach((i) => i.addEventListener('input', calc));
+    const salva = (dati) => { db.turni[chiaveT(d, p.id, s)] = dati; salvaDb(); };
+    const veloce = (o) => h('button', { class: 'btn ghost veloce', onclick: () => { salva({ entrata: o.da, uscita: o.a, pausa: 0 }); chiudi(); disegna(); } }, h('small', null, o.nome), fmtT(o.da) + ' – ' + fmtT(o.a));
+    const chiudi = foglio(p.nome + ' · ' + dataBreve(d) + ' · ' + s, [
+      h('div', { class: 'tasti veloci', style: { marginTop: 0 } }, db.orari.map(veloce)),
+      h('button', { class: 'link', onclick: () => { chiudi(); apriOrari(() => { disegna(); apriTurno(d, p, s); }); } }, 'Modifica gli orari preimpostati'),
+      h('div', { class: 'due' }, campo('Dalle ore', ent), campo('Alle ore', usc)),
+      h('div', { class: 'due' }, campo('Pausa (minuti)', pau), campo('Note', nota)),
+      h('div', { class: 'conto' }, h('div', { class: 'r' }, h('span', null, 'Ore'), oreEl))],
+    (ch) => [
+      t ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina il turno', onclick: () => { delete db.turni[chiaveT(d, p.id, s)]; salvaDb(); ch(); disegna(); } }, svg('azzera')) : null,
+      h('button', { class: 'btn ghost', style: { flex: '0 0 auto' }, onclick: () => { salva({ libero: true }); ch(); disegna(); } }, 'Libero'),
+      h('button', { class: 'btn', onclick: () => { salva({ entrata: ent.value, uscita: usc.value, pausa: num(pau.value), note: nota.value.trim() }); ch(); disegna(); } }, svg('salva'), 'Salva')]);
+    calc();
+  }
+  function schermataTurni(main) {
+    if (!db.persone.length) return nessunaPersona(main);
+    const ds = giorniSett(); const ps = db.persone;
+    const head1 = h('tr', null, h('th', { rowspan: 3 }, 'Persona'), ds.map((d) => h('th', { colspan: 2, class: 'gg-inizio' }, d.slice(8, 10) + '/' + d.slice(5, 7))), h('th', { rowspan: 3, class: 'gg-inizio' }, 'Ore sett.'));
+    const head2 = h('tr', null, ds.map((d) => h('th', { colspan: 2, class: 'gs gg-inizio' }, GIORNI[toDate(d).getDay()])));
+    const head3 = h('tr', null, ds.flatMap(() => SLOTS.map((s, i) => h('th', { class: 'gs sl' + (i === 0 ? ' gg-inizio' : '') }, s))));
+    const righe = [];
+    ps.forEach((p) => {
+      const [bg, fg] = col(p); let tot = 0; const tinta = { '--pc': bg };
+      const celle = ds.flatMap((d) => SLOTS.map((s) => { const t = turno(d, p.id, s); tot += oreTurno(t); return h('td', { class: 'cella' + (s === 'mattina' ? ' gg-inizio' : '') }, h('button', { class: t ? (t.libero ? 'libero' : 'pieno') : '', style: t && !t.libero ? { background: bg, color: fg } : null, 'aria-label': p.nome + ' ' + d + ' ' + s, onclick: () => apriTurno(d, p, s) }, t ? etichetta(t) : '+')); }));
+      righe.push(h('tr', { class: 'pr', style: tinta }, h('td', { class: 'pers' }, h('b', null, p.nome)), celle, h('td', { class: 'tot gg-inizio' }, h('b', null, oreHm(tot)))));
+      righe.push(h('tr', { class: 'ore', style: tinta }, h('td', null, 'ore'), ds.map((d) => h('td', { colspan: 2, class: 'gg-inizio' }, qty(oreTurniGiorno(d, p.id)))), h('td', { class: 'gg-inizio' }, qty(tot))));
+    });
+    const mt = {}; Object.entries(db.turni).forEach(([k, t]) => { const [d, pid] = k.split('|'); if (ymOf(d) === st.ym) mt[pid] = r2((mt[pid] || 0) + oreTurno(t)); });
+    const conOre = ps.filter((p) => mt[p.id] != null);
+    main.append(
+      h('div', { class: 'monthnav' }, h('button', { 'aria-label': 'Settimana precedente', onclick: () => { indietro(); disegna(); } }, '‹'), h('button', { class: 'lbl', onclick: () => { st.ws = lunedi(oggi()); st.ym = ymOf(oggi()); disegna(); } }, 'Sett. ' + settN(st.ws) + ' · ' + etichettaSett()), h('button', { 'aria-label': 'Settimana successiva', onclick: () => { avanti(); disegna(); } }, '›')),
+      h('div', { class: 'tbl-wrap', style: { marginTop: '12px' } }, h('table', { class: 'tbl grid' }, h('colgroup', null, h('col', { style: { width: '96px' } }), ds.flatMap(() => [h('col', { style: { width: '76px' } }), h('col', { style: { width: '76px' } })]), h('col', { style: { width: '84px' } })), h('thead', null, head1, head2, head3), h('tbody', null, righe))),
+      h('p', { class: 'small muted', style: { margin: '8px 4px' } }, 'Tocca una cella per impostare il turno (orari preimpostati: ' + db.orari.map((o) => o.nome.toLowerCase() + ' ' + fmtT(o.da) + '–' + fmtT(o.a)).join(', ') + '). «libero» = mattina o sera di riposo.'),
+      h('div', { class: 'tasti due-tasti' }, h('button', { class: 'btn ghost', onclick: copiaSettimana }, svg('copia'), 'Copia settimana precedente'), h('button', { class: 'btn ghost', onclick: () => { st.scheda = 'persone'; disegna(); } }, svg('persone'), 'Dipendenti')),
+      (() => { const av = avvisi(ds[0], ds[ds.length - 1]); return av.length ? h('div', { class: 'panel avvisi' }, h('h3', null, 'Avvisi sui riposi', h('span', null, av.length + (av.length === 1 ? ' avviso' : ' avvisi'))), av.map((x) => h('p', null, x.testo))) : null; })(),
+      h('div', { class: 'tasti a-capo' }, h('button', { class: 'btn ghost', onclick: copiaSuMese }, svg('copia'), 'Copia questa settimana su tutto il mese')),
+      h('div', { class: 'tasti due-tasti' }, h('button', { class: 'btn ghost', onclick: () => apriOrari() }, svg('turni'), 'Orari preimpostati'), h('button', { class: 'btn ghost', onclick: () => pdfSettimana(ds) }, svg('giornaliera'), 'PDF della settimana')),
+      h('div', { class: 'tasti a-capo' }, h('button', { class: 'btn', onclick: () => apriManda(ds) }, svg('condividi'), 'Manda i turni ai dipendenti')),
+      (() => { const conC = ps.filter((p) => oreGiornoContratto(p) > 0); if (!conC.length) return null; return h('div', { class: 'panel' }, h('h3', null, 'Ore in più / in meno', h('span', null, 'questa settimana')),
+        h('table', { class: 'tbl' }, h('thead', null, h('tr', null, ['Persona', 'Fatte', 'Contratto', 'Differenza'].map((x) => h('th', null, x)))), h('tbody', null, conC.map((p) => { const f = r2(ds.reduce((a, d) => a + oreTurniGiorno(d, p.id), 0)); const c = previsteSett(p, st.ws, st.ym); const df = r2(f - c); return h('tr', null, h('td', null, p.nome), h('td', null, oreHm(f)), h('td', null, oreHm(c)), h('td', { class: df >= 0 ? 'su' : 'giu' }, (df > 0 ? '+' : df < 0 ? '−' : '') + oreHm(Math.abs(df)))); }))),
+        h('p', { class: 'muted small', style: { margin: '8px 0 0' } }, 'Banca ore da gennaio (ore fatte meno ore da contratto, contando i mesi con turni): ' + conC.map((p) => { const b = bancaOre(p, st.ym); return p.nome + ' ' + (b > 0 ? '+' : b < 0 ? '−' : '') + oreHm(Math.abs(b)); }).join(' · ') + '.')); })(),
+      h('div', { class: 'panel' }, h('h3', null, 'Riepilogo ore · ' + meseLabel(st.ym)),
+        conOre.length ? h('table', { class: 'tbl' }, h('thead', null, h('tr', null, h('th', null, 'Persona'), h('th', null, 'Ore nel mese'))), h('tbody', null, conOre.map((p) => h('tr', null, h('td', null, p.nome), h('td', null, oreHm(mt[p.id]))))), h('tfoot', null, h('tr', null, h('td', null, 'Totale'), h('td', null, oreHm(conOre.reduce((a, p) => a + mt[p.id], 0)))))) : h('p', { class: 'muted' }, 'Nessun turno nel mese.')),
+      storico());
+  }
+  // storico: un blocco per ogni mese con turni, dal più recente
+  function storico() {
+    const ps = db.persone; const voci = Object.entries(db.turni).map(([k, t]) => { const [d, pid, s] = k.split('|'); return { d, pid, s, t }; }).filter((x) => ps.some((p) => p.id === x.pid));
+    const mesi = [...new Set(voci.map((x) => ymOf(x.d)))].sort().reverse();
+    const panel = h('div', { class: 'panel' }, h('h3', null, 'Storico turni · mese per mese'));
+    if (!mesi.length) { panel.append(h('p', { class: 'muted' }, 'Nessun turno registrato finora.')); return panel; }
+    mesi.forEach((m) => {
+      const vm = voci.filter((x) => ymOf(x.d) === m); const perP = {}; vm.forEach((x) => { perP[x.pid] = r2((perP[x.pid] || 0) + oreTurno(x.t)); });
+      const tot = Object.values(perP).reduce((a, b) => a + b, 0);
+      const sub = ps.filter((p) => perP[p.id] != null).map((p) => p.nome + ' ' + oreHm(perP[p.id])).join(' · ');
+      const giorniM = [...new Set(vm.map((x) => x.d))].sort();
+      const righe = giorniM.flatMap((d) => ps.filter((p) => vm.some((x) => x.d === d && x.pid === p.id)).map((p) => { const tm = turno(d, p.id, 'mattina'), ts = turno(d, p.id, 'sera'); return h('tr', null, h('td', null, GIORNI3M[toDate(d).getDay()] + ' ' + toDate(d).getDate()), h('td', null, p.nome), h('td', null, tm ? etichetta(tm) : '–'), h('td', null, ts ? etichetta(ts) : '–'), h('td', null, qty(r2(oreTurno(tm) + oreTurno(ts))))); }));
+      panel.append(h('details', { class: 'storico-mese', open: m === st.ym ? true : null },
+        h('summary', null, h('div', { class: 'mese-dot' }, MESI3[Number(m.slice(5, 7)) - 1].toUpperCase()), h('div', { style: { minWidth: 0, flex: 1 } }, h('b', null, meseLabel(m)), h('small', { class: 'muted', style: { display: 'block' } }, vm.length + ' turni · ' + oreHm(tot) + (sub ? ' · ' + sub : ''))), h('span', { class: 'chev', 'aria-hidden': 'true' }, '›')),
+        h('div', null,
+          h('div', { class: 'tasti', style: { margin: '2px 0 10px' } }, h('button', { class: 'btn ghost', onclick: () => { st.ym = m; st.ws = lunedi(m + '-01'); disegna(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, svg('turni'), 'Apri ' + meseLabel(m)), h('button', { class: 'btn ghost', onclick: () => esportaTurni(m) }, svg('xls'), 'Excel')),
+          h('div', { class: 'tbl-wrap' }, h('table', { class: 'tbl fisse' }, h('colgroup', null, ['17%', '27%', '19%', '23%', '14%'].map((w) => h('col', { style: { width: w } }))), h('thead', null, h('tr', null, ['Giorno', 'Persona', 'Mattina', 'Sera', 'Ore'].map((x) => h('th', null, x)))), h('tbody', null, righe), h('tfoot', null, h('tr', null, h('td', null, 'Totale'), h('td', null, ''), h('td', null, ''), h('td', null, ''), h('td', null, qty(r2(tot))))))))));
+    });
+    return panel;
+  }
+  async function copiaSuMese() {
+    const ds = giorniSett(); const fonte = {}; Object.entries(db.turni).forEach(([k, t]) => { const [d, pid, s] = k.split('|'); if (ds.includes(d)) fonte[toDate(d).getDay() + '|' + pid + '|' + s] = t; });
+    if (!Object.keys(fonte).length) return toast('In questa settimana non ci sono turni da copiare');
+    if (!(await chiedi('Copiare i turni di questa settimana su tutte le altre settimane di ' + meseLabel(st.ym).toLowerCase() + '? Lunedì va sui lunedì, martedì sui martedì… I turni già messi in quelle celle vengono sostituiti.', 'Copia'))) return;
+    let n = 0; for (let g = 1; g <= giorniNelMese(st.ym); g++) { const d = st.ym + '-' + pad(g); if (ds.includes(d)) continue; db.persone.forEach((p) => SLOTS.forEach((s) => { const t = fonte[toDate(d).getDay() + '|' + p.id + '|' + s]; if (t) { db.turni[chiaveT(d, p.id, s)] = { ...t }; n++; } })); }
+    salvaDb(); disegna(); toast(n + ' turni copiati nel mese');
+  }
+  // manda i turni: testo (WhatsApp, SMS, email…) o immagine della settimana, persona per persona
+  const testoTurni = (p, ds) => { const righe = ds.map((d) => { const dd = toDate(d); const tt = SLOTS.map((s) => turno(d, p.id, s)).filter((t) => t && !t.libero); return GIORNI3[dd.getDay()] + ' ' + dd.getDate() + ': ' + (tt.length ? tt.map((t) => fmtT(t.entrata) + '–' + fmtT(t.uscita)).join(' e ') : 'libero'); }); const tot = r2(ds.reduce((a, d) => a + oreTurniGiorno(d, p.id), 0)); return 'Turni di ' + p.nome + ' · settimana ' + etichettaSett() + '\n\n' + righe.join('\n') + '\n\nTotale: ' + qty(tot) + ' ore'; };
+  const condividiTesto = async (titolo, testo) => {
+    const Cap = window.Capacitor;
+    try { if (Cap && Cap.Plugins && Cap.Plugins.Share && Cap.isNativePlatform && Cap.isNativePlatform()) { await Cap.Plugins.Share.share({ title: titolo, text: testo, dialogTitle: titolo }); return; } } catch (e) { return; }
+    try { if (navigator.share) { await navigator.share({ title: titolo, text: testo }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(testo); toast('Turni copiati: incollali su WhatsApp'); } catch (e) { foglio(titolo, h('textarea', { class: 'testo', style: { width: '100%', minHeight: '220px' }, readonly: true }, testo)); }
+  };
+  const immagineTurni = (p, ds) => new Promise((res) => {
+    const W = 720, rh = 54, H = 150 + ds.length * rh + 70, k = 2; const cv = document.createElement('canvas'); cv.width = W * k; cv.height = H * k; const c = cv.getContext('2d'); c.scale(k, k);
+    const [bg, fg] = col(p); c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H); c.fillStyle = '#1f6fe6'; c.fillRect(0, 0, W, 96);
+    c.fillStyle = '#fff'; c.font = 'bold 30px sans-serif'; c.fillText('Turni di ' + p.nome, 28, 46); c.font = '20px sans-serif'; c.fillText('Settimana ' + etichettaSett(), 28, 78);
+    c.font = 'bold 16px sans-serif'; c.fillStyle = '#5b6684'; ['Giorno', 'Mattina', 'Sera', 'Ore'].forEach((t, i) => c.fillText(t, [28, 230, 430, 630][i], 128));
+    ds.forEach((d, i) => { const y = 140 + i * rh; const dd = toDate(d); c.fillStyle = i % 2 ? '#f5f7fb' : '#ffffff'; c.fillRect(0, y, W, rh); c.fillStyle = '#16203a'; c.font = 'bold 20px sans-serif'; c.fillText(GIORNI[dd.getDay()] + ' ' + dd.getDate(), 28, y + 34);
+      SLOTS.forEach((s, j) => { const t = turno(d, p.id, s); const x = j ? 420 : 220; if (t && !t.libero) { c.fillStyle = bg; c.fillRect(x, y + 9, 170, 36); c.fillStyle = fg; c.font = 'bold 20px sans-serif'; c.fillText(fmtT(t.entrata) + ' – ' + fmtT(t.uscita), x + 14, y + 34); } else { c.fillStyle = '#8a93a8'; c.font = '19px sans-serif'; c.fillText('libero', x + 14, y + 34); } });
+      c.fillStyle = '#16203a'; c.font = 'bold 20px sans-serif'; c.fillText(qty(oreTurniGiorno(d, p.id)), 630, y + 34); });
+    const tot = r2(ds.reduce((a, d) => a + oreTurniGiorno(d, p.id), 0)); c.fillStyle = '#16203a'; c.font = 'bold 22px sans-serif'; c.fillText('Totale settimana: ' + qty(tot) + ' ore', 28, H - 26);
+    cv.toBlob((b) => res(b), 'image/png');
+  });
+  function apriManda(ds) {
+    foglio('Manda i turni', [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Settimana ' + etichettaSett() + '. Scegli la persona e come mandarli: il telefono ti fa scegliere WhatsApp, SMS o email.'),
+      db.persone.map((p) => h('div', { class: 'cal-pers' }, h('div', { class: 'cal-nome' }, h('i', { style: { background: col(p)[0] } }), h('b', null, p.nome)),
+        h('div', { class: 'tasti', style: { margin: 0 } }, h('button', { class: 'btn ghost', onclick: () => condividiTesto('Turni di ' + p.nome, testoTurni(p, ds)) }, svg('condividi'), 'Messaggio'), h('button', { class: 'btn ghost', onclick: async () => { const b = await immagineTurni(p, ds); salvaFile('Turni_' + p.nome.replace(/\s+/g, '_') + '_' + ds[0] + '.png', b); } }, svg('giornaliera'), 'Immagine'))))]);
+  }
+  function pdfSettimana(ds) {
+    const ps = db.persone; const head = ['Persona', 'Turno', ...ds.map((d) => { const dd = toDate(d); return GIORNI3[dd.getDay()] + ' ' + dd.getDate(); })];
+    const rows = []; ps.forEach((p) => { SLOTS.forEach((s, i) => rows.push([i ? '' : p.nome, s, ...ds.map((d) => { const t = turno(d, p.id, s); return t ? etichetta(t) : '–'; })])); rows.push(['', 'ore', ...ds.map((d) => qty(oreTurniGiorno(d, p.id)))]); });
+    const dati = CT.pdf({ title: 'Turni della settimana', subtitle: 'Sett. ' + settN(st.ws) + ' · ' + etichettaSett(), meta: ['Orari: «8 13» = dalle 8 alle 13 · «libero» = riposo'], sections: [{ table: { head, rows, widths: [16, 9, ...ds.map(() => 11)], align: head.map(() => 'l') } }, { heading: 'Ore della settimana', table: { head: ['Persona', 'Ore'], rows: ps.map((p) => [p.nome, oreHm(ds.reduce((a, d) => a + oreTurniGiorno(d, p.id), 0))]), widths: [3, 1] } }], footer: 'ContabilyWork' });
+    salvaFile('Turni_settimana_' + ds[0] + '.pdf', dati);
+  }
+  async function copiaSettimana() {
+    const ds = giorniSett(); const da = []; Object.entries(db.turni).forEach(([k, t]) => { const [d, pid, s] = k.split('|'); if (ds.includes(addDays(d, 7))) da.push([addDays(d, 7), pid, s, t]); });
+    if (!da.length) return toast('Nessun turno nella settimana precedente');
+    if (!(await chiedi('Copiare i ' + da.length + ' turni della settimana precedente nei giorni visualizzati (' + etichettaSett() + ')?', 'Copia'))) return;
+    da.forEach(([d, pid, s, t]) => { db.turni[chiaveT(d, pid, s)] = { ...t }; }); salvaDb(); disegna();
+  }
+
+  // ---------- calendario del mese: chi lavora ogni giorno (colori delle persone), ferie, ROL, malattia, feste ----------
+  function apriGiornoCal(d) {
+    const dd = toDate(d);
+    const righe = db.persone.map((p) => { const g = giorno(d, p); const [bg, fg] = col(p);
+      return h('div', { class: 'cal-pers' }, h('div', { class: 'cal-nome' }, h('i', { style: { background: bg } }), h('b', null, p.nome), g.stato && g.stato !== 'lavoro' ? h('span', { class: 'pill ' + g.stato }, statoLabel(g.stato)) : null, h('span', { class: 'muted small', style: { marginLeft: 'auto' } }, g.lavorate ? qty(g.lavorate) + ' h' : '')),
+        h('div', { class: 'due' }, SLOTS.map((s) => { const t = turno(d, p.id, s); return h('button', { class: 'btn ghost cal-slot' + (t && !t.libero ? ' pieno' : ''), style: t && !t.libero ? { background: bg, color: fg, borderColor: bg } : null, onclick: () => { chiudi(); apriTurno(d, p, s); } }, h('small', null, s), t ? etichetta(t) : '+'); }))); });
+    const chiudi = foglio(GIORNI[dd.getDay()] + ' ' + dd.getDate() + ' ' + MESI[dd.getMonth()] + (festivo(d) ? ' · festa' : ''), righe);
+  }
+  function schermataCalendario(main) {
+    if (!db.persone.length) return nessunaPersona(main);
+    const ym = st.cm || ymOf(oggi()); st.cm = ym;
+    const primo = toDate(ym + '-01'); const vuoti = (primo.getDay() + 6) % 7; const n = giorniNelMese(ym);
+    const celle = [];
+    for (let i = 0; i < vuoti; i++) celle.push(h('div', { class: 'cal-vuoto' }));
+    for (let g = 1; g <= n; g++) {
+      const d = ym + '-' + pad(g); const dd = toDate(d); const fest = festivo(d) || dd.getDay() === 0;
+      const segni = db.persone.map((p) => { const x = giorno(d, p); const [bg] = col(p);
+        if (x.stato === 'ferie' || x.stato === 'malattia' || x.stato === 'rol') return h('span', { class: 'cal-segno ' + x.stato, title: p.nome + ' ' + statoLabel(x.stato) }, x.stato === 'ferie' ? 'ferie' : x.stato === 'rol' ? 'ROL' : 'malat.');
+        const lav = SLOTS.filter((s) => { const t = turno(d, p.id, s); return t && !t.libero; });
+        if (!lav.length) return null;
+        return h('span', { class: 'cal-barra', style: { background: bg }, title: p.nome }, lav.length === 2 ? '' : lav[0]);
+      }).filter(Boolean);
+      celle.push(h('button', { class: 'cal-giorno' + (fest ? ' festa' : '') + (d === oggi() ? ' oggi' : ''), 'aria-label': GIORNI[dd.getDay()] + ' ' + g, onclick: () => apriGiornoCal(d) }, h('b', null, String(g)), h('div', { class: 'cal-segni' }, segni)));
+    }
+    main.append(
+      h('div', { class: 'monthnav', style: { marginBottom: '12px' } }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { st.cm = addMesi(ym, -1); disegna(); } }, '‹'), h('button', { class: 'lbl', onclick: () => { st.cm = ymOf(oggi()); disegna(); } }, meseLabel(ym)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { st.cm = addMesi(ym, 1); disegna(); } }, '›')),
+      h('div', { class: 'cal' }, ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((x) => h('div', { class: 'cal-testa' }, x)), celle),
+      h('div', { class: 'panel cal-legenda' }, db.persone.map((p) => h('span', null, h('i', { style: { background: col(p)[0] } }), p.nome)),
+        h('span', null, 'Barra piena = mattina e sera; con la scritta «mattina» o «sera» = solo quel turno.'),
+        h('span', null, h('span', { class: 'cal-segno ferie' }, 'ferie')), h('span', null, h('span', { class: 'cal-segno rol' }, 'ROL')), h('span', null, h('span', { class: 'cal-segno malattia' }, 'malat.'), '= malattia')),
+      h('p', { class: 'muted small', style: { margin: '0 2px 12px' } }, 'Tocca un giorno per vedere chi lavora e cambiare i turni. Domeniche e feste nazionali sono in grigio.'));
+  }
+
+  // ---------- schermata giornaliera ----------
+  function apriGiorno(p, r) {
+    const dd = toDate(r.d);
+    let stato = r.stato || 'lavoro';
+    const seg = h('div', { class: 'stati' });
+    const lav = inputOre(r.lavorate || '', 'Ore lavorate'), fer = inputOre(r.ferie || '', 'Ore di ferie'), rol = inputOre(r.rol || '', 'Ore di ROL');
+    const nota = h('input', { class: 'testo', value: r.note, placeholder: 'Facoltativa (per la malattia mai la diagnosi)' });
+    const disegnaSeg = () => seg.replaceChildren(...STATI.map(([v, l]) => h('button', { type: 'button', class: 'chip' + (stato === v ? ' on' : ''), onclick: () => { stato = v; if (v === 'ferie' && !num(fer.value)) fer.value = String(oreGiornoContratto(p)).replace('.', ','); if (v !== 'lavoro' && v !== 'rol') lav.value = ''; disegnaSeg(); } }, l)));
+    disegnaSeg();
+    foglio(p.nome + ' · ' + GIORNI[dd.getDay()] + ' ' + dd.getDate() + ' ' + MESI[dd.getMonth()], [
+      campo('Giornata', seg),
+      campo('Ore lavorate' + (r.daTurni ? ' (dai turni: ' + qty(r.daTurni) + ')' : ''), lav),
+      h('div', { class: 'due' }, campo('Ore di ferie', fer), campo('Ore di ROL', rol)),
+      campo('Nota', nota)],
+    (ch) => [
+      h('button', { class: 'btn ghost', onclick: () => { delete db.giorni[r.d + '|' + p.id]; salvaDb(); ch(); disegna(); toast('Giorno rimesso come dai turni'); } }, 'Come dai turni'),
+      h('button', { class: 'btn', onclick: () => { db.giorni[r.d + '|' + p.id] = { stato, lavorate: lav.value.trim() === '' ? 0 : num(lav.value), ferie: fer.value.trim() === '' ? 0 : num(fer.value), rol: rol.value.trim() === '' ? 0 : num(rol.value), note: nota.value.trim() }; salvaDb(); ch(); disegna(); } }, svg('salva'), 'Salva')]);
+  }
+  const TIPI_G = [['interna', 'Ore reali (interna)'], ['consulente', 'Per il consulente']];
+  function schermataGiornaliera(main) {
+    if (!db.persone.length) return nessunaPersona(main);
+    const p = db.persone.find((x) => x.id === st.gp) || db.persone[0]; st.gp = p.id;
+    const tipo = st.gtipo || 'interna'; const cons = tipo === 'consulente';
+    const righe = meseDi(st.gm, p, tipo); const t = totali(righe); const pv = orePreviste(st.gm, p); const prev = pv.ore; const diff = r2(t.lavorate - prev);
+    const r = (l, v, cls) => h('div', { class: 'r' }, h('span', null, l), h('b', { class: cls || '' }, v));
+    const og = oreGiornoContratto(p);
+    main.append(
+      (db.promemoria || {}).attivo && fineMeseVicina() && st.gm === ymOf(oggi()) ? h('div', { class: 'avviso-fine' }, svg('giornaliera'), h('span', null, 'Fine mese: ricordati di mandare la giornaliera di ' + MESI[toDate(oggi()).getMonth()] + ' al consulente.')) : null,
+      h('div', { class: 'seg' }, TIPI_G.map(([v, l]) => h('button', { class: tipo === v ? 'on' : '', onclick: () => { st.gtipo = v; disegna(); } }, l))),
+      h('div', { class: 'chips-riga' }, db.persone.map((x) => h('button', { class: 'chip' + (x.id === p.id ? ' on' : ''), onclick: () => { st.gp = x.id; disegna(); } }, h('i', { style: { background: col(x)[0] } }), x.nome))),
+      h('div', { class: 'monthnav', style: { marginBottom: '12px' } }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { st.gm = addMesi(st.gm, -1); disegna(); } }, '‹'), h('button', { class: 'lbl', onclick: () => { st.gm = ymOf(oggi()); disegna(); } }, meseLabel(st.gm)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { st.gm = addMesi(st.gm, 1); disegna(); } }, '›')),
+      cons && !og ? h('div', { class: 'avviso-info' }, h('p', null, /titolare/i.test(p.contratto || '') ? [h('b', null, 'Per il titolare la giornaliera del consulente di solito non serve.'), ' Se ti serve, indica le ore del contratto in Dipendenti.'] : [h('b', null, 'Mancano le ore del contratto di ' + p.nome + '.'), ' Per la giornaliera del consulente ogni giorno di contratto vale le ore al giorno del contratto: indicale in Dipendenti.']), h('button', { class: 'btn ghost', onclick: () => apriPersona(p) }, svg('persone'), 'Indica il contratto')) : null,
+      h('div', { class: 'panel' },
+        h('h3', null, p.nome, h('span', null, p.contratto || 'contratto non indicato')),
+        h('div', { class: 'conto' },
+          r(cons ? 'Ore da contratto nel mese' : 'Ore realmente fatte nel mese', oreFmt(t.lavorate)),
+          r('Ore previste dal contratto', og ? oreFmt(prev) : 'da indicare'),
+          og ? r('Giorni × ore al giorno', pv.giorni + ' × ' + qty(og) + ' h') : null,
+          !cons && og ? r(diff >= 0 ? 'Ore in più' : 'Ore in meno', (diff > 0 ? '+' : '') + oreFmt(diff), diff >= 0 ? 'su' : 'giu') : null,
+          r('Ferie', t.gFerie + (t.gFerie === 1 ? ' giorno' : ' giorni') + ' · ' + oreFmt(t.ferie)),
+          r('ROL', oreFmt(t.rol)),
+          (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.ferieRes != null ? r('Ferie rimaste ' + st.gm.slice(0, 4), qty(sl.ferieRes) + ' giorni', sl.ferieRes < 0 ? 'giu' : '') : null; })(),
+          (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.rolRes != null ? r('ROL rimasti ' + st.gm.slice(0, 4), oreFmt(sl.rolRes), sl.rolRes < 0 ? 'giu' : '') : null; })(),
+          !cons && og ? (() => { const b = bancaOre(p, st.gm); return r('Banca ore da gennaio', (b > 0 ? '+' : '') + oreFmt(b), b >= 0 ? 'su' : 'giu'); })() : null,
+          cons ? r('Malattia · festività', t.gMalattia + ' · ' + t.gFestivi + ' giorni') : r('Giorni lavorati · liberi' + (t.gMalattia ? ' · malattia' : ''), t.gLavoro + ' · ' + t.gLibero + (t.gMalattia ? ' · ' + t.gMalattia : '')))),
+      h('div', { class: 'griglia-wrap' }, h('table', { class: 'giorn' }, h('colgroup', null, ['33%', '18%', '25%', '12%', '12%'].map((w) => h('col', { style: { width: w } }))),
+        h('thead', null, h('tr', null, ['Giorno', 'Ore lavorate', 'Giornata', 'Ferie', 'ROL'].map((x) => h('th', null, x)))),
+        h('tbody', null, righe.map((g) => { const dd = toDate(g.d); const fest = dd.getDay() === 0 || g.stato === 'riposo' || g.stato === 'festivita'; const apri = () => apriGiorno(p, giorno(g.d, p)); return h('tr', { class: (fest ? 'dom ' : '') + (g.d === oggi() ? 'oggi' : ''), onclick: apri, tabindex: '0', onkeydown: (e) => { if (e.key === 'Enter') apri(); } },
+          h('td', { class: 'gg' }, GIORNI[dd.getDay()] + ' ' + dd.getDate()), h('td', { class: 'num' }, g.lavorate ? qty(g.lavorate) : '–'),
+          h('td', null, g.stato ? h('span', { class: 'pill ' + g.stato }, statoLabel(g.stato)) : ''), h('td', { class: 'num' }, g.ferie ? qty(g.ferie) : ''), h('td', { class: 'num' }, g.rol ? qty(g.rol) : '')); })),
+        h('tfoot', null, h('tr', null, h('td', null, 'Totale'), h('td', { class: 'num' }, qty(t.lavorate)), h('td', null, ''), h('td', { class: 'num' }, qty(t.ferie)), h('td', { class: 'num' }, qty(t.rol)))))),
+      h('p', { class: 'muted small', style: { margin: '0 2px 12px' } }, cons
+        ? (og ? 'Ogni giorno di contratto vale ' + qty(og) + ' ore, qualunque turno abbia fatto.' : 'Finché non indichi le ore del contratto, i giorni di lavoro valgono 0 ore.') + ' Ferie, ROL e malattia arrivano da quello che segni (tocca un giorno); domeniche e giorni fuori contratto sono «Riposo», le feste nazionali «Festività».'
+        : 'Le ore realmente fatte arrivano dai turni. Tocca un giorno per correggerlo o per segnare libero, ferie, ROL o malattia: vale anche per la giornaliera del consulente.'),
+      h('div', { class: 'tasti' },
+        h('button', { class: 'btn', onclick: () => esportaGiornaliera(st.gm, [p], tipo) }, svg('xls'), 'Giornaliera in Excel'),
+        db.persone.length > 1 ? h('button', { class: 'btn ghost', onclick: () => esportaGiornaliera(st.gm, db.persone, tipo) }, svg('xls'), 'Excel di tutti i dipendenti') : null));
+  }
+
+  // ---------- dipendenti ----------
+  const GG_SETT = [[1, 'Lun'], [2, 'Mar'], [3, 'Mer'], [4, 'Gio'], [5, 'Ven'], [6, 'Sab'], [0, 'Dom']];
+  const giorniTesto = (p) => { const g = giorniContratto(p); const nomi = GG_SETT.filter(([v]) => g.includes(v)).map(([, l]) => l.toLowerCase()); return nomi.length > 2 && GG_SETT.slice(0, nomi.length).every(([v]) => g.includes(v)) ? nomi[0] + '–' + nomi[nomi.length - 1] : nomi.join(', '); };
+  function apriPersona(p) {
+    const nuovo = !p; p = p ? { ...p } : { id: nuovoId(), nome: '', contratto: '', oreSett: '', giorniLav: [1, 2, 3, 4, 5, 6], colore: db.persone.length % COLORI.length };
+    let giorni = [...giorniContratto(p)];
+    const nome = h('input', { class: 'testo', value: p.nome, placeholder: 'Nome e cognome', 'aria-label': 'Nome' });
+    const contr = h('input', { class: 'testo', value: p.contratto, list: 'contratti', placeholder: 'Es. Tempo indeterminato part-time', 'aria-label': 'Tipo di contratto' });
+    const oreS = inputOre(p.oreSett, 'Ore a settimana'), oreG = inputOre(p.oreGiorno || (p.oreSett ? oreGiornoContratto(p) : ''), 'Ore al giorno da contratto');
+    let manuale = !!p.oreGiorno;
+    const ricalcola = () => { if (!manuale) oreG.value = oreS.value.trim() && giorni.length ? String(r2(num(oreS.value) / giorni.length)).replace('.', ',') : ''; prevEl.textContent = anteprimaPrev(); };
+    const anteprimaPrev = () => { const q = { ...p, giorniLav: giorni, oreGiorno: num(oreG.value) }; const pv = orePreviste(ymOf(oggi()), q); return 'Ore previste a ' + meseLabel(ymOf(oggi())).toLowerCase() + ': ' + pv.giorni + ' giorni × ' + qty(num(oreG.value)) + ' h = ' + oreFmt(pv.ore) + '. Cambiano da un mese all’altro con i giorni lavorativi.'; };
+    const prevEl = h('p', { class: 'muted small', style: { margin: '-4px 0 10px' } });
+    oreS.addEventListener('input', ricalcola); oreG.addEventListener('input', () => { manuale = true; prevEl.textContent = anteprimaPrev(); });
+    const ggEl = h('div', { class: 'stati' });
+    const disegnaGg = () => ggEl.replaceChildren(...GG_SETT.map(([v, l]) => h('button', { type: 'button', class: 'chip' + (giorni.includes(v) ? ' on' : ''), onclick: () => { giorni = giorni.includes(v) ? giorni.filter((x) => x !== v) : [...giorni, v]; disegnaGg(); ricalcola(); } }, l)));
+    disegnaGg();
+    const annoS = oggi().slice(0, 4); const sI = ((p.saldi || {})[annoS]) || {};
+    const ferI = inputOre(sI.ferie != null ? sI.ferie : '', 'Ferie a inizio anno in giorni'), rolI = inputOre(sI.rol != null ? sI.rol : '', 'ROL a inizio anno in ore');
+    let colore = p.colore || 0; const colori = h('div', { class: 'colori' });
+    const disegnaColori = () => colori.replaceChildren(...COLORI.map((c, i) => h('button', { type: 'button', class: i === colore ? 'on' : '', style: { background: c[0] }, 'aria-label': 'Colore ' + (i + 1), onclick: () => { colore = i; disegnaColori(); } })));
+    disegnaColori();
+    foglio(nuovo ? 'Nuovo dipendente' : 'Modifica dipendente', [
+      campo('Nome', nome), campo('Tipo di contratto', contr), h('datalist', { id: 'contratti' }, CONTRATTI.map((c) => h('option', { value: c }))),
+      campo('Giorni di lavoro da contratto', ggEl),
+      h('div', { class: 'due' }, campo('Ore a settimana', oreS), campo('Ore al giorno', oreG)),
+      prevEl,
+      h('div', { class: 'due' }, campo('Ferie a inizio ' + annoS + ' (giorni)', ferI), campo('ROL a inizio ' + annoS + ' (ore)', rolI)),
+      h('p', { class: 'muted small', style: { margin: '-4px 0 10px' } }, 'Quelle che ha a disposizione per l’anno, residui compresi: l’app toglie da sola ferie e ROL segnati nella giornaliera e ti mostra quanti ne restano.'),
+      campo('Colore nei turni', colori),
+      h('p', { class: 'muted small', style: { margin: '4px 0 0' } }, 'Privacy: scrivi solo i dati che servono per turni e giornaliera. Restano su questo telefono.')],
+    (ch) => [
+      !nuovo ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina dipendente', onclick: async () => { if (!(await chiedi('Eliminare ' + p.nome + '? Si cancellano anche i suoi turni e la sua giornaliera.', 'Elimina'))) return; db.persone = db.persone.filter((x) => x.id !== p.id); Object.keys(db.turni).forEach((k) => { if (k.split('|')[1] === p.id) delete db.turni[k]; }); Object.keys(db.giorni).forEach((k) => { if (k.split('|')[1] === p.id) delete db.giorni[k]; }); salvaDb(); ch(); disegna(); } }, svg('azzera')) : null,
+      h('button', { class: 'btn', onclick: () => { if (!nome.value.trim()) return toast('Scrivi il nome'); if (!giorni.length) return toast('Scegli almeno un giorno di lavoro'); const saldi = { ...(p.saldi || {}), [annoS]: { ferie: ferI.value.trim() === '' ? null : num(ferI.value), rol: rolI.value.trim() === '' ? null : num(rolI.value) } }; const np = { ...p, saldi, nome: nome.value.trim(), contratto: contr.value.trim(), oreSett: num(oreS.value) || '', giorniLav: giorni.slice().sort(), oreGiorno: num(oreG.value) || '', colore }; delete np.oreMese; delete np.giorniSett; const i = db.persone.findIndex((x) => x.id === p.id); if (i < 0) db.persone.push(np); else db.persone[i] = np; salvaDb(); ch(); disegna(); toast('Salvato'); } }, svg('salva'), 'Salva')]);
+    prevEl.textContent = anteprimaPrev();
+  }
+  function schermataPersone(main) {
+    main.append(
+      db.persone.length ? h('div', { class: 'panel' }, db.persone.map((p) => h('div', { class: 'persona' }, h('i', { style: { background: col(p)[0] } }), h('div', { style: { flex: 1, minWidth: 0 } }, h('b', null, p.nome), h('small', { class: 'muted', style: { display: 'block' } }, [p.contratto, p.oreSett ? qty(p.oreSett) + ' h a settimana' : null, p.oreSett || p.oreGiorno ? qty(oreGiornoContratto(p)) + ' h al giorno, ' + giorniTesto(p) : null, (() => { const sl = saldo(p, oggi().slice(0, 4)); return [sl.ferieRes != null ? 'ferie rimaste ' + qty(sl.ferieRes) + ' gg' : null, sl.rolRes != null ? 'ROL rimasti ' + qty(sl.rolRes) + ' h' : null].filter(Boolean).join(', ') || null; })()].filter(Boolean).join(' · ') || 'Contratto da indicare')), h('button', { class: 'btn ghost', style: { minHeight: '40px', padding: '0 14px' }, onclick: () => apriPersona(p) }, 'Modifica')))) : h('div', { class: 'vuoto', style: { marginBottom: '12px' } }, h('b', null, 'Nessun dipendente'), h('br'), 'Aggiungi chi lavora con te, anche il titolare.'),
+      h('div', { class: 'tasti' }, h('button', { class: 'btn', onclick: () => apriPersona(null) }, svg('piu'), 'Aggiungi dipendente')));
+  }
+
+  // ---------- Excel ----------
+  const salvaFile = (nome, dati) => CT.saveFile(nome, dati);
+  const C = (v, o) => ({ v, center: true, border: true, color: 'FF000000', ...o });
+  const XC = { testa: 'FF1F6FE6', giorno: 'FF00B0F0', slot: 'FFAECF00', bianco: 'FFFFFFFF', dom: 'FFF2F2F2', tot: 'FF00B050' };
+  const STATO_FILL = { lavoro: 'FFFFFFFF', libero: 'FFEDEDED', ferie: 'FFC6EFCE', rol: 'FFDDEBF7', malattia: 'FFFFC7CE', riposo: 'FFF2F2F2', festivita: 'FFFFF2CC' };
+  function esportaGiornaliera(ym, persone, tipo) {
+    const cons = tipo === 'consulente';
+    const fogli = persone.map((p) => {
+      const righe = meseDi(ym, p, tipo); const t = totali(righe); const pv = orePreviste(ym, p); const prev = pv.ore;
+      const rows = [
+        [{ v: (cons ? 'Giornaliera presenze per il consulente del lavoro · ' : 'Giornaliera ore realmente fatte (uso interno) · ') + meseLabel(ym), title: true }], [],
+        [C('Dipendente', { bold: true, fill: 'FFF2EBFC' }), C(p.nome, { bold: true }), '', ''],
+        [C('Tipo di contratto', { bold: true, fill: 'FFF2EBFC' }), C(p.contratto || ''), '', ''],
+        [C('Ore previste dal contratto (mese)', { bold: true, fill: 'FFF2EBFC' }), C(prev ? qty(prev) + ' (' + pv.giorni + ' gg × ' + qty(oreGiornoContratto(p)) + ' h)' : '', { bold: true }), '', ''],
+        [],
+        ['Data', 'Giorno', 'Mese', 'Ore lavorate', 'Giornata', 'Ore ferie', 'Ore ROL', 'Note'].map((x) => C(x, { bold: true, fill: XC.testa, color: 'FFFFFFFF' })),
+        ...righe.map((g) => { const dd = toDate(g.d); const f = g.stato ? STATO_FILL[g.stato] : dd.getDay() === 0 ? XC.dom : XC.bianco; return [C(g.d, { t: 'date', fill: f }), C(GIORNI[dd.getDay()] + ' ' + dd.getDate(), { fill: f }), C(MESI[dd.getMonth()], { fill: f }), C(g.lavorate || 0, { fill: f, bold: true }), C(statoLabel(g.stato), { fill: f }), C(g.ferie || '', { fill: f }), C(g.rol || '', { fill: f }), C(g.note, { fill: f })]; }),
+        [C('Totale', { bold: true, fill: 'FFF2EBFC' }), C('', { fill: 'FFF2EBFC' }), C('', { fill: 'FFF2EBFC' }), C(t.lavorate, { bold: true, fill: 'FFF2EBFC' }), C('', { fill: 'FFF2EBFC' }), C(t.ferie, { bold: true, fill: 'FFF2EBFC' }), C(t.rol, { bold: true, fill: 'FFF2EBFC' }), C('', { fill: 'FFF2EBFC' })],
+        [],
+        [C(cons ? 'Ore da contratto nel mese' : 'Ore realmente fatte nel mese', { bold: true }), C(t.lavorate, { bold: true }), '', ''],
+        [C('Ore previste dal contratto', { bold: true }), C(prev || '', { bold: true }), '', ''],
+        [C(cons ? 'Giorni di festività' : 'Differenza (fatte − previste)', { bold: true }), C(cons ? t.gFestivi : (prev ? r2(t.lavorate - prev) : ''), { bold: true }), '', ''],
+        [C('Giorni di ferie · ore di ferie', { bold: true }), C(t.gFerie + ' · ' + qty(t.ferie)), '', ''],
+        [C('Ore di ROL', { bold: true }), C(t.rol), '', ''],
+        [C(cons ? 'Giorni di malattia' : 'Giorni liberi · malattia', { bold: true }), C(cons ? t.gMalattia : t.gLibero + ' · ' + t.gMalattia), '', ''],
+      ];
+      const nomeFoglio = (p.nome || 'Dipendente').replace(/[\\/?*[\]:]/g, ' ').slice(0, 31);
+      return { name: nomeFoglio, rows, colWidths: [32, 18, 12, 14, 12, 11, 11, 28], merges: ['B3:D3', 'B4:D4', 'B5:D5', ...[0, 1, 2, 3, 4, 5].map((k) => 'B' + (10 + righe.length + k) + ':D' + (10 + righe.length + k))], landscape: true };
+    });
+    const nome = (cons ? 'Giornaliera_consulente_' : 'Giornaliera_ore_reali_') + meseLabel(ym).replace(' ', '_') + (persone.length === 1 ? '_' + persone[0].nome.replace(/\s+/g, '_') : '') + '.xlsx';
+    salvaFile(nome, CT.xlsx(fogli));
+  }
+  // Excel dei turni del mese: stesso schema e stessi colori del file di ContabilyTab (e del foglio fatto a mano):
+  // riga date (azzurro, celle unite per giorno), riga giorno, riga mattina/sera (verde lime), righe turni (nome colorato, orari in grassetto),
+  // due righe vuote, righe ore (colore della persona, ore unite per giorno, totale settimana in verde), due righe vuote. Tutto centrato e bordato.
+  function esportaTurni(ym) {
+    const ps = db.persone;
+    const COL = { giorno: 'FF00B0F0', slot: 'FFAECF00', bianco: 'FFFFFFFF', totale: 'FF00B050' };
+    const cn = (n) => { let t = ''; n++; while (n > 0) { const m = (n - 1) % 26; t = String.fromCharCode(65 + m) + t; n = Math.floor((n - 1) / 26); } return t; };
+    const cell = (v, o) => ({ v, center: true, border: true, color: 'FF000000', ...o });
+    const TOT_COL = 1 + 6 * 2;
+    const rows = [[{ v: 'Turni ' + meseLabel(ym), title: true }], []]; const merges = [];
+    let w = lunedi(ym + '-01'); const fineMese = ym + '-' + pad(giorniNelMese(ym));
+    while (w <= fineMese) {
+      const ds = []; for (let i = 0; i < 7; i++) { const d = addDays(w, i); if (ymOf(d) === ym) ds.push(d); }
+      if (ds.length) {
+        const unisci = (ri, di) => merges.push(cn(1 + di * 2) + (ri + 1) + ':' + cn(2 + di * 2) + (ri + 1));
+        let ri = rows.length;
+        rows.push(['', ...ds.flatMap((d, i) => { unisci(ri, i); return [cell(d, { t: 'date', fill: COL.giorno }), cell('', { fill: COL.giorno })]; })]);
+        ri = rows.length;
+        rows.push(['', ...ds.flatMap((d, i) => { unisci(ri, i); return [cell(GIORNI[toDate(d).getDay()], { fill: COL.giorno }), cell('', { fill: COL.giorno })]; })]);
+        rows.push(['', ...ds.flatMap(() => [cell('mattina', { fill: COL.slot }), cell('sera', { fill: COL.slot })])]);
+        ps.forEach((p) => rows.push([cell(p.nome.toUpperCase(), { fill: col(p)[2] }), ...ds.flatMap((d) => SLOTS.map((s) => cell(etichettaVuota(turno(d, p.id, s)), { fill: COL.bianco, bold: true })))]));
+        rows.push([]); rows.push([]);
+        ps.forEach((p) => {
+          const hf = col(p)[3]; const hs = ds.map((d) => oreTurniGiorno(d, p.id));
+          ri = rows.length; const row = [cell(p.nome.toUpperCase(), { fill: hf })];
+          hs.forEach((x, i) => { unisci(ri, i); row.push(cell(x, { fill: hf, bold: true }), cell('', { fill: hf, bold: true })); });
+          while (row.length < TOT_COL) row.push('');
+          row.push(cell(r2(hs.reduce((a, b) => a + b, 0)), { fill: COL.totale, bold: true }));
+          rows.push(row);
+        });
+        rows.push([]); rows.push([]);
+      }
+      w = addDays(w, 7);
+    }
+    const colWidths = [Math.max(12, ...ps.map((p) => p.nome.length + 3))]; for (let i = 1; i < TOT_COL; i++) colWidths.push(9.5); colWidths.push(9);
+    salvaFile('ContabilyWork_turni_' + ym + '.xlsx', CT.xlsx([{ name: 'Turni', rows, merges, colWidths, landscape: true }]));
+  }
+
+  // ---------- info ----------
+  // testi legali (GDPR UE 2016/679, D.Lgs. 196/2003 e 101/2018) e manuale
+  const TESTI_DEL = '30 ottobre 2026';
+  const PRIVACY = `<p class="agg">Versione del 30 ottobre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci.</li><li>I dati escono dal telefono solo quando li mandi tu (Excel, PDF, immagine, messaggio, backup).</li></ul><h4>2. Chi è il titolare del trattamento</h4><p>I dati che inserisci riguardano te e le persone che lavorano con te. Per questi dati il <b>titolare del trattamento</b> (art. 4 n. 7 e art. 24 GDPR) è <b>il datore di lavoro che usa l'app</b>, cioè tu. ${NOME} è solo uno strumento che lavora dentro il tuo telefono. Lo sviluppatore non tratta questi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento (art. 28 GDPR).</p><h4>3. Quali dati si possono inserire</h4><ul><li>Nome della persona, tipo di contratto, giorni e ore di contratto.</li><li>Turni, ore lavorate, giorni liberi, ferie, ROL, festività e note.</li><li>L'indicazione «malattia» per un giorno, <b>senza diagnosi né certificati</b>: è un dato relativo alla salute (art. 9 GDPR), quindi scrivi solo «malattia» e mai la causa.</li></ul><p>Inserisci solo i dati che servono a organizzare i turni e a preparare la giornaliera (principio di minimizzazione, art. 5 GDPR).</p><h4>4. Perché si trattano e su quale base</h4><p>Per organizzare i turni, calcolare le ore e preparare la giornaliera per il consulente del lavoro. La base giuridica è l'esecuzione del contratto di lavoro e gli obblighi di legge del datore di lavoro (art. 6, par. 1, lett. b e c GDPR); per le assenze per malattia, gli obblighi in materia di diritto del lavoro (art. 9, par. 2, lett. b GDPR; art. 88 GDPR; artt. 111-114 del Codice).</p><h4>5. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>La <b>copia automatica</b> giornaliera resta nella stessa memoria privata.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu. Quando un rapporto di lavoro finisce, conserva i dati solo per il tempo necessario e poi elimina la persona (Dipendenti → Modifica → cestino). Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>6. Sicurezza</h4><p>Proteggi il telefono con blocco schermo (PIN, impronta o volto), usa una password robusta per i backup e manda i file solo a chi deve riceverli, per esempio al consulente del lavoro (art. 32 GDPR). Excel, PDF e immagini che condividi <b>non sono cifrati</b>: chi li riceve può leggerli.</p><h4>7. Trasferimenti e comunicazioni</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se mandare un file e a chi (per esempio al consulente del lavoro, che riceve i dati come tuo responsabile o come titolare autonomo, secondo l'incarico).</p><h4>8. Diritti delle persone</h4><p>I dipendenti hanno diritto di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione (artt. 15-22 GDPR). Le richieste vanno fatte al datore di lavoro, che con l'app può:</p><ul><li>mostrare o consegnare i dati: Excel dei turni e della giornaliera;</li><li>correggerli: Turni, Giornaliera e Dipendenti → Modifica;</li><li>cancellarli: Dipendenti → Modifica → cestino.</li></ul><p>Chiunque ritenga che i propri dati siano trattati in modo non corretto può presentare reclamo al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del proprio paese nell'Unione Europea.</p><h4>9. Informativa ai dipendenti</h4><p>Come datore di lavoro devi dare ai tuoi dipendenti l'informativa sul trattamento dei loro dati (art. 13 GDPR). Puoi citare l'uso di ${NOME} per turni e giornaliera, che i dati restano sul telefono aziendale o del titolare e che vengono mandati solo al consulente del lavoro. Se hai dubbi, chiedi al tuo consulente del lavoro.</p><h4>10. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per il promemoria di fine mese, che puoi spegnere in Info.</li><li><b>File</b>: per salvare Excel, PDF, immagini e backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>11. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
+  const CONDIZIONI = `<p class="agg">Versione del 30 ottobre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a organizzare i turni del personale e del titolare, a contare le ore e a preparare la giornaliera da mandare al consulente del lavoro. È uno strumento di annotazione e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non sostituisce</b> il Libro Unico del Lavoro, le buste paga, il contratto collettivo (CCNL) né il parere del consulente del lavoro. Ore, ferie, ROL, banca ore e festività vengono calcolati <b>solo dai dati che inserisci tu</b> e dalle regole semplici spiegate nel Manuale. Controllali sempre con il contratto e con il tuo consulente.</p><h4>3. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, dell'uso che fai di calcoli e riepiloghi, degli adempimenti verso i tuoi dipendenti (compresa la privacy), della custodia del telefono e dei backup.</p><h4>4. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni o danni derivanti dall'uso dei calcoli. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>5. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>6. Uso consentito</h4><p>Puoi usare l'app per la tua attività. Non è consentito copiarla, modificarla o rivenderla.</p><h4>7. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>8. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
+  const MANUALE = [["Per iniziare", "<p>1. Vai in <b>Dipendenti</b> e tocca <b>Aggiungi dipendente</b>. Aggiungi anche te stesso, il titolare, se fai i turni.</p><p>2. Per ogni persona scrivi il nome, il tipo di contratto, i <b>giorni di lavoro da contratto</b> (per esempio lun–sab) e le <b>ore a settimana</b>: le ore al giorno le calcola l'app (30 ore su 6 giorni = 5 ore al giorno). Se vuoi le puoi cambiare a mano.</p><p>3. Se vuoi tenere il conto di ferie e ROL, scrivi quelli che la persona ha a inizio anno, residui compresi.</p><p>4. Scegli il colore con cui la persona compare nei turni e nel calendario.</p><p>5. Vai in <b>Turni</b> e comincia a mettere i turni della settimana.</p>"], ["Turni della settimana", "<p>La tabella ha una riga per persona e, per ogni giorno, due caselle: <b>mattina</b> e <b>sera</b>. Con le frecce ‹ › cambi settimana; tocca la data in mezzo per tornare alla settimana di oggi.</p><p>Tocca una casella per mettere il turno:</p><ul><li>i <b>tasti veloci</b> in alto mettono subito un orario preimpostato;</li><li>oppure scrivi <b>Dalle ore</b> e <b>Alle ore</b>, l'eventuale <b>pausa</b> in minuti e una nota, poi <b>Salva</b>;</li><li><b>Libero</b> segna la mezza giornata come riposo;</li><li>il <b>cestino</b> toglie il turno.</li></ul><p>«7 13» vuol dire dalle 7 alle 13; «17 20,30» dalle 17 alle 20:30. Sotto ogni persona c'è la riga <b>ore</b> con le ore del giorno, e a destra il totale della settimana.</p>"], ["Orari preimpostati", "<p>Sono i tasti veloci che compaiono quando metti un turno (per esempio mattina 8–13, sera inverno 16:30–20, sera estate 17–20:30). Li cambi da <b>Turni → Orari preimpostati</b> o dal collegamento dentro la finestra del turno: puoi rinominarli, cambiarne gli orari, aggiungerne o toglierne.</p>"], ["Copiare i turni", "<p><b>Copia settimana precedente</b>: riporta nella settimana che stai guardando i turni della settimana prima.</p><p><b>Copia questa settimana su tutto il mese</b>: copia i turni della settimana su tutte le altre settimane del mese (il lunedì sui lunedì, il martedì sui martedì…). I turni già messi in quelle caselle vengono sostituiti; prima di copiare l'app ti chiede conferma.</p>"], ["Avvisi sui riposi", "<p>Sotto la tabella compaiono gli avvisi se un dipendente:</p><ul><li>lavora <b>7 giorni di fila</b> senza un giorno di riposo;</li><li>ha meno di <b>11 ore di riposo</b> tra la fine di un giorno e l'inizio del successivo.</li></ul><p>Il titolare (contratto «Titolare») non viene controllato. Sono solo promemoria: le regole precise sono quelle del tuo contratto collettivo.</p>"], ["Ore in più, in meno e banca ore", "<p>Per chi ha le ore di contratto, la tabella <b>Ore in più / in meno</b> confronta le ore fatte nella settimana con quelle del contratto.</p><p>La <b>banca ore</b> somma da gennaio la differenza tra ore fatte e ore da contratto, contando solo i mesi in cui hai messo dei turni. La trovi sotto la tabella e nella Giornaliera interna.</p>"], ["Mandare i turni", "<p><b>Manda i turni ai dipendenti</b>: per ogni persona scegli <b>Messaggio</b> (testo con i turni della settimana, da mandare su WhatsApp, SMS o e-mail) oppure <b>Immagine</b> (una tabella da mandare come foto).</p><p><b>PDF della settimana</b>: tutti i turni della settimana in un PDF da stampare o appendere.</p><p>Il tasto <b>condividi</b> in alto a destra nella barra Turni crea l'<b>Excel dei turni del mese</b>.</p>"], ["Riepilogo e storico", "<p><b>Riepilogo ore</b>: le ore di ogni persona nel mese. <b>Storico turni</b>: un riquadro per ogni mese con turni; toccalo per aprire l'elenco giorno per giorno. Da lì puoi andare a quel mese (<b>Apri</b>) o farne l'Excel.</p>"], ["Calendario", "<p>Mostra il mese intero. In ogni giorno c'è una barra colorata per ogni persona che lavora: <b>barra piena</b> = mattina e sera, con la scritta «mattina» o «sera» = solo quel turno. Le etichette <b>ferie</b>, <b>ROL</b> e <b>malat.</b> indicano le assenze. Domeniche e feste sono in grigio, oggi è cerchiato.</p><p>Tocca un giorno per vedere chi lavora e cambiare i turni di ognuno.</p>"], ["Giornaliera interna (ore reali)", "<p>In <b>Giornaliera → Ore reali (interna)</b> trovi, per la persona e il mese scelti, le <b>ore realmente fatte</b> giorno per giorno, prese dai turni.</p><p>In alto c'è il riepilogo: ore fatte, ore previste dal contratto, ore in più o in meno, ferie, ROL, quante ne restano nell'anno e la banca ore.</p><p>Tocca un giorno per correggerlo: scegli <b>Lavoro, Libero, Ferie, ROL o Malattia</b>, cambia le ore se serve e salva. <b>Come dai turni</b> annulla la correzione. Quello che segni qui vale anche per la giornaliera del consulente.</p>"], ["Giornaliera per il consulente", "<p>In <b>Giornaliera → Per il consulente</b> ogni giorno di contratto vale le <b>ore al giorno del contratto</b> (per esempio 5 ore da lunedì a sabato), qualunque turno la persona abbia fatto davvero.</p><ul><li>Domeniche e giorni fuori contratto: <b>Riposo</b>.</li><li>Feste nazionali e festa del patrono: <b>Festività</b>.</li><li>Ferie, ROL e malattia: arrivano da quello che segni nella giornaliera.</li></ul><p>Per usarla servono le ore del contratto: impostale in <b>Dipendenti → Modifica</b>. La festa del patrono si imposta in <b>Info</b>.</p>"], ["Ferie, ROL e malattia", "<p>Le segni nella Giornaliera toccando il giorno. Per le ferie l'app propone le ore di una giornata di contratto. Se hai scritto in Dipendenti le ferie e i ROL di inizio anno, l'app ti mostra quanti ne restano.</p><p><b>Malattia</b>: scrivi solo che la persona era in malattia, mai la diagnosi o la causa, perché è un dato sulla salute protetto dal GDPR.</p>"], ["Excel della giornaliera", "<p>In fondo alla Giornaliera: <b>Giornaliera in Excel</b> crea il file della persona scelta, <b>Excel di tutti i dipendenti</b> crea un file con tutti. Il telefono ti fa scegliere come mandarlo (WhatsApp, e-mail…). Il file è nella versione che stai guardando: ore reali o per il consulente.</p>"], ["Calcolatrice e Cerca", "<p><b>Calcolatrice</b>, tasto in alto: si apre sopra l'app e puoi continuare a guardare i turni mentre fai i conti. <b>Copia</b> copia il risultato, <b>Riduci</b> la chiude lasciando il risultato scritto nel tasto, <b>✕</b> la chiude e la azzera.</p><p><b>Cerca</b>, tasto in alto: scrivi una parola (per esempio ferie, Excel, backup o il nome di un dipendente) e tocca il risultato per andarci.</p>"], ["Promemoria e festa del patrono", "<p>In <b>Info → Impostazioni</b>:</p><ul><li><b>Festa del patrono</b>: scegli il giorno (l'anno non conta, vale tutti gli anni) e il nome. Diventa festività nel calendario e nella giornaliera del consulente.</li><li><b>Promemoria a fine mese</b>: l'ultimo giorno del mese, all'ora che scegli, il telefono ti ricorda di mandare la giornaliera al consulente. Negli ultimi due giorni del mese compare anche un avviso giallo nella Giornaliera.</li></ul>"], ["Backup e cambio telefono", "<p><b>Salva backup</b> (Info): crea un file con dipendenti, turni e giornaliere, <b>cifrato con una password</b> che scegli tu (almeno 8 caratteri). Senza la password nessuno può aprirlo, nemmeno tu: segnatela. Conserva il file fuori dal telefono, per esempio mandandolo a te stesso per e-mail o salvandolo sul computer.</p><p><b>Carica backup</b>: scegli il file e scrivi la password. Sostituisce i dati che ci sono.</p><p><b>Backup automatico</b>: una copia al giorno nella memoria privata dell'app, da ripristinare se sbagli qualcosa. Attenzione: se disinstalli l'app o perdi il telefono la copia automatica si perde, il backup in file no.</p><p><b>Cambio telefono</b>: sul vecchio fai Salva backup, sul nuovo installa l'app e fai Carica backup.</p>"], ["Privacy in breve", "<p>Tutti i dati restano sul telefono: l'app non usa Internet e lo sviluppatore non vede niente. Tu, come datore di lavoro, sei il titolare del trattamento dei dati dei tuoi dipendenti. Leggi l'informativa completa in <b>Info → Privacy e GDPR</b>.</p>"], ["Domande frequenti", "<p><b>Ho messo un turno sbagliato.</b> Tocca la casella e correggilo, oppure usa il cestino.</p><p><b>La giornaliera del consulente è tutta a zero.</b> Mancano le ore del contratto: Dipendenti → Modifica → Ore a settimana.</p><p><b>Le ore in più non tornano.</b> Controlla le pause dei turni e i giorni di lavoro da contratto in Dipendenti.</p><p><b>Ho perso i dati.</b> Info → Ripristina la copia automatica, oppure Carica backup se hai un file.</p><p><b>Non arriva il promemoria.</b> Controlla che le notifiche di ContabilyWork siano permesse nelle impostazioni del telefono.</p>"]];
+  const doc = (titolo, html, open) => h('details', { class: 'doc', open: open ? true : null }, h('summary', null, titolo, h('span', { class: 'chev', 'aria-hidden': 'true' }, '›')), h('div', { class: 'prosa', html }));
+  function apriManuale(cerca) {
+    const inp = h('input', { type: 'search', placeholder: 'Es. ferie, backup, consulente', autocomplete: 'off', 'aria-label': 'Cerca nel manuale' });
+    const capi = MANUALE.map(([tit, html], i) => ({ tit, html, el: doc((i + 1) + '. ' + tit, html) }));
+    const vuoto = h('div', { class: 'vuoto', style: { display: 'none' } }, 'Nessun capitolo contiene queste parole.');
+    const filtra = () => { const w = normT(inp.value).split(/\s+/).filter(Boolean); let n = 0; capi.forEach((c) => { const ok = !w.length || w.every((x) => normT(c.tit + ' ' + c.html.replace(/<[^>]+>/g, ' ')).includes(x)); c.el.style.display = ok ? '' : 'none'; c.el.open = !!(w.length && ok); if (ok) n++; }); vuoto.style.display = n ? 'none' : ''; };
+    inp.addEventListener('input', filtra);
+    foglio('Manuale di ' + NOME, [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Tocca un capitolo per aprirlo, oppure scrivi una parola qui sotto.'), h('div', { class: 'cerca-in' }, svg('cerca'), inp), h('div', { class: 'docs' }, capi.map((c) => c.el)), vuoto]);
+    if (cerca) { inp.value = cerca; filtra(); }
+  }
+  const apriTesto = (titolo, html) => foglio(titolo, h('div', { class: 'prosa', html }));
+  function schermataInfo(main) {
+    main.append(
+      h('div', { class: 'panel' }, h('h3', null, 'Aiuto'), h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Come si usa l’app, capitolo per capitolo, con la ricerca.'),
+        h('div', { class: 'tasti', style: { margin: 0 } }, h('button', { class: 'btn', onclick: () => apriManuale() }, svg('giornaliera'), 'Apri il manuale'))),
+      impostazioni(),
+      h('div', { class: 'panel' }, h('h3', null, 'Backup'), h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Salva dipendenti, turni e giornaliere in un file protetto da password (cifrato) e ricaricali su questo o su un altro telefono.'),
+        h('div', { class: 'tasti', style: { margin: 0 } }, h('button', { class: 'btn ghost', onclick: esporta }, svg('giu'), 'Salva backup'), h('button', { class: 'btn ghost', onclick: importa }, svg('su'), 'Carica backup')),
+        h('label', { class: 'riga-spunta', for: 'bk-auto', style: { marginTop: '12px' } }, h('span', null, 'Backup automatico (una copia al giorno nella memoria privata dell’app)'), h('input', { type: 'checkbox', id: 'bk-auto', class: 'spunta', checked: db.backupAuto, onchange: (e) => { db.backupAuto = e.target.checked; salvaDb(); if (db.backupAuto) copiaAutomatica(true); disegna(); } })),
+        h('p', { class: 'muted small', style: { margin: 0 } }, db.ultimaCopia ? 'Ultima copia automatica: ' + new Date(db.ultimaCopia).toLocaleString('it-IT', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + (copiaDove() ? ' · ' + copiaDove() : '') : 'Nessuna copia automatica ancora.'),
+        leggiCopia() ? h('div', { class: 'tasti', style: { margin: '10px 0 0' } }, h('button', { class: 'btn ghost', onclick: ripristinaCopia }, svg('su'), 'Ripristina la copia automatica')) : null),
+      h('div', { class: 'panel' }, h('h3', null, 'Privacy e condizioni'),
+        h('p', { class: 'muted small', style: { margin: '0 0 6px' } }, 'Nessun dato lascia il telefono: l’app non usa Internet e lo sviluppatore non vede niente. Tocca un titolo per leggere il testo completo.'),
+        h('div', { class: 'docs' }, doc('Informativa privacy e GDPR', PRIVACY), doc('Condizioni d’uso', CONDIZIONI)),
+        db.accettatoIl ? h('p', { class: 'muted small', style: { margin: '8px 0 0' } }, 'Accettate il ' + new Date(db.accettatoIl).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) + ' (testi del ' + TESTI_DEL + ').') : null),
+      h('p', { class: 'muted small', style: { textAlign: 'center' } }, NOME_STORE + ' · versione ' + VERSIONE));
+  }
+  // impostazioni: festa del patrono e promemoria di fine mese
+  function impostazioni() {
+    const dp = h('input', { type: 'date', class: 'ora', value: db.patrono ? oggi().slice(0, 4) + '-' + db.patrono.giorno : '', 'aria-label': 'Giorno della festa del patrono' });
+    const np = h('input', { class: 'testo', value: db.patrono ? db.patrono.nome : '', placeholder: 'Es. Sant’Efisio', 'aria-label': 'Nome della festa' });
+    const salvaP = () => { db.patrono = dp.value ? { giorno: dp.value.slice(5), nome: np.value.trim() } : null; salvaDb(); toast(db.patrono ? 'Festa del patrono salvata' : 'Festa del patrono tolta'); };
+    dp.addEventListener('change', salvaP); np.addEventListener('change', salvaP);
+    const ora = h('input', { type: 'time', class: 'ora', value: (db.promemoria || {}).ora || '18:00', 'aria-label': 'Ora del promemoria', onchange: (e) => { db.promemoria.ora = e.target.value; salvaDb(); programmaPromemoria(); toast('Promemoria aggiornato'); } });
+    return h('div', { class: 'panel' }, h('h3', null, 'Impostazioni'),
+      h('div', { class: 'due' }, campo('Festa del patrono (giorno)', dp), campo('Nome della festa', np)),
+      h('p', { class: 'muted small', style: { margin: '-4px 0 12px' } }, 'Vale come festività nella giornaliera per il consulente e nel calendario, ogni anno.'),
+      h('label', { class: 'riga-spunta', for: 'prom' }, h('span', null, 'Promemoria a fine mese: «manda la giornaliera al consulente»'), h('input', { type: 'checkbox', id: 'prom', class: 'spunta', checked: !!(db.promemoria || {}).attivo, onchange: (e) => { db.promemoria.attivo = e.target.checked; salvaDb(); programmaPromemoria(); disegna(); } })),
+      (db.promemoria || {}).attivo ? campo('Ora del promemoria (l’ultimo giorno del mese)', ora) : null);
+  }
+  // promemoria: nell'app installata è una notifica del telefono; in ogni caso a fine mese compare un avviso in alto nella Giornaliera
+  const fineMeseVicina = () => { const d = toDate(oggi()); return giorniNelMese(ymOf(oggi())) - d.getDate() <= 1; };
+  async function programmaPromemoria() {
+    const Cap = window.Capacitor; const LN = Cap && Cap.Plugins && Cap.Plugins.LocalNotifications; if (!LN || !(Cap.isNativePlatform && Cap.isNativePlatform())) return;
+    try {
+      const ids = Array.from({ length: 12 }, (_, i) => 500 + i); await LN.cancel({ notifications: ids.map((id) => ({ id })) }).catch(() => {});
+      if (!(db.promemoria || {}).attivo) return;
+      const perm = await LN.requestPermissions().catch(() => null); if (perm && perm.display === 'denied') return;
+      const [hh, mm] = ((db.promemoria || {}).ora || '18:00').split(':').map(Number); const ora = new Date(); const out = [];
+      for (let i = 0; i < 12; i++) { const at = new Date(ora.getFullYear(), ora.getMonth() + i + 1, 0, hh, mm || 0); if (at > ora) out.push({ id: 500 + i, title: 'ContabilyWork', body: 'Fine mese: manda la giornaliera di ' + MESI[at.getMonth()] + ' al consulente.', schedule: { at } }); }
+      if (out.length) await LN.schedule({ notifications: out });
+    } catch (e) { /* notifiche non disponibili */ }
+  }
+  // backup automatico: una copia al giorno (nell'app installata in Download/ContabilyWork, qui nella memoria del browser)
+  const CHIAVE_COPIA = 'contabilywork_copia';
+  const datiBackup = () => JSON.stringify({ app: NOME, tipo: 'backup', data: new Date().toISOString(), persone: db.persone, turni: db.turni, giorni: db.giorni, orari: db.orari, patrono: db.patrono });
+  const leggiCopia = () => { try { return localStorage.getItem(CHIAVE_COPIA); } catch (e) { return null; } };
+  const copiaDove = () => (db.ultimaCopiaDove || '');
+  async function copiaAutomatica(forza) {
+    if (!db.backupAuto || !db.persone.length) return;
+    if (!forza && db.ultimaCopia && Date.now() - new Date(db.ultimaCopia).getTime() < 20 * 3600 * 1000) return;
+    const dati = datiBackup(); let dove = 'nella memoria dell’app';
+    try { localStorage.setItem(CHIAVE_COPIA, dati); } catch (e) { /* spazio pieno */ }
+    try { const Cap = window.Capacitor; const FS = Cap && Cap.Plugins && Cap.Plugins.Filesystem; if (FS && Cap.isNativePlatform && Cap.isNativePlatform()) { await FS.writeFile({ path: 'copia/ContabilyWork_copia_automatica.json', data: dati, directory: 'DATA', encoding: 'utf8', recursive: true }); dove = 'nella memoria privata dell’app'; } } catch (e) { /* resta la copia interna */ }
+    db.ultimaCopia = new Date().toISOString(); db.ultimaCopiaDove = dove; salvaDb();
+  }
+  async function ripristinaCopia() {
+    const t = leggiCopia(); if (!t) return toast('Nessuna copia automatica');
+    let o; try { o = JSON.parse(t); } catch (e) { return toast('Copia non leggibile'); }
+    if (!(await chiedi('Ripristinare la copia automatica del ' + new Date(o.data).toLocaleString('it-IT') + '? Sostituisce i dati attuali.', 'Ripristina'))) return;
+    Object.assign(db, { persone: o.persone || [], turni: o.turni || {}, giorni: o.giorni || {}, orari: Array.isArray(o.orari) ? o.orari : db.orari, patrono: o.patrono || null }); salvaDb(); toast('Copia ripristinata'); disegna();
+  }
+  const chiediPassword = (titolo, conferma) => new Promise((res) => {
+    const p1 = h('input', { type: 'password', class: 'testo', autocomplete: 'new-password', placeholder: 'Almeno 8 caratteri', 'aria-label': 'Password' });
+    const p2 = conferma ? h('input', { type: 'password', class: 'testo', autocomplete: 'new-password', placeholder: 'Scrivila di nuovo', 'aria-label': 'Ripeti la password' }) : null;
+    let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); };
+    const chiudi = foglio(titolo, [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, conferma ? 'Il backup viene cifrato: senza questa password nessuno può leggerlo, nemmeno tu. Segnatela in un posto sicuro.' : 'Scrivi la password con cui hai salvato il backup.'), campo('Password', p1), p2 ? campo('Ripeti la password', p2) : null],
+      () => [h('button', { class: 'btn ghost', onclick: () => fine(null) }, 'Annulla'), h('button', { class: 'btn', onclick: () => { if (p1.value.length < 8) return toast('La password deve avere almeno 8 caratteri'); if (p2 && p2.value !== p1.value) return toast('Le due password non sono uguali'); fine(p1.value); } }, svg('salva'), 'Conferma')]);
+    setTimeout(() => p1.focus(), 60);
+  });
+  async function esporta() {
+    const pw = await chiediPassword('Backup protetto da password', true); if (!pw) return;
+    const cifrato = await CT.encryptBackup(JSON.parse(datiBackup()), pw);
+    const w = JSON.parse(cifrato); w.app = NOME; // «data» contiene il backup cifrato: non va toccato
+    salvaFile('ContabilyWork_backup_' + oggi() + '.json', new Blob([JSON.stringify(w)], { type: 'application/json' }));
+  }
+  function importa() {
+    const inp = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
+    inp.addEventListener('change', async () => {
+      const f = inp.files && inp.files[0]; inp.remove(); if (!f) return;
+      try {
+        let o = JSON.parse(await f.text());
+        if (o && o.encrypted) { const pw = await chiediPassword('Backup protetto', false); if (!pw) return; try { o = await CT.decryptBackup(o, pw); } catch (e) { return toast('Password sbagliata'); } }
+        if (!o || (o.app !== NOME && o.app !== 'TurniLavoro') || !Array.isArray(o.persone)) return toast('Non è un backup di ' + NOME);
+        if (!(await chiedi('Caricare il backup del ' + new Date(o.data).toLocaleDateString('it-IT') + '? Sostituisce i dati attuali.', 'Carica'))) return;
+        Object.assign(db, { persone: o.persone, turni: o.turni || {}, giorni: o.giorni || {}, orari: Array.isArray(o.orari) ? o.orari : db.orari, patrono: o.patrono || db.patrono }); salvaDb(); toast('Backup caricato'); disegna();
+      } catch (e) { toast('File non leggibile'); }
+    });
+    document.body.append(inp); inp.click();
+  }
+
+  // ---------- primo avvio ----------
+  if (db.accettato < TERMINI_VER) {
+    const spunta = h('input', { type: 'checkbox', id: 'accetto', class: 'spunta' });
+    const ok = h('button', { class: 'btn', disabled: true, onclick: () => { if (!spunta.checked) return; db.accettato = TERMINI_VER; db.accettatoIl = new Date().toISOString(); salvaDb(); chiudi(); disegna(); } }, svg('salva'), 'Accetto e inizio');
+    spunta.addEventListener('change', () => { ok.disabled = !spunta.checked; });
+    const chiudi = foglio(db.accettato ? 'Privacy e condizioni aggiornate' : 'Benvenuto in ' + NOME, [
+      h('p', { style: { margin: '0 0 8px' } }, db.accettato ? 'Abbiamo aggiornato l’informativa privacy (GDPR) e le condizioni d’uso. Prima di continuare, quattro cose chiare:' : 'Prima di iniziare, quattro cose chiare:'),
+      h('ul', { class: 'punti' },
+        h('li', null, h('b', null, 'I dati restano sul telefono.'), ' L’app non usa Internet: lo sviluppatore non riceve e non vede niente.'),
+        h('li', null, h('b', null, 'Sei tu il titolare del trattamento'), ' dei dati dei tuoi dipendenti: inserisci solo quelli che servono e, per la malattia, mai la diagnosi.'),
+        h('li', null, h('b', null, 'L’app è uno strumento di calcolo:'), ' non sostituisce buste paga, Libro Unico né il consulente del lavoro. Controlla i risultati.'),
+        h('li', null, h('b', null, 'Fai backup regolari:'), ' se perdi il telefono o disinstalli l’app, i dati non si possono recuperare.')),
+      h('div', { class: 'docs' }, doc('Leggi l’informativa privacy e GDPR', PRIVACY), doc('Leggi le condizioni d’uso', CONDIZIONI)),
+      h('label', { class: 'riga-spunta', for: 'accetto', style: { marginTop: '12px' } }, h('span', null, 'Ho letto l’informativa privacy e accetto le condizioni d’uso.'), spunta)],
+    () => [ok]);
+    document.querySelector('.foglio-ov').onclick = null; document.querySelector('.foglio .fh button').remove();
+  }
+  copiaAutoRif = () => copiaAutomatica(false);
+  programmaPromemoria();
+  CT.__demo = (fn) => { fn(db, salvaDb); disegna(); };
+  disegna();
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body>
+</html>
