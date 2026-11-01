@@ -57,8 +57,8 @@ main { padding-block: 12px calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) 
 .btn svg { width: 20px; height: 20px; flex: none; }
 .lista { display: grid; gap: 8px; }
 .voce { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
-.voce .data { flex: none; width: 52px; height: 52px; border-radius: 12px; background: var(--c-t); color: var(--c); display: grid; place-items: center; line-height: 1.05; text-align: center; }
-.voce .data b { font-size: 18px; } .voce .data small { font-size: 12px; font-weight: 700; }
+.voce .data { flex: none; width: 56px; min-height: 52px; padding: 6px 0; align-content: center; gap: 1px; border-radius: 12px; background: var(--c-t); color: var(--c); display: grid; place-items: center; line-height: 1.05; text-align: center; }
+.voce .data b { font-size: 18px; } .voce .data small { font-size: 12px; font-weight: 700; } .voce .data small.anno { font-size: 11.5px; font-weight: 600; opacity: .85; }
 .voce .mid { flex: 1; min-width: 0; } .voce .mid b { display: block; } .voce .mid small { color: var(--muted); display: block; }
 .voce .imp { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .vuoto { text-align: center; color: var(--muted); padding: 30px 10px; border: 1.5px dashed var(--line); border-radius: 14px; }
@@ -427,7 +427,7 @@ details.doc .prosa { padding: 0 16px 12px; }
 (function () {
   'use strict';
   const NOME = 'ContabilyFamily';
-  const VERSIONE = '1.0.1';
+  const VERSIONE = '1.0.2';
   const TERMINI_VER = 2; // 2 = informativa e condizioni del 1/11/2026 con il blocco con PIN
   // ---------- utilità ----------
   const h = (tag, attrs, ...kids) => {
@@ -456,7 +456,7 @@ details.doc .prosa { padding: 0 16px 12px; }
   const addDays = (iso, n) => { const d = toDate(iso); d.setDate(d.getDate() + n); return isoGiorno(d); };
   const addMesi = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const ult = new Date(y, m - 1 + n + 1, 0).getDate(); return isoGiorno(new Date(y, m - 1 + n, Math.min(d, ult), 12)); };
   const diffGiorni = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
-  const dataBreve = (iso) => { const d = toDate(iso); return GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()]; };
+  const dataBreve = (iso) => { const d = toDate(iso); return GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()] + ' ' + d.getFullYear(); };
   const dataLunga = (iso) => { const d = toDate(iso); return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
   const nuovoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const ICONE = {
@@ -628,7 +628,7 @@ details.doc .prosa { padding: 0 16px 12px; }
   const voceScad = (s, dopo) => {
     const c = catScad(s.cat), st = quando(s); const d = toDate(s.data);
     return h('button', { class: 'voce' + (s.fatta ? ' fatta' : ''), onclick: () => apriScadenza(s, dopo) },
-      h('div', { class: 'data' }, h('b', null, String(d.getDate())), h('small', null, MESI[d.getMonth()])),
+      h('div', { class: 'data' }, h('b', null, String(d.getDate())), h('small', null, MESI[d.getMonth()]), h('small', { class: 'anno' }, String(d.getFullYear()))),
       h('div', { class: 'mid' }, h('b', null, c.e + ' ' + s.titolo), h('small', null, [c.l, s.chi, s.ripeti && s.ripeti !== 'no' ? (RIPETI.find((r) => r.v === s.ripeti) || {}).l.toLowerCase() : null].filter(Boolean).join(' · ')), h('span', { class: 'stato ' + st.c }, st.t)),
       s.importo ? h('div', { class: 'imp' }, eur(s.importo)) : null);
   };
@@ -636,7 +636,7 @@ details.doc .prosa { padding: 0 16px 12px; }
     const c = catSpesa(x.cat); const d = toDate(x.data);
     return h('button', { class: 'voce', onclick: () => apriSpesa(x, dopo) },
       h('div', { class: 'ico', 'aria-hidden': 'true' }, c.e),
-      h('div', { class: 'mid' }, h('b', null, x.nota || c.l), h('small', null, (x.nota ? c.l + ' · ' : '') + GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()])),
+      h('div', { class: 'mid' }, h('b', null, x.nota || c.l), h('small', null, (x.nota ? c.l + ' · ' : '') + GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()] + ' ' + d.getFullYear())),
       h('div', { class: 'imp' }, eur(x.importo)));
   };
   const totSpese = (filtro) => r2(db.spese.filter(filtro).reduce((a, x) => a + (x.importo || 0), 0));
