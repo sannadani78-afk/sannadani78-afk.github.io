@@ -299,10 +299,224 @@ html, body { background: var(--bg); }
 
 /* firma */
 main::after{content:"by Contabily";display:block;clear:both;text-align:center;font-size:11px;letter-spacing:.04em;color:var(--muted);opacity:.85;padding:16px 0 6px}
+.sotto-titolo { margin: 16px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 16px; }
+select.testo, input.testo[type="month"], input.testo[type="date"] { width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); padding: 10px 12px; font: inherit; }
+.ferie-rol .r.fr { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 10px; align-items: baseline; }
+.ferie-rol .r.fr b, .ferie-rol .r.fr small { text-align: right; min-width: 64px; white-space: nowrap; }
+.ferie-rol .r.fr.testa small { color: var(--muted); font-weight: 700; font-size: 12px; }
+.ferie-rol .r.fr > span { min-width: 0; }
+.due { align-items: end; }
+.mat-info .r { flex-direction: column; align-items: flex-start; gap: 2px; }
+.mat-info .r b { white-space: normal; }
+/* blocco con PIN */
+.pin-ov { position: fixed; inset: 0; z-index: 1000; background: var(--pin-bg, var(--bg, #0f1420)); color: var(--pin-fg, var(--text, var(--fg, #16203a))); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); overflow: auto; }
+.pin-box { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.pin-marca { font-size: 26px; font-weight: 800; letter-spacing: -.01em; color: var(--pin-c, var(--c-scuro, var(--c, var(--gold, #1430c4)))); }
+.pin-ic { width: 40px; height: 40px; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-titolo { font-size: 20px; font-weight: 700; }
+.pin-msg { margin: 0; min-height: 2.6em; font-size: 14.5px; color: var(--muted, #5b6684); max-width: 300px; }
+.pin-punti { display: flex; gap: 18px; justify-content: center; margin: 4px 0 10px; }
+.pin-punti i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--pin-c, var(--c, var(--gold, #1f6fe6))); display: block; }
+.pin-punti i.on { background: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-punti.scuoti { animation: pin-scuoti .4s; }
+@keyframes pin-scuoti { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.pin-tast { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; justify-content: center; }
+.pin-k { width: 76px; height: 76px; border-radius: 50%; border: 1px solid var(--line, #e2e8f3); background: var(--surface, #fff); color: inherit; font-size: 28px; font-weight: 600; display: grid; place-items: center; padding: 0; font-family: inherit; cursor: pointer; }
+.pin-k:active { background: var(--c-t, rgba(127,127,127,.2)); }
+.pin-k.pin-del { border-color: transparent; background: transparent; font-size: 24px; }
+.pin-link { margin-top: 6px; border: 0; background: none; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); font-weight: 700; font-size: 15px; padding: 8px 12px; font-family: inherit; cursor: pointer; }
+.pin-aiuto { width: 100%; }
+.pin-det { text-align: left; font-size: 14px; color: var(--muted, #5b6684); display: grid; gap: 8px; }
+.pin-det[hidden] { display: none; }
+.pin-det p { margin: 0; }
+.pin-inp { width: 100%; min-height: 44px; border: 1px solid var(--line, #e2e8f3); border-radius: 10px; padding: 0 12px; background: var(--surface, #fff); color: inherit; font: inherit; }
+.pin-canc { min-height: 44px; border: 0; border-radius: 10px; background: var(--red-t, #fdeced); color: var(--red, #e2393a); font-weight: 700; font: inherit; font-weight: 700; cursor: pointer; }
+.pin-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 76px); transform: translateX(-50%); background: var(--toast, #16203a); color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 1001; max-width: 86vw; text-align: center; }
+.pin-panel .pin-stato { margin: 0 0 10px; color: var(--muted, #5b6684); font-size: 14px; }
+.pin-panel .pin-tasti { display: flex; flex-wrap: wrap; gap: 8px; }
+.pin-panel .pin-tasti > * { flex: 1 1 auto; }
+@media (max-width: 340px) { .pin-tast { grid-template-columns: repeat(3, 66px); } .pin-k { width: 66px; height: 66px; } }
+.pin-codice { font: 700 26px/1.2 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .06em; padding: 14px 16px; border-radius: 14px; border: 2px dashed var(--pin-c, var(--c, var(--gold, #1f6fe6))); background: var(--surface, #fff); white-space: nowrap; max-width: 100%; }
+.pin-riga { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; font-weight: 600; padding: 4px 2px; }
+.pin-spunta { width: 26px; height: 26px; flex: none; accent-color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-usa { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--pin-c, var(--c-fondo, var(--c, var(--gold, #1f6fe6)))); color: var(--pin-on, #fff); font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; }
+.pin-usa:disabled { opacity: .45; }
+.pin-err { margin: 0; min-height: 1.3em; color: var(--red, #e2393a); font-size: 14px; }
+.pin-sep { border-top: 1px solid var(--line, #e2e8f3); padding-top: 10px; margin-top: 4px !important; }
+@media (max-width: 340px) { .pin-codice { font-size: 22px; } }
+html, body { overflow-x: clip; }
 </style>
 </head>
 <body>
 <div id="app"></div>
+<script>window.CONTABILY_PIN = { nome: 'ContabilyWork', chiave: 'contabilywork' };</script>
+<script>
+/* Blocco con PIN di 4 cifre (Contabily). Il PIN non viene mai salvato: si salva solo un'impronta (PBKDF2-SHA256, 150.000 giri, con sale casuale).
+   Si chiede all'apertura dell'app e ogni volta che ci si torna dopo averla chiusa o messa in secondo piano. 5 tentativi sbagliati → attesa di 30 secondi.
+   Codice di ripristino di 12 caratteri (anch'esso salvato solo come impronta) per scegliere un PIN nuovo senza perdere i dati. */
+(function () {
+  'use strict';
+  const CFG = window.CONTABILY_PIN || {}; const NOME = CFG.nome || 'Contabily'; const CHIAVE = (CFG.chiave || 'contabily') + '.pin';
+  const DOVE = CFG.dove || 'Info', BACKUP = CFG.backup || (DOVE + ' → Carica backup');
+  const LEN = 4, RIBLOCCO_MS = 1500;
+  const ALFA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const nuovoCodice = () => { const r = crypto.getRandomValues(new Uint8Array(12)); let c = ''; r.forEach((x, i) => { c += ALFA[x % ALFA.length]; if (i === 3 || i === 7) c += '-'; }); return c; };
+  const normCodice = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/O/g, '0').replace(/I/g, '1');
+  const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE) || 'null'); } catch (e) { return null; } };
+  const scrivi = (v) => { try { if (v) localStorage.setItem(CHIAVE, JSON.stringify(v)); else localStorage.removeItem(CHIAVE); } catch (e) { /* */ } };
+  const hex = (b) => Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, '0')).join('');
+  const unhex = (s) => new Uint8Array(s.match(/../g).map((x) => parseInt(x, 16)));
+  const ok = () => !!(window.crypto && crypto.subtle);
+  async function impronta(pin, saltHex) {
+    const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+    return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: unhex(saltHex), iterations: 150000, hash: 'SHA-256' }, km, 256));
+  }
+  const attivo = () => { const c = leggi(); return !!(c && c.hash && c.salt); };
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+  // tastierino a schermo intero; titolo, testo; onPin(pin) → true se va bene (chiude), stringa = messaggio d'errore
+  function tastierino({ titolo, testo, onPin, chiudibile, extra }) {
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', titolo);
+    const box = el('div', 'pin-box');
+    const marca = el('div', 'pin-marca', NOME);
+    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const t = el('div', 'pin-titolo', titolo); const msg = el('p', 'pin-msg', testo || ''); msg.setAttribute('role', 'status');
+    const punti = el('div', 'pin-punti'); punti.setAttribute('aria-hidden', 'true');
+    let pin = '', busy = false;
+    const disegna = () => { punti.replaceChildren(...Array.from({ length: LEN }, (_, i) => el('i', i < pin.length ? 'on' : ''))); };
+    const chiudi = () => { document.removeEventListener('keydown', tasto, true); ov.remove(); };
+    const premi = async (k) => {
+      if (busy) return;
+      if (k === 'del') pin = pin.slice(0, -1); else if (pin.length < LEN) pin += k;
+      disegna();
+      if (pin.length === LEN) { busy = true; const r = await onPin(pin); busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
+    };
+    const tasto = (e) => { if (e.target && e.target.tagName === 'INPUT') return; if (/^[0-9]$/.test(e.key)) { e.preventDefault(); premi(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); premi('del'); } else if (e.key === 'Escape' && chiudibile) chiudi(); };
+    const tast = el('div', 'pin-tast');
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].forEach((k) => {
+      if (!k) { tast.append(el('span')); return; }
+      const b = el('button', 'pin-k' + (k === 'del' ? ' pin-del' : ''), k === 'del' ? '⌫' : k); b.type = 'button'; if (k === 'del') b.setAttribute('aria-label', 'Cancella una cifra');
+      b.addEventListener('click', () => premi(k)); tast.append(b);
+    });
+    box.append(marca, ic, t, msg, punti, tast);
+    if (extra) box.append(extra(chiudi));
+    if (chiudibile) { const a = el('button', 'pin-link', 'Annulla'); a.type = 'button'; a.addEventListener('click', chiudi); box.append(a); }
+    ov.append(box); document.body.append(ov); disegna(); document.addEventListener('keydown', tasto, true);
+    return chiudi;
+  }
+
+  // ---- blocco ----
+  let bloccato = false, falliti = 0, attesa = 0;
+  function blocca() {
+    if (bloccato || !attivo()) return; bloccato = true;
+    const aiuto = (chiudi) => {
+      const box = el('div', 'pin-aiuto'); const btn = el('button', 'pin-link', 'PIN dimenticato?'); btn.type = 'button';
+      const det = el('div', 'pin-det'); det.hidden = true;
+      const cfg0 = leggi() || {};
+      if (cfg0.rhash) {
+        det.append(el('p', null, 'Scrivi il codice di ripristino che ti è stato dato quando hai scelto il PIN: potrai sceglierne uno nuovo senza perdere niente.'));
+        const cod = document.createElement('input'); cod.type = 'text'; cod.className = 'pin-inp'; cod.placeholder = 'XXXX-XXXX-XXXX'; cod.autocapitalize = 'characters'; cod.autocomplete = 'off'; cod.spellcheck = false; cod.setAttribute('aria-label', 'Codice di ripristino');
+        const esito = el('p', 'pin-err'); esito.setAttribute('role', 'status');
+        const usa = el('button', 'pin-usa', 'Usa il codice'); usa.type = 'button';
+        usa.addEventListener('click', async () => {
+          const c = leggi(); const n = normCodice(cod.value);
+          if (n.length !== 12) { esito.textContent = 'Il codice ha 12 caratteri.'; return; }
+          const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
+          if (c && c.rhash && await impronta(n, c.rsalt) === c.rhash) { chiudi(); bloccato = false; falliti = 0; chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
+          falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; }
+          esito.textContent = 'Codice errato. Controlla e riprova.';
+        });
+        det.append(cod, usa, esito, el('p', 'pin-sep', 'Hai perso anche il codice? Lo sviluppatore non può sbloccare l’app, perché non vede i tuoi dati. L’unica strada è cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
+      } else det.append(el('p', null, 'Per sicurezza il PIN non si può recuperare, nemmeno dallo sviluppatore. Per rientrare devi cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
+      const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Scrivi CANCELLA'; inp.className = 'pin-inp'; inp.setAttribute('aria-label', 'Scrivi CANCELLA per cancellare tutti i dati');
+      const canc = el('button', 'pin-canc', 'Cancella tutti i dati'); canc.type = 'button';
+      canc.addEventListener('click', () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); } catch (e) { /* */ } location.reload(); });
+      det.append(inp, canc);
+      btn.addEventListener('click', () => { det.hidden = !det.hidden; });
+      box.append(btn, det); return box;
+    };
+    tastierino({ titolo: 'Inserisci il PIN', testo: 'L’app è protetta: scrivi le 4 cifre.', extra: aiuto, onPin: async (p) => {
+      const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
+      const c = leggi(); if (!c) { bloccato = false; return true; }
+      if (await impronta(p, c.salt) === c.hash) { falliti = 0; bloccato = false; return true; }
+      falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; return 'Troppi tentativi. Riprova tra 30 secondi.'; }
+      return 'PIN errato. Riprova.';
+    } });
+  }
+  let nascostaDa = 0;
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') nascostaDa = Date.now(); else if (nascostaDa && Date.now() - nascostaDa > RIBLOCCO_MS) blocca(); });
+
+  // ---- impostazioni ----
+  // mostra il codice di ripristino da scrivere
+  function mostraCodice(codice, fatto) {
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Codice di ripristino');
+    const box = el('div', 'pin-box');
+    const c = el('div', 'pin-codice', codice);
+    const spunta = document.createElement('input'); spunta.type = 'checkbox'; spunta.id = 'pin-scritto'; spunta.className = 'pin-spunta';
+    const lab = el('label', 'pin-riga'); lab.htmlFor = 'pin-scritto'; lab.append(el('span', null, 'Ho scritto il codice in un posto sicuro'), spunta);
+    const fine = el('button', 'pin-usa', 'Fatto'); fine.type = 'button'; fine.disabled = true;
+    spunta.addEventListener('change', () => { fine.disabled = !spunta.checked; });
+    fine.addEventListener('click', () => { ov.remove(); fatto && fatto(); });
+    const copia = el('button', 'pin-link', 'Copia il codice'); copia.type = 'button';
+    copia.addEventListener('click', async () => { try { await navigator.clipboard.writeText(codice); avviso('Codice copiato'); } catch (e) { avviso('Scrivilo a mano'); } });
+    box.append(el('div', 'pin-marca', NOME), el('div', 'pin-titolo', 'Codice di ripristino'),
+      el('p', 'pin-msg', 'Se un giorno dimentichi il PIN, con questo codice ne scegli uno nuovo senza perdere i dati. Scrivilo su un foglio o fotografalo e tienilo lontano dal telefono: verrà mostrato solo adesso.'),
+      c, copia, lab, fine);
+    ov.append(box); document.body.append(ov);
+  }
+  const chiediNuovo = (fatto, obbligatorio) => {
+    let primo = null;
+    const c1 = tastierino({ titolo: 'Scegli il PIN', testo: 'Scegli 4 cifre facili da ricordare per te, ma non per gli altri (no 1234, no la data di nascita).', chiudibile: !obbligatorio, onPin: async (p) => {
+      if (/^(\d)\1{3}$/.test(p) || '0123456789'.includes(p) || '9876543210'.includes(p)) return 'Troppo facile: scegline un altro.';
+      primo = p; setTimeout(() => tastierino({ titolo: 'Ripeti il PIN', testo: 'Scrivi di nuovo le stesse 4 cifre.', chiudibile: !obbligatorio, onPin: async (q) => {
+        if (q !== primo) return 'I due PIN non sono uguali. Riprova.';
+        const salt = hex(crypto.getRandomValues(new Uint8Array(16))), rsalt = hex(crypto.getRandomValues(new Uint8Array(16))), codice = nuovoCodice();
+        scrivi({ salt, hash: await impronta(q, salt), rsalt, rhash: await impronta(normCodice(codice), rsalt), len: LEN, dal: new Date().toISOString() });
+        setTimeout(() => mostraCodice(codice, fatto), 0); return true; } }), 0);
+      return true; } });
+    return c1;
+  };
+  const chiediAttuale = (titolo, poi) => tastierino({ titolo, testo: 'Scrivi il PIN attuale.', chiudibile: true, onPin: async (p) => { const c = leggi(); if (c && await impronta(p, c.salt) === c.hash) { setTimeout(poi, 0); return true; } return 'PIN errato. Riprova.'; } });
+  const avviso = (t) => { const a = el('div', 'pin-toast', t); a.setAttribute('role', 'status'); document.body.append(a); setTimeout(() => a.remove(), 2600); };
+  const ContabilyPin = {
+    attivo,
+    imposta(dopo) { if (!ok()) return avviso('Il blocco con PIN funziona solo nell’app installata'); chiediNuovo(() => { avviso('PIN attivato'); dopo && dopo(); }); },
+    cambia(dopo) { chiediAttuale('Cambia il PIN', () => chiediNuovo(() => { avviso('PIN cambiato'); dopo && dopo(); })); },
+    togli(dopo) { chiediAttuale('Togli il PIN', () => { scrivi(null); avviso('Blocco con PIN tolto'); dopo && dopo(); }); },
+    // riquadro per la pagina Info: o = { classePanel, classeBtn, classeGhost, ridisegna }
+    pannello(o) {
+      o = o || {}; const p = el('div', (o.classePanel || 'panel') + ' pin-panel');
+      const h3 = el('h3', null, 'Blocco con PIN');
+      const t = el('p', 'pin-stato', attivo() ? 'Attivo: il PIN viene chiesto ogni volta che apri l’app o ci torni. Se lo dimentichi, usa il codice di ripristino.' : 'Non attivo. Con un PIN di 4 cifre nessuno può aprire l’app senza di te, anche se ha il tuo telefono in mano.');
+      const r = el('div', 'pin-tasti');
+      const b = (txt, cls, fn) => { const x = el('button', cls, txt); x.type = 'button'; x.addEventListener('click', fn); return x; };
+      const dopo = () => o.ridisegna && o.ridisegna();
+      if (attivo()) r.append(b('Cambia PIN', o.classeGhost || 'btn ghost', () => ContabilyPin.cambia(dopo)), b('Togli PIN', o.classeGhost || 'btn ghost', () => ContabilyPin.togli(dopo)));
+      else r.append(b('Imposta PIN', o.classeBtn || 'btn', () => ContabilyPin.imposta(dopo)));
+      p.append(h3, t, r); return p;
+    },
+  };
+  // alla prima apertura: proposta di scegliere il PIN (una volta sola)
+  ContabilyPin.proponi = (dopo) => {
+    const K = CHIAVE + 'proposto'; let gia = false; try { gia = !!localStorage.getItem(K); } catch (e) { /* */ }
+    if (gia || attivo() || !ok()) { dopo && dopo(); return; }
+    try { localStorage.setItem(K, '1'); } catch (e) { /* */ }
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Imposta il PIN');
+    const box = el('div', 'pin-box');
+    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const si = el('button', 'pin-usa', 'Imposta il PIN'); si.type = 'button';
+    const no = el('button', 'pin-link', 'Più tardi'); no.type = 'button';
+    si.addEventListener('click', () => { ov.remove(); chiediNuovo(() => { avviso('PIN attivato'); dopo && dopo(); }); });
+    no.addEventListener('click', () => { ov.remove(); dopo && dopo(); });
+    box.append(el('div', 'pin-marca', NOME), ic, el('div', 'pin-titolo', 'Proteggi l’app con un PIN'),
+      el('p', 'pin-msg', 'Scegli 4 cifre: verranno chieste ogni volta che apri l’app. Riceverai anche un codice di ripristino da conservare, se un giorno dimentichi il PIN. Puoi farlo anche più tardi da ' + DOVE + ' → Blocco con PIN.'),
+      si, no);
+    ov.append(box); document.body.append(ov);
+  };
+  window.ContabilyPin = ContabilyPin;
+  if (attivo()) blocca();
+})();
+</script>
 <script>
 /* ContabilyWork — generazione file nel dispositivo: ZIP, Excel (.xlsx), PDF, backup cifrato, salvataggio/condivisione */
 (function () {
@@ -638,8 +852,8 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
   'use strict';
   const NOME = 'ContabilyWork';
   const NOME_STORE = 'ContabilyWork: turni di lavoro';
-  const VERSIONE = '1.0.0';
-  const TERMINI_VER = 2; // 2 = informativa privacy/GDPR e condizioni del 30/10/2026
+  const VERSIONE = '1.0.11';
+  const TERMINI_VER = 3; // 3 = informativa privacy/GDPR e condizioni del 1/11/2026 (blocco con PIN)
   const CT = (window.CT = window.CT || {});
   // ---------- utilità ----------
   const h = (tag, attrs, ...kids) => {
@@ -682,7 +896,7 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
     salva: '<path d="M5 12l4 4 10-10"/>', azzera: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>', chiudi: '<path d="M6 6l12 12M18 6L6 18"/>',
     xls: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 11l5 6M14 11l-5 6"/>', condividi: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 11l7.6-3.8M8.2 13l7.6 3.8"/>',
-    copia: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', piu: '<path d="M12 5v14M5 12h14"/>',
+    copia: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', piu: '<path d="M12 5v14M5 12h14"/>', modifica: '<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
     giu: '<path d="M12 4v12M6 10l6 6 6-6M5 20h14"/>', calc: '<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8 6.5h8v3H8zM8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/>', cerca: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', ora: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', su: '<path d="M12 20V8M6 14l6-6 6 6M5 4h14"/>',
   };
   const svg = (n) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = ICONE[n] || ''; return s; };
@@ -748,11 +962,62 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
   const meseDi = (ym, p, tipo) => { const out = []; for (let i = 1; i <= giorniNelMese(ym); i++) { const d = ym + '-' + pad(i); out.push(tipo === 'consulente' ? giornoConsulente(d, p) : giorno(d, p)); } return out; };
   const totali = (righe) => ({ lavorate: r2(righe.reduce((a, r) => a + r.lavorate, 0)), ferie: r2(righe.reduce((a, r) => a + r.ferie, 0)), rol: r2(righe.reduce((a, r) => a + r.rol, 0)), gFerie: righe.filter((r) => r.stato === 'ferie').length, gRol: righe.filter((r) => r.stato === 'rol').length, gLibero: righe.filter((r) => r.stato === 'libero').length, gMalattia: righe.filter((r) => r.stato === 'malattia').length, gLavoro: righe.filter((r) => r.lavorate > 0).length, gFestivi: righe.filter((r) => r.stato === 'festivita').length });
 
-  // saldo ferie e ROL dell'anno: disponibili a inizio anno (scheda del dipendente) meno quelli segnati nella giornaliera
+  // ---------- ferie e ROL che maturano secondo il contratto nazionale (CCNL) ----------
+  // valori per il tempo pieno; ferie in giorni lavorativi su una settimana di «base» giorni; ROL ed ex festività in ore all'anno
+  // nuovi: regola dei nuovi assunti sui ROL (mesi di anzianità → quota dei ROL), solo per chi è assunto dopo la data «dopo»
+  const CCNL = [
+    { v: 'terz15', l: 'Commercio e terziario – fino a 15 dipendenti', ferie6: 26, rol: 56, exf: 32, nuovi: { dopo: '2011-02-26', regole: [[24, 0], [48, 0.5]] } },
+    { v: 'terz16', l: 'Commercio e terziario – oltre 15 dipendenti', ferie6: 26, rol: 72, exf: 32, nuovi: { dopo: '2011-02-26', regole: [[24, 0], [48, 0.5]] } },
+    { v: 'turismo', l: 'Turismo e pubblici esercizi (bar, ristoranti, alberghi)', ferie6: 26, rol: 72, exf: 32, nuovi: { dopo: '2018-01-01', regole: [[24, 0], [36, 0.5]] } },
+    { v: 'tlc', l: 'Telecomunicazioni', ferie6: 24, ferie5: 20, rol: 72, exf: 32 },
+    { v: 'meta', l: 'Industria metalmeccanica', ferie6: 24, ferie5: 20, rol: 72, exf: 32 },
+    { v: 'alim', l: 'Industria alimentare', ferie6: 24, ferie5: 20, rol: 80, exf: 32 },
+    { v: 'edil', l: 'Edilizia industria', ferie6: 24, ferie5: 20, rol: 88, exf: 0 },
+    { v: 'scuola', l: 'Scuola: docenti e ATA (oltre 3 anni di servizio)', ferie6: 32, ferie5: 28, rol: 0, exfGiorni: 4, pubblico: true },
+    { v: 'scuola3', l: 'Scuola: docenti e ATA (primi 3 anni)', ferie6: 30, ferie5: 26, rol: 0, exfGiorni: 4, pubblico: true },
+    { v: 'pa', l: 'Sanità pubblica, comuni ed enti locali, ministeri (oltre 3 anni)', ferie6: 32, ferie5: 28, rol: 0, exfGiorni: 4, pubblico: true },
+    { v: 'pa3', l: 'Sanità pubblica, comuni ed enti locali, ministeri (primi 3 anni)', ferie6: 30, ferie5: 26, rol: 0, exfGiorni: 4, pubblico: true },
+    { v: 'legge', l: 'Minimo di legge (4 settimane di ferie, niente ROL)', ferie6: 24, ferie5: 20, rol: 0, exf: 0 },
+    { v: 'pers', l: 'Altro contratto: scrivo io i valori', ferie6: 26, rol: 0, exf: 0 },
+  ];
+  // ferie all'anno sui giorni in cui la persona lavora (settimana di 5 o 6 giorni, o meno per il part-time verticale)
+  const ferieContratto = (c, nGiorni) => { const n = nGiorni || 6; if (c.ferie5 != null && n <= 5) return r2(c.ferie5 * n / 5); return r2((c.ferie6 != null ? c.ferie6 : c.ferie5 * 6 / 5) * n / 6); };
+  const ccnlDi = (v) => CCNL.find((c) => c.v === v) || CCNL[CCNL.length - 1];
+  const addYm = (ym, n) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+  const ymPrima = (ym) => addYm(ym, -1);
+  // quota dei ROL in un mese per chi è stato assunto dopo la data della regola (1 = tutti)
+  const quotaRol = (mat, ym) => {
+    const c = ccnlDi(mat.ccnl); if (!c.nuovi || !mat.assunto || mat.assunto <= c.nuovi.dopo || mat.noRiduzione) return 1;
+    const [ya, ma] = mat.assunto.split('-').map(Number); const [y, m] = ym.split('-').map(Number); const mesi = (y - ya) * 12 + (m - ma) + 1;
+    for (const [fino, q] of c.nuovi.regole) if (mesi <= fino) return q;
+    return 1;
+  };
+  // quanto matura in un mese: 1/12 delle ferie e dei ROL dell'anno (il mese dell'assunzione conta se si entra entro il 15)
+  const maturaMese = (p, ym) => {
+    const mat = p.mat; if (!mat) return { ferie: 0, rol: 0 };
+    if (mat.assunto) { const am = mat.assunto.slice(0, 7); if (ym < am || (ym === am && Number(mat.assunto.slice(8, 10)) > 15)) return { ferie: 0, rol: 0 }; }
+    const prop = mat.proporziona === false ? 1 : Math.min(1, (Number(p.oreSett) || 40) / (Number(mat.orePieno) || 40));
+    return { ferie: (Number(mat.ferie) || 0) / 12, rol: ((Number(mat.rol) || 0) * quotaRol(mat, ym) + (Number(mat.exf) || 0)) * prop / 12 };
+  };
+  const maturaTra = (p, daYm, aYm) => { let f = 0, r = 0; for (let ym = daYm; ym <= aYm; ym = addYm(ym, 1)) { const x = maturaMese(p, ym); f += x.ferie; r += x.rol; } return { ferie: r2(f), rol: r2(r) }; };
+  // ferie e ROL segnati nella giornaliera tra due date (comprese)
+  const goduti = (p, da, a) => { let gF = 0, oF = 0, oR = 0; Object.entries(db.giorni).forEach(([k, g]) => { const [d, pid] = k.split('|'); if (pid !== p.id || d < da || d > a) return; if (g.stato === 'ferie') { gF++; oF += Number(g.ferie) || oreGiornoContratto(p); } if (g.stato === 'rol') oR += Number(g.rol) || 0; }); return { gF, oF: r2(oF), oR: r2(oR) }; };
+  // saldo: con la maturazione = residui (busta paga o inizio anno) + maturato fino all'ultimo mese finito − goduti; senza = disponibili a inizio anno − goduti
   const saldo = (p, anno) => {
-    const ini = ((p.saldi || {})[anno]) || {}; let gF = 0, oF = 0, oR = 0;
-    Object.entries(db.giorni).forEach(([k, g]) => { const [d, pid] = k.split('|'); if (pid !== p.id || d.slice(0, 4) !== String(anno)) return; if (g.stato === 'ferie') { gF++; oF += Number(g.ferie) || oreGiornoContratto(p); } if (g.stato === 'rol') oR += Number(g.rol) || 0; });
-    return { ferieIni: ini.ferie, rolIni: ini.rol, gFerie: gF, oFerie: r2(oF), oRol: r2(oR), ferieRes: ini.ferie != null && ini.ferie !== '' ? r2(Number(ini.ferie) - gF) : null, rolRes: ini.rol != null && ini.rol !== '' ? r2(Number(ini.rol) - oR) : null };
+    anno = String(anno);
+    if (!p.mat) {
+      const ini = ((p.saldi || {})[anno]) || {}; const g = goduti(p, anno + '-01-01', anno + '-12-31');
+      return { ferieIni: ini.ferie, rolIni: ini.rol, gFerie: g.gF, oFerie: g.oF, oRol: g.oR, ferieRes: ini.ferie != null && ini.ferie !== '' ? r2(Number(ini.ferie) - g.gF) : null, rolRes: ini.rol != null && ini.rol !== '' ? r2(Number(ini.rol) - g.oR) : null };
+    }
+    const res = p.residui && p.residui.al ? p.residui : { al: (Number(anno) - 1) + '-12', ferie: ((p.saldi || {})[anno] || {}).ferie, rol: ((p.saldi || {})[anno] || {}).rol };
+    const finito = ymPrima(ymOf(oggi()));                 // ultimo mese già finito (le ferie maturano a fine mese)
+    const daYm = addYm(res.al, 1);
+    const mat = daYm <= finito ? maturaTra(p, daYm, finito) : { ferie: 0, rol: 0 };
+    const fineAnno = maturaTra(p, addYm(finito, 1) > daYm ? addYm(finito, 1) : daYm, ymOf(oggi()).slice(0, 4) + '-12');
+    const g = goduti(p, addYm(res.al, 1) + '-01', '9999-12-31');
+    const fI = Number(res.ferie) || 0, rI = Number(res.rol) || 0;
+    return { conMat: true, al: res.al, daBusta: !!(p.residui && p.residui.al), finito, ferieIni: fI, rolIni: rI, matFerie: mat.ferie, matRol: mat.rol, gFerie: g.gF, oFerie: g.oF, oRol: g.oR,
+      ferieRes: r2(fI + mat.ferie - g.gF), rolRes: r2(rI + mat.rol - g.oR), ancoraFerie: fineAnno.ferie, ancoraRol: fineAnno.rol, meseFerie: r2(maturaMese(p, ymOf(oggi())).ferie), meseRol: r2(maturaMese(p, ymOf(oggi())).rol) };
   };
   // banca ore: da gennaio al mese indicato, ore realmente fatte meno ore previste dal contratto
   // conta solo i mesi in cui la persona ha turni o giorni segnati (prima di iniziare a usare l'app non c'è niente da confrontare)
@@ -830,6 +1095,7 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
     { t: 'Salva backup', d: 'File protetto da password', ic: 'giu', k: 'backup salva copia esporta', vai: () => { vaiA('info'); esporta(); } },
     { t: 'Carica backup', d: 'Da questo o da un altro telefono', ic: 'su', k: 'backup carica ripristina importa', vai: () => { vaiA('info'); importa(); } },
     { t: 'Manuale', d: 'Come si usa l’app, capitolo per capitolo', ic: 'giornaliera', k: 'manuale aiuto guida istruzioni come si usa', vai: () => apriManuale() },
+    { t: 'Blocco con PIN', d: 'PIN di 4 cifre all’apertura, in Info', ic: 'info', k: 'pin blocco codice sicurezza password apertura', vai: () => vaiA('info') },
     { t: 'Privacy e GDPR', d: 'Informativa sul trattamento dei dati personali', ic: 'info', k: 'privacy gdpr dati personali trattamento garante diritti informativa', vai: () => apriTesto('Informativa privacy e GDPR', PRIVACY) },
     { t: 'Condizioni d’uso', d: 'Responsabilità e limiti dell’app', ic: 'info', k: 'condizioni uso responsabilita termini', vai: () => apriTesto('Condizioni d’uso', CONDIZIONI) },
     ...db.persone.flatMap((p) => [
@@ -945,7 +1211,7 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
     const veloce = (o) => h('button', { class: 'btn ghost veloce', onclick: () => { salva({ entrata: o.da, uscita: o.a, pausa: 0 }); chiudi(); disegna(); } }, h('small', null, o.nome), fmtT(o.da) + ' – ' + fmtT(o.a));
     const chiudi = foglio(p.nome + ' · ' + dataBreve(d) + ' · ' + s, [
       h('div', { class: 'tasti veloci', style: { marginTop: 0 } }, db.orari.map(veloce)),
-      h('button', { class: 'link', onclick: () => { chiudi(); apriOrari(() => { disegna(); apriTurno(d, p, s); }); } }, 'Modifica gli orari preimpostati'),
+      h('button', { class: 'btn ghost', style: { width: '100%', margin: '8px 0 4px' }, onclick: () => { chiudi(); apriOrari(() => { disegna(); apriTurno(d, p, s); }); } }, svg('modifica'), 'Modifica gli orari preimpostati'),
       h('div', { class: 'due' }, campo('Dalle ore', ent), campo('Alle ore', usc)),
       h('div', { class: 'due' }, campo('Pausa (minuti)', pau), campo('Note', nota)),
       h('div', { class: 'conto' }, h('div', { class: 'r' }, h('span', null, 'Ore'), oreEl))],
@@ -1124,10 +1390,11 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
           !cons && og ? r(diff >= 0 ? 'Ore in più' : 'Ore in meno', (diff > 0 ? '+' : '') + oreFmt(diff), diff >= 0 ? 'su' : 'giu') : null,
           r('Ferie', t.gFerie + (t.gFerie === 1 ? ' giorno' : ' giorni') + ' · ' + oreFmt(t.ferie)),
           r('ROL', oreFmt(t.rol)),
-          (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.ferieRes != null ? r('Ferie rimaste ' + st.gm.slice(0, 4), qty(sl.ferieRes) + ' giorni', sl.ferieRes < 0 ? 'giu' : '') : null; })(),
-          (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.rolRes != null ? r('ROL rimasti ' + st.gm.slice(0, 4), oreFmt(sl.rolRes), sl.rolRes < 0 ? 'giu' : '') : null; })(),
+          p.mat ? null : (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.ferieRes != null ? r('Ferie rimaste ' + st.gm.slice(0, 4), qty(sl.ferieRes) + ' giorni', sl.ferieRes < 0 ? 'giu' : '') : null; })(),
+          p.mat ? null : (() => { const sl = saldo(p, st.gm.slice(0, 4)); return sl.rolRes != null ? r('ROL rimasti ' + st.gm.slice(0, 4), oreFmt(sl.rolRes), sl.rolRes < 0 ? 'giu' : '') : null; })(),
           !cons && og ? (() => { const b = bancaOre(p, st.gm); return r('Banca ore da gennaio', (b > 0 ? '+' : '') + oreFmt(b), b >= 0 ? 'su' : 'giu'); })() : null,
           cons ? r('Malattia · festività', t.gMalattia + ' · ' + t.gFestivi + ' giorni') : r('Giorni lavorati · liberi' + (t.gMalattia ? ' · malattia' : ''), t.gLavoro + ' · ' + t.gLibero + (t.gMalattia ? ' · ' + t.gMalattia : '')))),
+      p.mat ? pannelloFerieRol(p, r) : null,
       h('div', { class: 'griglia-wrap' }, h('table', { class: 'giorn' }, h('colgroup', null, ['33%', '18%', '25%', '12%', '12%'].map((w) => h('col', { style: { width: w } }))),
         h('thead', null, h('tr', null, ['Giorno', 'Ore lavorate', 'Giornata', 'Ferie', 'ROL'].map((x) => h('th', null, x)))),
         h('tbody', null, righe.map((g) => { const dd = toDate(g.d); const fest = dd.getDay() === 0 || g.stato === 'riposo' || g.stato === 'festivita'; const apri = () => apriGiorno(p, giorno(g.d, p)); return h('tr', { class: (fest ? 'dom ' : '') + (g.d === oggi() ? 'oggi' : ''), onclick: apri, tabindex: '0', onkeydown: (e) => { if (e.key === 'Enter') apri(); } },
@@ -1145,6 +1412,23 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
   // ---------- dipendenti ----------
   const GG_SETT = [[1, 'Lun'], [2, 'Mar'], [3, 'Mer'], [4, 'Gio'], [5, 'Ven'], [6, 'Sab'], [0, 'Dom']];
   const giorniTesto = (p) => { const g = giorniContratto(p); const nomi = GG_SETT.filter(([v]) => g.includes(v)).map(([, l]) => l.toLowerCase()); return nomi.length > 2 && GG_SETT.slice(0, nomi.length).every(([v]) => g.includes(v)) ? nomi[0] + '–' + nomi[nomi.length - 1] : nomi.join(', '); };
+  // pannello «Ferie e ROL»: residui della busta paga + maturato − goduto
+  function pannelloFerieRol(p, r) {
+    const sl = saldo(p, oggi().slice(0, 4)); const gg = (n) => qty(n) + (Math.abs(n) === 1 ? ' giorno' : ' giorni');
+    const riga = (l, f, o, cls) => h('div', { class: 'r fr' }, h('span', null, l), h('b', { class: cls || '' }, gg(f)), h('b', { class: cls || '' }, oreFmt(o)));
+    return h('div', { class: 'panel' },
+      h('h3', null, 'Ferie e ROL', h('span', null, ccnlDi(p.mat.ccnl).l.split(' – ')[0])),
+      h('div', { class: 'conto ferie-rol' },
+        h('div', { class: 'r fr testa' }, h('span', null, ''), h('small', null, 'Ferie'), h('small', null, 'ROL e permessi')),
+        riga(sl.daBusta ? 'Busta paga di ' + meseLabel(sl.al).toLowerCase() : 'Residui a inizio anno', sl.ferieIni, sl.rolIni),
+        riga('+ Maturati fino a fine ' + MESI[Number(sl.finito.slice(5, 7)) - 1], sl.matFerie, sl.matRol),
+        riga('− Goduti o segnati', sl.gFerie, sl.oRol),
+        riga('= Rimasti oggi', sl.ferieRes, sl.rolRes, sl.ferieRes < 0 || sl.rolRes < 0 ? 'giu' : 'su'),
+        riga('Maturano ogni mese', sl.meseFerie, sl.meseRol),
+        riga('Maturano ancora entro dicembre', sl.ancoraFerie, sl.ancoraRol)),
+      h('p', { class: 'muted small', style: { margin: '8px 2px' } }, 'Maturano a fine mese, 1/12 all’anno. «Goduti o segnati» sono le ferie e i ROL della giornaliera dopo il mese della busta paga. Quando arriva una busta paga nuova, aggiorna i residui per ripartire da lì.'),
+      h('button', { class: 'btn ghost', style: { width: '100%' }, onclick: () => apriPersona(db.persone.find((x) => x.id === p.id) || p) }, 'Aggiorna i residui dalla busta paga'));
+  }
   function apriPersona(p) {
     const nuovo = !p; p = p ? { ...p } : { id: nuovoId(), nome: '', contratto: '', oreSett: '', giorniLav: [1, 2, 3, 4, 5, 6], colore: db.persone.length % COLORI.length };
     let giorni = [...giorniContratto(p)];
@@ -1161,6 +1445,42 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
     disegnaGg();
     const annoS = oggi().slice(0, 4); const sI = ((p.saldi || {})[annoS]) || {};
     const ferI = inputOre(sI.ferie != null ? sI.ferie : '', 'Ferie a inizio anno in giorni'), rolI = inputOre(sI.rol != null ? sI.rol : '', 'ROL a inizio anno in ore');
+    const vecchiBox = h('div', null, h('div', { class: 'due' }, campo('Ferie a inizio ' + annoS + ' (giorni)', ferI), campo('ROL a inizio ' + annoS + ' (ore)', rolI)),
+      h('p', { class: 'muted small', style: { margin: '-4px 0 10px' } }, 'Quelle che ha a disposizione per l’anno, residui compresi: l’app toglie da sola ferie e ROL segnati nella giornaliera e ti mostra quanti ne restano. Se scegli il contratto nazionale, l’app le fa maturare da sola mese per mese.'));
+    // maturazione di ferie e ROL secondo il contratto nazionale
+    const m0 = p.mat || {}; const r0 = p.residui || {};
+    const ccnlSel = h('select', { class: 'testo', 'aria-label': 'Contratto nazionale' }, h('option', { value: '' }, 'Non calcolare: scrivo io quante ne ha'), CCNL.map((c) => h('option', { value: c.v, selected: m0.ccnl === c.v }, c.l)));
+    const matF = inputOre(m0.ferie != null ? r2(m0.ferie) : '', 'Ferie all’anno in giorni'), matR = inputOre(m0.rol != null ? m0.rol : '', 'ROL all’anno in ore'), matX = inputOre(m0.exf != null ? m0.exf : '', 'Ex festività all’anno in ore');
+    const matP = inputOre(m0.orePieno || 40, 'Ore settimanali del tempo pieno');
+    const assunto = h('input', { class: 'testo', type: 'date', value: m0.assunto || '', 'aria-label': 'Data di assunzione' });
+    const prop = h('input', { type: 'checkbox', class: 'spunta', checked: m0.proporziona !== false, 'aria-label': 'ROL in proporzione al part-time' });
+    const resAl = h('input', { class: 'testo', type: 'month', value: r0.al || ymPrima(ymOf(oggi())), 'aria-label': 'Mese della busta paga' });
+    const resF = inputOre(r0.ferie != null ? r0.ferie : '', 'Ferie rimaste in busta paga, giorni'), resR = inputOre(r0.rol != null ? r0.rol : '', 'ROL e permessi rimasti in busta paga, ore');
+    const matInfo = h('div', { class: 'conto mat-info' });
+    const leggiMat = () => ccnlSel.value ? { ccnl: ccnlSel.value, ferie: num(matF.value), rol: num(matR.value), exf: num(matX.value), orePieno: num(matP.value) || 40, assunto: assunto.value || '', proporziona: prop.checked } : null;
+    const aggiornaMat = () => {
+      const mat = leggiMat(); matBox.hidden = !mat; vecchiBox.hidden = !!mat; if (!mat) return;
+      const q = { ...p, oreSett: num(oreS.value), mat }; const x = maturaMese(q, ymOf(oggi())); const c = ccnlDi(mat.ccnl); const qr = quotaRol(mat, ymOf(oggi()));
+      const rr = (l, v) => h('div', { class: 'r' }, h('span', null, l), h('b', null, v));
+      matInfo.replaceChildren(...[rr('Maturano ogni mese', qty(r2(x.ferie)) + ' gg di ferie · ' + oreFmt(r2(x.rol)) + ' di ROL e permessi'),
+        rr('In un anno', qty(r2(x.ferie * 12)) + ' gg di ferie · ' + oreFmt(r2(x.rol * 12))),
+        c.nuovi && mat.assunto && mat.assunto > c.nuovi.dopo && qr < 1 ? h('div', { class: 'small muted' }, 'Assunto da poco: per ora i ROL maturano al ' + Math.round(qr * 100) + '% (regola del contratto per i nuovi assunti); le ex festività maturano per intero.') : null,
+        mat.proporziona !== false && num(oreS.value) && num(oreS.value) < (mat.orePieno || 40) ? h('div', { class: 'small muted' }, 'Part-time: ROL e permessi in proporzione all’orario (' + qty(num(oreS.value)) + ' su ' + qty(mat.orePieno || 40) + ' ore).') : null].filter(Boolean));
+    };
+    const riempi = () => { const c = ccnlSel.value ? ccnlDi(ccnlSel.value) : null; if (c) { matF.value = String(ferieContratto(c, giorni.length)).replace('.', ','); matR.value = String(c.rol).replace('.', ','); const og = num(oreG.value) || (num(oreS.value) && giorni.length ? num(oreS.value) / giorni.length : 0); matX.value = String(c.exfGiorni ? r2(c.exfGiorni * (og || 8)) : c.exf).replace('.', ','); if (c.pubblico) prop.checked = false; } aggiornaMat(); };
+    ccnlSel.addEventListener('change', riempi);
+    [matF, matR, matX, matP, oreS].forEach((i) => i.addEventListener('input', aggiornaMat)); [assunto, prop].forEach((i) => i.addEventListener('change', aggiornaMat));
+    const matBox = h('div', null,
+      h('div', { class: 'due' }, campo('Ferie (giorni all’anno)', matF), campo('ROL (ore all’anno)', matR)),
+      h('div', { class: 'due' }, campo('Ex festività (ore all’anno)', matX), campo('Tempo pieno (ore a sett.)', matP)),
+      h('p', { class: 'muted small', style: { margin: '-4px 0 10px' } }, 'Valori del contratto: li metto io scegliendo il contratto, ma puoi correggerli. «Ex festività» comprende anche le festività soppresse. Le ferie sono contate sui giorni in cui la persona lavora (settimana di 5 o 6 giorni, o meno per il part-time verticale). Nel pubblico impiego le 4 festività soppresse sono giornate: le trasformo in ore con le ore al giorno del contratto.'),
+      campo('Data di assunzione (facoltativa)', assunto),
+      h('label', { class: 'riga-spunta' }, h('span', null, 'ROL ed ex festività in proporzione al part-time'), prop),
+      matInfo,
+      h('h4', { class: 'sotto-titolo' }, 'Residui dalla busta paga'),
+      h('p', { class: 'muted small', style: { margin: '0 0 8px' } }, 'Scrivi le ferie e i ROL rimasti nell’ultima busta paga e il mese a cui si riferisce: da lì l’app aggiunge quello che matura ogni mese e toglie quello che segni nella giornaliera. Quando arriva una busta paga nuova puoi aggiornarli.'),
+      campo('Busta paga del mese', resAl),
+      h('div', { class: 'due' }, campo('Ferie rimaste (giorni)', resF), campo('ROL e permessi rimasti (ore)', resR)));
     let colore = p.colore || 0; const colori = h('div', { class: 'colori' });
     const disegnaColori = () => colori.replaceChildren(...COLORI.map((c, i) => h('button', { type: 'button', class: i === colore ? 'on' : '', style: { background: c[0] }, 'aria-label': 'Colore ' + (i + 1), onclick: () => { colore = i; disegnaColori(); } })));
     disegnaColori();
@@ -1169,18 +1489,20 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
       campo('Giorni di lavoro da contratto', ggEl),
       h('div', { class: 'due' }, campo('Ore a settimana', oreS), campo('Ore al giorno', oreG)),
       prevEl,
-      h('div', { class: 'due' }, campo('Ferie a inizio ' + annoS + ' (giorni)', ferI), campo('ROL a inizio ' + annoS + ' (ore)', rolI)),
-      h('p', { class: 'muted small', style: { margin: '-4px 0 10px' } }, 'Quelle che ha a disposizione per l’anno, residui compresi: l’app toglie da sola ferie e ROL segnati nella giornaliera e ti mostra quanti ne restano.'),
+      h('h4', { class: 'sotto-titolo' }, 'Ferie e ROL'),
+      campo('Contratto nazionale (per far maturare ferie e ROL)', ccnlSel),
+      matBox,
+      vecchiBox,
       campo('Colore nei turni', colori),
       h('p', { class: 'muted small', style: { margin: '4px 0 0' } }, 'Privacy: scrivi solo i dati che servono per turni e giornaliera. Restano su questo telefono.')],
     (ch) => [
       !nuovo ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina dipendente', onclick: async () => { if (!(await chiedi('Eliminare ' + p.nome + '? Si cancellano anche i suoi turni e la sua giornaliera.', 'Elimina'))) return; db.persone = db.persone.filter((x) => x.id !== p.id); Object.keys(db.turni).forEach((k) => { if (k.split('|')[1] === p.id) delete db.turni[k]; }); Object.keys(db.giorni).forEach((k) => { if (k.split('|')[1] === p.id) delete db.giorni[k]; }); salvaDb(); ch(); disegna(); } }, svg('azzera')) : null,
-      h('button', { class: 'btn', onclick: () => { if (!nome.value.trim()) return toast('Scrivi il nome'); if (!giorni.length) return toast('Scegli almeno un giorno di lavoro'); const saldi = { ...(p.saldi || {}), [annoS]: { ferie: ferI.value.trim() === '' ? null : num(ferI.value), rol: rolI.value.trim() === '' ? null : num(rolI.value) } }; const np = { ...p, saldi, nome: nome.value.trim(), contratto: contr.value.trim(), oreSett: num(oreS.value) || '', giorniLav: giorni.slice().sort(), oreGiorno: num(oreG.value) || '', colore }; delete np.oreMese; delete np.giorniSett; const i = db.persone.findIndex((x) => x.id === p.id); if (i < 0) db.persone.push(np); else db.persone[i] = np; salvaDb(); ch(); disegna(); toast('Salvato'); } }, svg('salva'), 'Salva')]);
-    prevEl.textContent = anteprimaPrev();
+      h('button', { class: 'btn', onclick: () => { if (!nome.value.trim()) return toast('Scrivi il nome'); if (!giorni.length) return toast('Scegli almeno un giorno di lavoro'); const saldi = { ...(p.saldi || {}), [annoS]: { ferie: ferI.value.trim() === '' ? null : num(ferI.value), rol: rolI.value.trim() === '' ? null : num(rolI.value) } }; const mat = leggiMat(); if (mat && !resF.value.trim() && !resR.value.trim() && !resAl.value) return toast('Scrivi il mese della busta paga'); const np = { ...p, saldi, mat: mat || undefined, residui: mat ? { al: resAl.value || ymPrima(ymOf(oggi())), ferie: resF.value.trim() === '' ? 0 : num(resF.value), rol: resR.value.trim() === '' ? 0 : num(resR.value) } : undefined, nome: nome.value.trim(), contratto: contr.value.trim(), oreSett: num(oreS.value) || '', giorniLav: giorni.slice().sort(), oreGiorno: num(oreG.value) || '', colore }; delete np.oreMese; delete np.giorniSett; const i = db.persone.findIndex((x) => x.id === p.id); if (i < 0) db.persone.push(np); else db.persone[i] = np; salvaDb(); ch(); disegna(); toast('Salvato'); } }, svg('salva'), 'Salva')]);
+    prevEl.textContent = anteprimaPrev(); aggiornaMat();
   }
   function schermataPersone(main) {
     main.append(
-      db.persone.length ? h('div', { class: 'panel' }, db.persone.map((p) => h('div', { class: 'persona' }, h('i', { style: { background: col(p)[0] } }), h('div', { style: { flex: 1, minWidth: 0 } }, h('b', null, p.nome), h('small', { class: 'muted', style: { display: 'block' } }, [p.contratto, p.oreSett ? qty(p.oreSett) + ' h a settimana' : null, p.oreSett || p.oreGiorno ? qty(oreGiornoContratto(p)) + ' h al giorno, ' + giorniTesto(p) : null, (() => { const sl = saldo(p, oggi().slice(0, 4)); return [sl.ferieRes != null ? 'ferie rimaste ' + qty(sl.ferieRes) + ' gg' : null, sl.rolRes != null ? 'ROL rimasti ' + qty(sl.rolRes) + ' h' : null].filter(Boolean).join(', ') || null; })()].filter(Boolean).join(' · ') || 'Contratto da indicare')), h('button', { class: 'btn ghost', style: { minHeight: '40px', padding: '0 14px' }, onclick: () => apriPersona(p) }, 'Modifica')))) : h('div', { class: 'vuoto', style: { marginBottom: '12px' } }, h('b', null, 'Nessun dipendente'), h('br'), 'Aggiungi chi lavora con te, anche il titolare.'),
+      db.persone.length ? h('div', { class: 'panel' }, db.persone.map((p) => h('div', { class: 'persona' }, h('i', { style: { background: col(p)[0] } }), h('div', { style: { flex: 1, minWidth: 0 } }, h('b', null, p.nome), h('small', { class: 'muted', style: { display: 'block' } }, [p.contratto, p.oreSett ? qty(p.oreSett) + ' h a settimana' : null, p.oreSett || p.oreGiorno ? qty(oreGiornoContratto(p)) + ' h al giorno, ' + giorniTesto(p) : null, (() => { const sl = saldo(p, oggi().slice(0, 4)); return [sl.ferieRes != null ? 'ferie rimaste ' + qty(sl.ferieRes) + ' gg' : null, sl.rolRes != null ? 'ROL rimasti ' + qty(sl.rolRes) + ' h' : null].filter(Boolean).join(', ') + (p.mat ? ' (oggi)' : '') || null; })()].filter(Boolean).join(' · ') || 'Contratto da indicare')), h('button', { class: 'btn ghost', style: { minHeight: '40px', padding: '0 14px' }, onclick: () => apriPersona(p) }, 'Modifica')))) : h('div', { class: 'vuoto', style: { marginBottom: '12px' } }, h('b', null, 'Nessun dipendente'), h('br'), 'Aggiungi chi lavora con te, anche il titolare.'),
       h('div', { class: 'tasti' }, h('button', { class: 'btn', onclick: () => apriPersona(null) }, svg('piu'), 'Aggiungi dipendente')));
   }
 
@@ -1257,9 +1579,9 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
   // ---------- info ----------
   // testi legali (GDPR UE 2016/679, D.Lgs. 196/2003 e 101/2018) e manuale
   const TESTI_DEL = '30 ottobre 2026';
-  const PRIVACY = `<p class="agg">Versione del 30 ottobre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci.</li><li>I dati escono dal telefono solo quando li mandi tu (Excel, PDF, immagine, messaggio, backup).</li></ul><h4>2. Chi è il titolare del trattamento</h4><p>I dati che inserisci riguardano te e le persone che lavorano con te. Per questi dati il <b>titolare del trattamento</b> (art. 4 n. 7 e art. 24 GDPR) è <b>il datore di lavoro che usa l'app</b>, cioè tu. ${NOME} è solo uno strumento che lavora dentro il tuo telefono. Lo sviluppatore non tratta questi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento (art. 28 GDPR).</p><h4>3. Quali dati si possono inserire</h4><ul><li>Nome della persona, tipo di contratto, giorni e ore di contratto.</li><li>Turni, ore lavorate, giorni liberi, ferie, ROL, festività e note.</li><li>L'indicazione «malattia» per un giorno, <b>senza diagnosi né certificati</b>: è un dato relativo alla salute (art. 9 GDPR), quindi scrivi solo «malattia» e mai la causa.</li></ul><p>Inserisci solo i dati che servono a organizzare i turni e a preparare la giornaliera (principio di minimizzazione, art. 5 GDPR).</p><h4>4. Perché si trattano e su quale base</h4><p>Per organizzare i turni, calcolare le ore e preparare la giornaliera per il consulente del lavoro. La base giuridica è l'esecuzione del contratto di lavoro e gli obblighi di legge del datore di lavoro (art. 6, par. 1, lett. b e c GDPR); per le assenze per malattia, gli obblighi in materia di diritto del lavoro (art. 9, par. 2, lett. b GDPR; art. 88 GDPR; artt. 111-114 del Codice).</p><h4>5. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>La <b>copia automatica</b> giornaliera resta nella stessa memoria privata.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu. Quando un rapporto di lavoro finisce, conserva i dati solo per il tempo necessario e poi elimina la persona (Dipendenti → Modifica → cestino). Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>6. Sicurezza</h4><p>Proteggi il telefono con blocco schermo (PIN, impronta o volto), usa una password robusta per i backup e manda i file solo a chi deve riceverli, per esempio al consulente del lavoro (art. 32 GDPR). Excel, PDF e immagini che condividi <b>non sono cifrati</b>: chi li riceve può leggerli.</p><h4>7. Trasferimenti e comunicazioni</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se mandare un file e a chi (per esempio al consulente del lavoro, che riceve i dati come tuo responsabile o come titolare autonomo, secondo l'incarico).</p><h4>8. Diritti delle persone</h4><p>I dipendenti hanno diritto di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione (artt. 15-22 GDPR). Le richieste vanno fatte al datore di lavoro, che con l'app può:</p><ul><li>mostrare o consegnare i dati: Excel dei turni e della giornaliera;</li><li>correggerli: Turni, Giornaliera e Dipendenti → Modifica;</li><li>cancellarli: Dipendenti → Modifica → cestino.</li></ul><p>Chiunque ritenga che i propri dati siano trattati in modo non corretto può presentare reclamo al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del proprio paese nell'Unione Europea.</p><h4>9. Informativa ai dipendenti</h4><p>Come datore di lavoro devi dare ai tuoi dipendenti l'informativa sul trattamento dei loro dati (art. 13 GDPR). Puoi citare l'uso di ${NOME} per turni e giornaliera, che i dati restano sul telefono aziendale o del titolare e che vengono mandati solo al consulente del lavoro. Se hai dubbi, chiedi al tuo consulente del lavoro.</p><h4>10. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per il promemoria di fine mese, che puoi spegnere in Info.</li><li><b>File</b>: per salvare Excel, PDF, immagini e backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>11. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
-  const CONDIZIONI = `<p class="agg">Versione del 30 ottobre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a organizzare i turni del personale e del titolare, a contare le ore e a preparare la giornaliera da mandare al consulente del lavoro. È uno strumento di annotazione e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non sostituisce</b> il Libro Unico del Lavoro, le buste paga, il contratto collettivo (CCNL) né il parere del consulente del lavoro. Ore, ferie, ROL, banca ore e festività vengono calcolati <b>solo dai dati che inserisci tu</b> e dalle regole semplici spiegate nel Manuale. Controllali sempre con il contratto e con il tuo consulente.</p><h4>3. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, dell'uso che fai di calcoli e riepiloghi, degli adempimenti verso i tuoi dipendenti (compresa la privacy), della custodia del telefono e dei backup.</p><h4>4. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni o danni derivanti dall'uso dei calcoli. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>5. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>6. Uso consentito</h4><p>Puoi usare l'app per la tua attività. Non è consentito copiarla, modificarla o rivenderla.</p><h4>7. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>8. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
-  const MANUALE = [["Per iniziare", "<p>1. Vai in <b>Dipendenti</b> e tocca <b>Aggiungi dipendente</b>. Aggiungi anche te stesso, il titolare, se fai i turni.</p><p>2. Per ogni persona scrivi il nome, il tipo di contratto, i <b>giorni di lavoro da contratto</b> (per esempio lun–sab) e le <b>ore a settimana</b>: le ore al giorno le calcola l'app (30 ore su 6 giorni = 5 ore al giorno). Se vuoi le puoi cambiare a mano.</p><p>3. Se vuoi tenere il conto di ferie e ROL, scrivi quelli che la persona ha a inizio anno, residui compresi.</p><p>4. Scegli il colore con cui la persona compare nei turni e nel calendario.</p><p>5. Vai in <b>Turni</b> e comincia a mettere i turni della settimana.</p>"], ["Turni della settimana", "<p>La tabella ha una riga per persona e, per ogni giorno, due caselle: <b>mattina</b> e <b>sera</b>. Con le frecce ‹ › cambi settimana; tocca la data in mezzo per tornare alla settimana di oggi.</p><p>Tocca una casella per mettere il turno:</p><ul><li>i <b>tasti veloci</b> in alto mettono subito un orario preimpostato;</li><li>oppure scrivi <b>Dalle ore</b> e <b>Alle ore</b>, l'eventuale <b>pausa</b> in minuti e una nota, poi <b>Salva</b>;</li><li><b>Libero</b> segna la mezza giornata come riposo;</li><li>il <b>cestino</b> toglie il turno.</li></ul><p>«7 13» vuol dire dalle 7 alle 13; «17 20,30» dalle 17 alle 20:30. Sotto ogni persona c'è la riga <b>ore</b> con le ore del giorno, e a destra il totale della settimana.</p>"], ["Orari preimpostati", "<p>Sono i tasti veloci che compaiono quando metti un turno (per esempio mattina 8–13, sera inverno 16:30–20, sera estate 17–20:30). Li cambi da <b>Turni → Orari preimpostati</b> o dal collegamento dentro la finestra del turno: puoi rinominarli, cambiarne gli orari, aggiungerne o toglierne.</p>"], ["Copiare i turni", "<p><b>Copia settimana precedente</b>: riporta nella settimana che stai guardando i turni della settimana prima.</p><p><b>Copia questa settimana su tutto il mese</b>: copia i turni della settimana su tutte le altre settimane del mese (il lunedì sui lunedì, il martedì sui martedì…). I turni già messi in quelle caselle vengono sostituiti; prima di copiare l'app ti chiede conferma.</p>"], ["Avvisi sui riposi", "<p>Sotto la tabella compaiono gli avvisi se un dipendente:</p><ul><li>lavora <b>7 giorni di fila</b> senza un giorno di riposo;</li><li>ha meno di <b>11 ore di riposo</b> tra la fine di un giorno e l'inizio del successivo.</li></ul><p>Il titolare (contratto «Titolare») non viene controllato. Sono solo promemoria: le regole precise sono quelle del tuo contratto collettivo.</p>"], ["Ore in più, in meno e banca ore", "<p>Per chi ha le ore di contratto, la tabella <b>Ore in più / in meno</b> confronta le ore fatte nella settimana con quelle del contratto.</p><p>La <b>banca ore</b> somma da gennaio la differenza tra ore fatte e ore da contratto, contando solo i mesi in cui hai messo dei turni. La trovi sotto la tabella e nella Giornaliera interna.</p>"], ["Mandare i turni", "<p><b>Manda i turni ai dipendenti</b>: per ogni persona scegli <b>Messaggio</b> (testo con i turni della settimana, da mandare su WhatsApp, SMS o e-mail) oppure <b>Immagine</b> (una tabella da mandare come foto).</p><p><b>PDF della settimana</b>: tutti i turni della settimana in un PDF da stampare o appendere.</p><p>Il tasto <b>condividi</b> in alto a destra nella barra Turni crea l'<b>Excel dei turni del mese</b>.</p>"], ["Riepilogo e storico", "<p><b>Riepilogo ore</b>: le ore di ogni persona nel mese. <b>Storico turni</b>: un riquadro per ogni mese con turni; toccalo per aprire l'elenco giorno per giorno. Da lì puoi andare a quel mese (<b>Apri</b>) o farne l'Excel.</p>"], ["Calendario", "<p>Mostra il mese intero. In ogni giorno c'è una barra colorata per ogni persona che lavora: <b>barra piena</b> = mattina e sera, con la scritta «mattina» o «sera» = solo quel turno. Le etichette <b>ferie</b>, <b>ROL</b> e <b>malat.</b> indicano le assenze. Domeniche e feste sono in grigio, oggi è cerchiato.</p><p>Tocca un giorno per vedere chi lavora e cambiare i turni di ognuno.</p>"], ["Giornaliera interna (ore reali)", "<p>In <b>Giornaliera → Ore reali (interna)</b> trovi, per la persona e il mese scelti, le <b>ore realmente fatte</b> giorno per giorno, prese dai turni.</p><p>In alto c'è il riepilogo: ore fatte, ore previste dal contratto, ore in più o in meno, ferie, ROL, quante ne restano nell'anno e la banca ore.</p><p>Tocca un giorno per correggerlo: scegli <b>Lavoro, Libero, Ferie, ROL o Malattia</b>, cambia le ore se serve e salva. <b>Come dai turni</b> annulla la correzione. Quello che segni qui vale anche per la giornaliera del consulente.</p>"], ["Giornaliera per il consulente", "<p>In <b>Giornaliera → Per il consulente</b> ogni giorno di contratto vale le <b>ore al giorno del contratto</b> (per esempio 5 ore da lunedì a sabato), qualunque turno la persona abbia fatto davvero.</p><ul><li>Domeniche e giorni fuori contratto: <b>Riposo</b>.</li><li>Feste nazionali e festa del patrono: <b>Festività</b>.</li><li>Ferie, ROL e malattia: arrivano da quello che segni nella giornaliera.</li></ul><p>Per usarla servono le ore del contratto: impostale in <b>Dipendenti → Modifica</b>. La festa del patrono si imposta in <b>Info</b>.</p>"], ["Ferie, ROL e malattia", "<p>Le segni nella Giornaliera toccando il giorno. Per le ferie l'app propone le ore di una giornata di contratto. Se hai scritto in Dipendenti le ferie e i ROL di inizio anno, l'app ti mostra quanti ne restano.</p><p><b>Malattia</b>: scrivi solo che la persona era in malattia, mai la diagnosi o la causa, perché è un dato sulla salute protetto dal GDPR.</p>"], ["Excel della giornaliera", "<p>In fondo alla Giornaliera: <b>Giornaliera in Excel</b> crea il file della persona scelta, <b>Excel di tutti i dipendenti</b> crea un file con tutti. Il telefono ti fa scegliere come mandarlo (WhatsApp, e-mail…). Il file è nella versione che stai guardando: ore reali o per il consulente.</p>"], ["Calcolatrice e Cerca", "<p><b>Calcolatrice</b>, tasto in alto: si apre sopra l'app e puoi continuare a guardare i turni mentre fai i conti. <b>Copia</b> copia il risultato, <b>Riduci</b> la chiude lasciando il risultato scritto nel tasto, <b>✕</b> la chiude e la azzera.</p><p><b>Cerca</b>, tasto in alto: scrivi una parola (per esempio ferie, Excel, backup o il nome di un dipendente) e tocca il risultato per andarci.</p>"], ["Promemoria e festa del patrono", "<p>In <b>Info → Impostazioni</b>:</p><ul><li><b>Festa del patrono</b>: scegli il giorno (l'anno non conta, vale tutti gli anni) e il nome. Diventa festività nel calendario e nella giornaliera del consulente.</li><li><b>Promemoria a fine mese</b>: l'ultimo giorno del mese, all'ora che scegli, il telefono ti ricorda di mandare la giornaliera al consulente. Negli ultimi due giorni del mese compare anche un avviso giallo nella Giornaliera.</li></ul>"], ["Backup e cambio telefono", "<p><b>Salva backup</b> (Info): crea un file con dipendenti, turni e giornaliere, <b>cifrato con una password</b> che scegli tu (almeno 8 caratteri). Senza la password nessuno può aprirlo, nemmeno tu: segnatela. Conserva il file fuori dal telefono, per esempio mandandolo a te stesso per e-mail o salvandolo sul computer.</p><p><b>Carica backup</b>: scegli il file e scrivi la password. Sostituisce i dati che ci sono.</p><p><b>Backup automatico</b>: una copia al giorno nella memoria privata dell'app, da ripristinare se sbagli qualcosa. Attenzione: se disinstalli l'app o perdi il telefono la copia automatica si perde, il backup in file no.</p><p><b>Cambio telefono</b>: sul vecchio fai Salva backup, sul nuovo installa l'app e fai Carica backup.</p>"], ["Privacy in breve", "<p>Tutti i dati restano sul telefono: l'app non usa Internet e lo sviluppatore non vede niente. Tu, come datore di lavoro, sei il titolare del trattamento dei dati dei tuoi dipendenti. Leggi l'informativa completa in <b>Info → Privacy e GDPR</b>.</p>"], ["Domande frequenti", "<p><b>Ho messo un turno sbagliato.</b> Tocca la casella e correggilo, oppure usa il cestino.</p><p><b>La giornaliera del consulente è tutta a zero.</b> Mancano le ore del contratto: Dipendenti → Modifica → Ore a settimana.</p><p><b>Le ore in più non tornano.</b> Controlla le pause dei turni e i giorni di lavoro da contratto in Dipendenti.</p><p><b>Ho perso i dati.</b> Info → Ripristina la copia automatica, oppure Carica backup se hai un file.</p><p><b>Non arriva il promemoria.</b> Controlla che le notifiche di ContabilyWork siano permesse nelle impostazioni del telefono.</p>"]];
+  const PRIVACY = `<p class="agg">Versione del 1° novembre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci: nessuno può accedere alle tue informazioni senza il tuo telefono.</li><li>I dati escono dal telefono solo quando li mandi tu (Excel, PDF, immagine, messaggio, backup).</li></ul><h4>2. Chi è il titolare del trattamento</h4><p>I dati che inserisci riguardano te e le persone che lavorano con te. Per questi dati il <b>titolare del trattamento</b> (art. 4 n. 7 e art. 24 GDPR) è <b>il datore di lavoro che usa l'app</b>, cioè tu. ${NOME} è solo uno strumento che lavora dentro il tuo telefono. Lo sviluppatore non tratta questi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento (art. 28 GDPR).</p><h4>3. Quali dati si possono inserire</h4><ul><li>Nome della persona, tipo di contratto, giorni e ore di contratto.</li><li>Turni, ore lavorate, giorni liberi, ferie, ROL, festività e note.</li><li>L'indicazione «malattia» per un giorno, <b>senza diagnosi né certificati</b>: è un dato relativo alla salute (art. 9 GDPR), quindi scrivi solo «malattia» e mai la causa.</li></ul><p>Inserisci solo i dati che servono a organizzare i turni e a preparare la giornaliera (principio di minimizzazione, art. 5 GDPR).</p><h4>4. Perché si trattano e su quale base</h4><p>Per organizzare i turni, calcolare le ore e preparare la giornaliera per il consulente del lavoro. La base giuridica è l'esecuzione del contratto di lavoro e gli obblighi di legge del datore di lavoro (art. 6, par. 1, lett. b e c GDPR); per le assenze per malattia, gli obblighi in materia di diritto del lavoro (art. 9, par. 2, lett. b GDPR; art. 88 GDPR; artt. 111-114 del Codice).</p><h4>5. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>La <b>copia automatica</b> giornaliera resta nella stessa memoria privata.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu. Quando un rapporto di lavoro finisce, conserva i dati solo per il tempo necessario e poi elimina la persona (Dipendenti → Modifica → cestino). Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>6. Sicurezza</h4><p>Proteggi il telefono con blocco schermo (PIN, impronta o volto), usa una password robusta per i backup e manda i file solo a chi deve riceverli, per esempio al consulente del lavoro (art. 32 GDPR). Excel, PDF e immagini che condividi <b>non sono cifrati</b>: chi li riceve può leggerli.</p><h4>Blocco con PIN</h4><p>Puoi proteggere l'apertura dell'app con un <b>PIN di 4 cifre</b> (Info → Blocco con PIN): viene chiesto ogni volta che apri l'app e ogni volta che ci torni. Quando lo scegli ricevi un <b>codice di ripristino</b> di 12 caratteri: se dimentichi il PIN, con il codice ne scegli uno nuovo senza perdere i dati. Il PIN e il codice non vengono salvati: sul telefono resta solo un'impronta cifrata (PBKDF2-SHA256 con sale casuale), da cui non si può risalire a loro. Lo sviluppatore <b>non può sbloccare l'app</b> né recuperare il PIN, perché non vede i tuoi dati: se perdi sia il PIN sia il codice di ripristino devi cancellare i dati dell'app e ricaricare un backup con la sua password.</p><h4>7. Trasferimenti e comunicazioni</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se mandare un file e a chi (per esempio al consulente del lavoro, che riceve i dati come tuo responsabile o come titolare autonomo, secondo l'incarico).</p><h4>8. Diritti delle persone</h4><p>I dipendenti hanno diritto di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione (artt. 15-22 GDPR). Le richieste vanno fatte al datore di lavoro, che con l'app può:</p><ul><li>mostrare o consegnare i dati: Excel dei turni e della giornaliera;</li><li>correggerli: Turni, Giornaliera e Dipendenti → Modifica;</li><li>cancellarli: Dipendenti → Modifica → cestino.</li></ul><p>Chiunque ritenga che i propri dati siano trattati in modo non corretto può presentare reclamo al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del proprio paese nell'Unione Europea.</p><h4>9. Informativa ai dipendenti</h4><p>Come datore di lavoro devi dare ai tuoi dipendenti l'informativa sul trattamento dei loro dati (art. 13 GDPR). Puoi citare l'uso di ${NOME} per turni e giornaliera, che i dati restano sul telefono aziendale o del titolare e che vengono mandati solo al consulente del lavoro. Se hai dubbi, chiedi al tuo consulente del lavoro.</p><h4>10. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per il promemoria di fine mese, che puoi spegnere in Info.</li><li><b>File</b>: per salvare Excel, PDF, immagini e backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>11. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
+  const CONDIZIONI = `<p class="agg">Versione del 1° novembre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a organizzare i turni del personale e del titolare, a contare le ore e a preparare la giornaliera da mandare al consulente del lavoro. È uno strumento di annotazione e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non sostituisce</b> il Libro Unico del Lavoro, le buste paga, il contratto collettivo (CCNL) né il parere del consulente del lavoro. Ore, ferie, ROL, banca ore e festività vengono calcolati <b>solo dai dati che inserisci tu</b> e dalle regole semplici spiegate nel Manuale. Controllali sempre con il contratto e con il tuo consulente.</p><h4>3. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, dell'uso che fai di calcoli e riepiloghi, degli adempimenti verso i tuoi dipendenti (compresa la privacy), della custodia del telefono, del PIN, dei backup e della loro password.</p><h4>4. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni o danni derivanti dall'uso dei calcoli. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>5. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>6. Uso consentito</h4><p>Puoi usare l'app per la tua attività. Non è consentito copiarla, modificarla o rivenderla.</p><h4>7. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>8. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
+  const MANUALE = [["Per iniziare", "<p>1. Vai in <b>Dipendenti</b> e tocca <b>Aggiungi dipendente</b>. Aggiungi anche te stesso, il titolare, se fai i turni.</p><p>2. Per ogni persona scrivi il nome, il tipo di contratto, i <b>giorni di lavoro da contratto</b> (per esempio lun–sab) e le <b>ore a settimana</b>: le ore al giorno le calcola l'app (30 ore su 6 giorni = 5 ore al giorno). Se vuoi le puoi cambiare a mano.</p><p>3. Se vuoi tenere il conto di ferie e ROL, scrivi quelli che la persona ha a inizio anno, residui compresi.</p><p>4. Scegli il colore con cui la persona compare nei turni e nel calendario.</p><p>5. Vai in <b>Turni</b> e comincia a mettere i turni della settimana.</p>"], ["Ferie e ROL che maturano", "<p>In <b>Dipendenti → Modifica</b>, alla voce <b>Contratto nazionale</b>, scegli il contratto della persona: commercio e terziario (fino a 15 o oltre 15 dipendenti), turismo e pubblici esercizi, telecomunicazioni, industria metalmeccanica e alimentare, edilizia, scuola (docenti e ATA), sanità pubblica, comuni ed enti locali, ministeri, il minimo di legge oppure «Altro contratto». L’app mette da sola le ferie all’anno (in giorni), i ROL e le ex festività o festività soppresse (in ore): puoi correggerli se il tuo contratto dice altro.</p><p>Ogni mese matura 1/12: per il part-time ROL ed ex festività sono in proporzione all’orario; le ferie sono contate sui giorni in cui la persona lavora. Se scrivi la <b>data di assunzione</b>, il mese di ingresso conta se si entra entro il 15 e, per commercio e turismo, si applica la regola dei nuovi assunti (i primi anni maturano meno ROL).</p><p>Scrivi poi i <b>residui dell’ultima busta paga</b> (ferie e ROL rimasti) e il mese a cui si riferisce. Da lì l’app aggiunge quello che matura e toglie le ferie e i ROL che segni nella giornaliera. Nella <b>Giornaliera</b> trovi il riquadro <b>Ferie e ROL</b>: residui, maturati, goduti, rimasti oggi e quanto matura ancora entro dicembre. Quando arriva una busta paga nuova, tocca «Aggiorna i residui dalla busta paga».</p><p>I valori dei contratti sono indicativi: controlla sempre con il tuo contratto e con il consulente del lavoro.</p>"], ["Turni della settimana", "<p>La tabella ha una riga per persona e, per ogni giorno, due caselle: <b>mattina</b> e <b>sera</b>. Con le frecce ‹ › cambi settimana; tocca la data in mezzo per tornare alla settimana di oggi.</p><p>Tocca una casella per mettere il turno:</p><ul><li>i <b>tasti veloci</b> in alto mettono subito un orario preimpostato;</li><li>oppure scrivi <b>Dalle ore</b> e <b>Alle ore</b>, l'eventuale <b>pausa</b> in minuti e una nota, poi <b>Salva</b>;</li><li><b>Libero</b> segna la mezza giornata come riposo;</li><li>il <b>cestino</b> toglie il turno.</li></ul><p>«7 13» vuol dire dalle 7 alle 13; «17 20,30» dalle 17 alle 20:30. Sotto ogni persona c'è la riga <b>ore</b> con le ore del giorno, e a destra il totale della settimana.</p>"], ["Orari preimpostati", "<p>Sono i tasti veloci che compaiono quando metti un turno (per esempio mattina 8–13, sera inverno 16:30–20, sera estate 17–20:30). Li cambi da <b>Turni → Orari preimpostati</b> o dal collegamento dentro la finestra del turno: puoi rinominarli, cambiarne gli orari, aggiungerne o toglierne.</p>"], ["Copiare i turni", "<p><b>Copia settimana precedente</b>: riporta nella settimana che stai guardando i turni della settimana prima.</p><p><b>Copia questa settimana su tutto il mese</b>: copia i turni della settimana su tutte le altre settimane del mese (il lunedì sui lunedì, il martedì sui martedì…). I turni già messi in quelle caselle vengono sostituiti; prima di copiare l'app ti chiede conferma.</p>"], ["Avvisi sui riposi", "<p>Sotto la tabella compaiono gli avvisi se un dipendente:</p><ul><li>lavora <b>7 giorni di fila</b> senza un giorno di riposo;</li><li>ha meno di <b>11 ore di riposo</b> tra la fine di un giorno e l'inizio del successivo.</li></ul><p>Il titolare (contratto «Titolare») non viene controllato. Sono solo promemoria: le regole precise sono quelle del tuo contratto collettivo.</p>"], ["Ore in più, in meno e banca ore", "<p>Per chi ha le ore di contratto, la tabella <b>Ore in più / in meno</b> confronta le ore fatte nella settimana con quelle del contratto.</p><p>La <b>banca ore</b> somma da gennaio la differenza tra ore fatte e ore da contratto, contando solo i mesi in cui hai messo dei turni. La trovi sotto la tabella e nella Giornaliera interna.</p>"], ["Mandare i turni", "<p><b>Manda i turni ai dipendenti</b>: per ogni persona scegli <b>Messaggio</b> (testo con i turni della settimana, da mandare su WhatsApp, SMS o e-mail) oppure <b>Immagine</b> (una tabella da mandare come foto).</p><p><b>PDF della settimana</b>: tutti i turni della settimana in un PDF da stampare o appendere.</p><p>Il tasto <b>condividi</b> in alto a destra nella barra Turni crea l'<b>Excel dei turni del mese</b>.</p>"], ["Riepilogo e storico", "<p><b>Riepilogo ore</b>: le ore di ogni persona nel mese. <b>Storico turni</b>: un riquadro per ogni mese con turni; toccalo per aprire l'elenco giorno per giorno. Da lì puoi andare a quel mese (<b>Apri</b>) o farne l'Excel.</p>"], ["Calendario", "<p>Mostra il mese intero. In ogni giorno c'è una barra colorata per ogni persona che lavora: <b>barra piena</b> = mattina e sera, con la scritta «mattina» o «sera» = solo quel turno. Le etichette <b>ferie</b>, <b>ROL</b> e <b>malat.</b> indicano le assenze. Domeniche e feste sono in grigio, oggi è cerchiato.</p><p>Tocca un giorno per vedere chi lavora e cambiare i turni di ognuno.</p>"], ["Giornaliera interna (ore reali)", "<p>In <b>Giornaliera → Ore reali (interna)</b> trovi, per la persona e il mese scelti, le <b>ore realmente fatte</b> giorno per giorno, prese dai turni.</p><p>In alto c'è il riepilogo: ore fatte, ore previste dal contratto, ore in più o in meno, ferie, ROL, quante ne restano nell'anno e la banca ore.</p><p>Tocca un giorno per correggerlo: scegli <b>Lavoro, Libero, Ferie, ROL o Malattia</b>, cambia le ore se serve e salva. <b>Come dai turni</b> annulla la correzione. Quello che segni qui vale anche per la giornaliera del consulente.</p>"], ["Giornaliera per il consulente", "<p>In <b>Giornaliera → Per il consulente</b> ogni giorno di contratto vale le <b>ore al giorno del contratto</b> (per esempio 5 ore da lunedì a sabato), qualunque turno la persona abbia fatto davvero.</p><ul><li>Domeniche e giorni fuori contratto: <b>Riposo</b>.</li><li>Feste nazionali e festa del patrono: <b>Festività</b>.</li><li>Ferie, ROL e malattia: arrivano da quello che segni nella giornaliera.</li></ul><p>Per usarla servono le ore del contratto: impostale in <b>Dipendenti → Modifica</b>. La festa del patrono si imposta in <b>Info</b>.</p>"], ["Ferie, ROL e malattia", "<p>Le segni nella Giornaliera toccando il giorno. Per le ferie l'app propone le ore di una giornata di contratto. Se hai scritto in Dipendenti le ferie e i ROL di inizio anno, l'app ti mostra quanti ne restano.</p><p><b>Malattia</b>: scrivi solo che la persona era in malattia, mai la diagnosi o la causa, perché è un dato sulla salute protetto dal GDPR.</p>"], ["Excel della giornaliera", "<p>In fondo alla Giornaliera: <b>Giornaliera in Excel</b> crea il file della persona scelta, <b>Excel di tutti i dipendenti</b> crea un file con tutti. Il telefono ti fa scegliere come mandarlo (WhatsApp, e-mail…). Il file è nella versione che stai guardando: ore reali o per il consulente.</p>"], ["Calcolatrice e Cerca", "<p><b>Calcolatrice</b>, tasto in alto: si apre sopra l'app e puoi continuare a guardare i turni mentre fai i conti. <b>Copia</b> copia il risultato, <b>Riduci</b> la chiude lasciando il risultato scritto nel tasto, <b>✕</b> la chiude e la azzera.</p><p><b>Cerca</b>, tasto in alto: scrivi una parola (per esempio ferie, Excel, backup o il nome di un dipendente) e tocca il risultato per andarci.</p>"], ["Promemoria e festa del patrono", "<p>In <b>Info → Impostazioni</b>:</p><ul><li><b>Festa del patrono</b>: scegli il giorno (l'anno non conta, vale tutti gli anni) e il nome. Diventa festività nel calendario e nella giornaliera del consulente.</li><li><b>Promemoria a fine mese</b>: l'ultimo giorno del mese, all'ora che scegli, il telefono ti ricorda di mandare la giornaliera al consulente. Negli ultimi due giorni del mese compare anche un avviso giallo nella Giornaliera.</li></ul>"], ["Backup e cambio telefono", "<p><b>Salva backup</b> (Info): crea un file con dipendenti, turni e giornaliere, <b>cifrato con una password</b> che scegli tu (almeno 8 caratteri). Senza la password nessuno può aprirlo, nemmeno tu: segnatela. Conserva il file fuori dal telefono, per esempio mandandolo a te stesso per e-mail o salvandolo sul computer.</p><p><b>Carica backup</b>: scegli il file e scrivi la password. Sostituisce i dati che ci sono.</p><p><b>Backup automatico</b>: una copia al giorno nella memoria privata dell'app, da ripristinare se sbagli qualcosa. Attenzione: se disinstalli l'app o perdi il telefono la copia automatica si perde, il backup in file no.</p><p><b>Cambio telefono</b>: sul vecchio fai Salva backup, sul nuovo installa l'app e fai Carica backup.</p>"], ["Privacy in breve", "<p>Tutti i dati restano sul telefono: l'app non usa Internet e lo sviluppatore non vede niente. Tu, come datore di lavoro, sei il titolare del trattamento dei dati dei tuoi dipendenti. Leggi l'informativa completa in <b>Info → Privacy e GDPR</b>.</p>"], ["Blocco con PIN", "<p>In <b>Info → Blocco con PIN</b> tocca <b>Imposta PIN</b>, scegli 4 cifre e ripetile. Da quel momento l'app chiede il PIN ogni volta che la apri o ci torni. Ti viene dato anche un <b>codice di ripristino</b> di 12 caratteri: scrivilo su un foglio e tienilo lontano dal telefono.</p><p>Dopo 5 tentativi sbagliati bisogna aspettare 30 secondi. Da Info puoi <b>cambiare</b> o <b>togliere</b> il PIN (serve quello attuale).</p><p><b>PIN dimenticato?</b> Tocca «PIN dimenticato?», scrivi il codice di ripristino e scegli un PIN nuovo: i dati restano. Se hai perso anche il codice, lo sviluppatore non può sbloccare l'app: devi cancellare tutti i dati e ricaricare un backup con la sua password. Per questo fai backup regolari.</p>"], ["Domande frequenti", "<p><b>Ho messo un turno sbagliato.</b> Tocca la casella e correggilo, oppure usa il cestino.</p><p><b>La giornaliera del consulente è tutta a zero.</b> Mancano le ore del contratto: Dipendenti → Modifica → Ore a settimana.</p><p><b>Le ore in più non tornano.</b> Controlla le pause dei turni e i giorni di lavoro da contratto in Dipendenti.</p><p><b>Ho perso i dati.</b> Info → Ripristina la copia automatica, oppure Carica backup se hai un file.</p><p><b>Non arriva il promemoria.</b> Controlla che le notifiche di ContabilyWork siano permesse nelle impostazioni del telefono.</p>"]];
   const doc = (titolo, html, open) => h('details', { class: 'doc', open: open ? true : null }, h('summary', null, titolo, h('span', { class: 'chev', 'aria-hidden': 'true' }, '›')), h('div', { class: 'prosa', html }));
   function apriManuale(cerca) {
     const inp = h('input', { type: 'search', placeholder: 'Es. ferie, backup, consulente', autocomplete: 'off', 'aria-label': 'Cerca nel manuale' });
@@ -1276,6 +1598,7 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
       h('div', { class: 'panel' }, h('h3', null, 'Aiuto'), h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Come si usa l’app, capitolo per capitolo, con la ricerca.'),
         h('div', { class: 'tasti', style: { margin: 0 } }, h('button', { class: 'btn', onclick: () => apriManuale() }, svg('giornaliera'), 'Apri il manuale'))),
       impostazioni(),
+      window.ContabilyPin ? ContabilyPin.pannello({ ridisegna: disegna }) : null,
       h('div', { class: 'panel' }, h('h3', null, 'Backup'), h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Salva dipendenti, turni e giornaliere in un file protetto da password (cifrato) e ricaricali su questo o su un altro telefono.'),
         h('div', { class: 'tasti', style: { margin: 0 } }, h('button', { class: 'btn ghost', onclick: esporta }, svg('giu'), 'Salva backup'), h('button', { class: 'btn ghost', onclick: importa }, svg('su'), 'Carica backup')),
         h('label', { class: 'riga-spunta', for: 'bk-auto', style: { marginTop: '12px' } }, h('span', null, 'Backup automatico (una copia al giorno nella memoria privata dell’app)'), h('input', { type: 'checkbox', id: 'bk-auto', class: 'spunta', checked: db.backupAuto, onchange: (e) => { db.backupAuto = e.target.checked; salvaDb(); if (db.backupAuto) copiaAutomatica(true); disegna(); } })),
@@ -1364,15 +1687,16 @@ main::after{content:"by Contabily";display:block;clear:both;text-align:center;fo
   // ---------- primo avvio ----------
   if (db.accettato < TERMINI_VER) {
     const spunta = h('input', { type: 'checkbox', id: 'accetto', class: 'spunta' });
-    const ok = h('button', { class: 'btn', disabled: true, onclick: () => { if (!spunta.checked) return; db.accettato = TERMINI_VER; db.accettatoIl = new Date().toISOString(); salvaDb(); chiudi(); disegna(); } }, svg('salva'), 'Accetto e inizio');
+    const ok = h('button', { class: 'btn', disabled: true, onclick: () => { if (!spunta.checked) return; db.accettato = TERMINI_VER; db.accettatoIl = new Date().toISOString(); salvaDb(); chiudi(); disegna(); if (window.ContabilyPin) ContabilyPin.proponi(); } }, svg('salva'), 'Accetto e inizio');
     spunta.addEventListener('change', () => { ok.disabled = !spunta.checked; });
     const chiudi = foglio(db.accettato ? 'Privacy e condizioni aggiornate' : 'Benvenuto in ' + NOME, [
       h('p', { style: { margin: '0 0 8px' } }, db.accettato ? 'Abbiamo aggiornato l’informativa privacy (GDPR) e le condizioni d’uso. Prima di continuare, quattro cose chiare:' : 'Prima di iniziare, quattro cose chiare:'),
       h('ul', { class: 'punti' },
-        h('li', null, h('b', null, 'I dati restano sul telefono.'), ' L’app non usa Internet: lo sviluppatore non riceve e non vede niente.'),
+        h('li', null, h('b', null, 'I dati restano sul telefono.'), ' L’app non usa Internet e non ha server: nessuno, nemmeno lo sviluppatore, riceve o vede i tuoi dati.'),
         h('li', null, h('b', null, 'Sei tu il titolare del trattamento'), ' dei dati dei tuoi dipendenti: inserisci solo quelli che servono e, per la malattia, mai la diagnosi.'),
         h('li', null, h('b', null, 'L’app è uno strumento di calcolo:'), ' non sostituisce buste paga, Libro Unico né il consulente del lavoro. Controlla i risultati.'),
-        h('li', null, h('b', null, 'Fai backup regolari:'), ' se perdi il telefono o disinstalli l’app, i dati non si possono recuperare.')),
+        h('li', null, h('b', null, 'Fai backup regolari:'), ' se perdi il telefono o disinstalli l’app, i dati non si possono recuperare. I backup sono protetti dalla password che scegli tu.')),
+      h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Subito dopo potrai scegliere un PIN di 4 cifre che verrà chiesto ogni volta che apri l’app.'),
       h('div', { class: 'docs' }, doc('Leggi l’informativa privacy e GDPR', PRIVACY), doc('Leggi le condizioni d’uso', CONDIZIONI)),
       h('label', { class: 'riga-spunta', for: 'accetto', style: { marginTop: '12px' } }, h('span', null, 'Ho letto l’informativa privacy e accetto le condizioni d’uso.'), spunta)],
     () => [ok]);

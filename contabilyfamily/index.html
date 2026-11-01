@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="it">
+<head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1F6FE6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ContabilyFamily"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>ContabilyFamily</title>
+<style>
+/* ContabilyFamily — scadenze e spese della famiglia. Tutto nel telefono, niente rete. */
+:root {
+  --bg: #ffffff; --surface: #ffffff; --surface-2: #f5f7fb; --text: #16203a; --muted: #5b6684; --line: #e2e8f3;
+  --c: #1f6fe6; --c-t: #eaf2fe; --c-scuro: #1430c4; --c-fondo: #1f6fe6; --green: #2c9b3c; --green-t: #ecf7ee; --red: #e2393a; --red-t: #fdeced; --toast: #16203a;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --tab-h: 64px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1420; --surface: #171e2d; --surface-2: #1c2436; --text: #e9eefa; --muted: #9aa6c2; --line: #2a3448; --c: #5b9bff; --c-t: #1a2a47; --c-scuro: #8fa6ff; --c-fondo: #2457c5; --green: #4cc463; --green-t: #173022; --red: #ff6466; --red-t: #3c1d22; --toast: #33405e; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1420; --surface: #171e2d; --surface-2: #1c2436; --text: #e9eefa; --muted: #9aa6c2; --line: #2a3448; --c: #5b9bff; --c-t: #1a2a47; --c-scuro: #8fa6ff; --c-fondo: #2457c5; --green: #4cc463; --green-t: #173022; --red: #ff6466; --red-t: #3c1d22; --toast: #33405e; color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.35; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.top { background: var(--c-fondo); color: #fff; padding-block: 10px 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 11; background: var(--c-fondo); }
+.top h1 { margin: 0; font-size: 22px; font-weight: 800; }
+.top small { display: block; opacity: .9; font-size: 14px; margin-top: 2px; }
+main { padding-block: 12px calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 16px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 640px; margin: 0 auto; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.panel h3 { margin: 0 0 6px; font-size: 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.panel h3 span { color: var(--muted); font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
+.riga { display: grid; grid-template-columns: 78px 1fr 92px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.riga:last-child { border-bottom: 0; }
+.nota { height: 42px; border-radius: 6px; display: grid; place-items: center; font-weight: 800; font-size: 16px; color: #1b2433; border: 1px solid rgba(0,0,0,.12); }
+.moneta { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #3a2a00; margin: 0 auto; border: 1px solid rgba(0,0,0,.15); }
+.step { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.step button { width: 40px; height: 42px; flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; font-size: 22px; font-weight: 700; color: var(--c); padding: 0; }
+.step input { width: 100%; min-width: 0; height: 42px; border: 1px solid var(--line); border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; background: var(--surface); }
+.riga .sub { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.totale { position: sticky; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 8px); background: var(--c-fondo); color: #fff; border-radius: 14px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 12px; z-index: 5; }
+.totale span { font-weight: 700; letter-spacing: .03em; }
+.totale b { font-size: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.campo { display: grid; gap: 4px; margin-bottom: 10px; }
+.campo label { font-weight: 600; color: var(--muted); font-size: 14px; }
+.soldi { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 0 12px; height: 46px; }
+.soldi span { color: var(--muted); margin-right: 6px; }
+.soldi input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 18px; font-weight: 700; }
+.campo textarea, .campo input.testo { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 12px; min-height: 46px; width: 100%; }
+.conto { background: var(--c-t); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; }
+.conto .r { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.conto .r b { white-space: nowrap; }
+.su { color: var(--green); } .giu { color: var(--red); }
+.tasti { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.btn { flex: 1 1 auto; white-space: nowrap; min-height: 48px; border-radius: 12px; border: 0; background: var(--c-fondo); color: #fff; font-weight: 700; font-size: 16px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.ghost { background: var(--surface); color: var(--c); border: 1.5px solid var(--line); }
+.btn.rosso { background: var(--red-t); color: var(--red); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.lista { display: grid; gap: 8px; }
+.voce { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.voce .data { flex: none; width: 52px; height: 52px; border-radius: 12px; background: var(--c-t); color: var(--c); display: grid; place-items: center; line-height: 1.05; text-align: center; }
+.voce .data b { font-size: 18px; } .voce .data small { font-size: 12px; font-weight: 700; }
+.voce .mid { flex: 1; min-width: 0; } .voce .mid b { display: block; } .voce .mid small { color: var(--muted); display: block; }
+.voce .imp { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vuoto { text-align: center; color: var(--muted); padding: 30px 10px; border: 1.5px dashed var(--line); border-radius: 14px; }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 20; }
+.tabbar button { border: 0; background: none; display: grid; place-items: center; align-content: center; gap: 2px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.tabbar button svg { width: 24px; height: 24px; }
+.tabbar button.on { color: var(--c); }
+.foglio-ov { position: fixed; inset: 0; background: rgba(10,15,30,.45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.foglio { background: var(--bg); width: 100%; max-width: 640px; max-height: 92vh; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.foglio .fh { background: var(--c-fondo); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.foglio .fh b { font-size: 18px; }
+.foglio .fh button { border: 0; background: none; color: #fff; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; }
+.foglio .fb { padding: 14px 16px; overflow: auto; }
+.foglio .ff { padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; }
+table.dett { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.dett td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+table.dett td:nth-child(2), table.dett td:nth-child(3) { text-align: right; white-space: nowrap; }
+.toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 76px); transform: translateX(-50%); background: var(--toast); color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 60; max-width: 86vw; text-align: center; }
+.prosa p { margin: 0 0 10px; } .prosa h4 { margin: 14px 0 6px; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+/* intestazione: ora, calcolatrice, nome dell'app e data (come ContabilyTab) */
+.marca { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 10%, var(--bg)), var(--bg)); padding-block: 10px 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); text-align: center; }
+.marca .barra { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.marca .pill { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(20,30,60,.10); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.marca button.pill { font-size: 16px; }
+.marca .pill svg { width: 22px; height: 22px; flex: none; color: var(--c); }
+.marca button.pill:active { background: var(--c-t); }
+.marca h2 { margin: 0; font-size: clamp(34px, 9.5vw, 52px); line-height: 1; font-weight: 800; letter-spacing: -.02em; color: var(--c-scuro); }
+.marca h2 span { color: var(--c); }
+.marca .oggi { margin: 6px 0 0; font-size: 16px; color: var(--muted); text-transform: capitalize; }
+/* calendario */
+.mesenav { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 12px; }
+.mesenav button { border: 0; background: none; height: 48px; font-size: 26px; font-weight: 700; color: var(--c); }
+.mesenav .lbl { font-size: 18px; color: var(--text); text-transform: capitalize; }
+.cal { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.cal .gs, .cal .gg { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cal .gs div { background: var(--c-fondo); color: #fff; text-align: center; font-size: 13px; font-weight: 700; padding: 7px 0; }
+.cal .gg > * { min-height: 58px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 4px 3px; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; background: var(--surface); }
+.cal .gg > *:nth-child(7n) { border-right: 0; }
+.cal .gg button { border-top: 0; border-left: 0; font: inherit; color: inherit; }
+.cal .gg .n { font-weight: 700; font-size: 15px; width: 26px; height: 26px; border-radius: 13px; display: grid; place-items: center; }
+.cal .gg .oggi .n { background: var(--c-fondo); color: #fff; }
+.cal .gg .dom .n { color: var(--muted); }
+.cal .gg .imp { font-size: 11px; font-weight: 700; color: var(--c); background: var(--c-t); border-radius: 6px; padding: 2px 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cal .gg .piu { font-size: 11px; color: var(--muted); }
+.cal-nota { margin: 10px 2px 0; }
+/* calcolatrice a scomparsa (come ContabilyTab) */
+.calcpad { position: fixed; z-index: 50; right: 12px; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 12px); width: min(340px, calc(100vw - 24px)); background: #1e2433; color: #fff; border-radius: 20px; box-shadow: 0 14px 40px rgba(0,0,0,.4); padding: 12px; }
+.calcpad .bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; }
+.calcpad .bar span { font-size: 14px; opacity: .75; }
+.calcpad .bar button { border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 10px; height: 36px; padding: 0 12px; font-size: 14px; }
+.calcpad .disp { text-align: right; padding: 4px 6px 10px; min-height: 76px; }
+.calcpad .expr { font-size: 15px; opacity: .65; min-height: 20px; overflow-wrap: anywhere; }
+.calcpad .res { font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calcpad .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.calcpad .keys button { height: 54px; border: 0; border-radius: 14px; background: #2f3748; color: #fff; font-size: 22px; padding: 0; }
+.calcpad .keys button.op { background: #3c4a6b; color: #9ec1ff; }
+.calcpad .keys button.eq { background: #1f6fe6; color: #fff; }
+.calcpad .keys button.fn { background: #444c5c; font-size: 18px; }
+.calcpad .keys button:active { filter: brightness(1.25); }
+
+/* stile «Contabily» (30/10/2026): stessi colori, sfondo grigio-azzurro chiaro, schede con ombra morbida, barra in alto sfumata */
+:root:not([data-theme="dark"]) { --bg: #f1f4fa; --line: #e3e8f2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f1420; --line: #2a3448; } }
+:root[data-theme="dark"] { --bg: #0f1420; --line: #2a3448; }
+html, body { background: var(--bg); }
+.top { background: linear-gradient(135deg, var(--c-fondo, var(--c)), color-mix(in srgb, var(--c-fondo, var(--c)) 72%, #0b1d5e)); border-radius: 0 0 20px 20px; box-shadow: 0 6px 16px color-mix(in srgb, var(--c) 25%, transparent); }
+.panel, .voce, .monthnav, .mesenav, .cal, .tbl-wrap, .griglia-wrap { border-color: transparent !important; box-shadow: 0 1px 2px rgba(20,40,90,.05), 0 6px 18px rgba(20,40,90,.07); }
+.panel { border-radius: 16px; }
+
+/* firma */
+main::after{content:"by Contabily";display:block;clear:both;text-align:center;font-size:11px;letter-spacing:.04em;color:var(--muted);opacity:.85;padding:16px 0 6px}
+/* ContabilyFamily */
+.tabbar button { font-size: 12px; }
+.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+.chips .chip { padding: 8px 6px; text-align: center; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px; white-space: nowrap; }
+.chip.on { background: var(--c-fondo); border-color: transparent; color: #fff; }
+.chip .n { display: inline-block; min-width: 20px; margin-left: 6px; padding: 0 6px; border-radius: 10px; background: color-mix(in srgb, currentColor 18%, transparent); font-size: 12px; }
+.grande { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 76px; padding: 12px 16px; border-radius: 18px; border: 0; color: #fff; text-align: left; box-shadow: 0 6px 18px rgba(20,40,90,.16); }
+.grande svg { width: 30px; height: 30px; flex: none; }
+.grande span { display: flex; flex-direction: column; min-width: 0; }
+.grande b { font-size: 19px; line-height: 1.15; }
+.grande small { font-size: 13px; opacity: .9; margin-top: 2px; }
+.grande.blu { background: linear-gradient(135deg, var(--c-fondo), color-mix(in srgb, var(--c-fondo) 72%, #0b1d5e)); }
+.grande.verde { background: linear-gradient(135deg, #2c9b3c, #1f7a2e); }
+.due-tasti { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.due-tasti .grande { min-height: 92px; flex-direction: column; justify-content: center; text-align: center; gap: 6px; padding: 12px 8px; }
+.due-tasti .grande span { align-items: center; }
+.due-tasti .grande b { font-size: 17px; }
+.kpi2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kpi2 > div { background: var(--c-t); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.kpi2 small { display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
+.kpi2 b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--c-scuro); }
+.voce .ico { flex: none; width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; font-size: 26px; background: var(--c-t); }
+.voce .mid .stato { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: var(--c-t); color: var(--c); }
+.stato.rosso { background: var(--red-t) !important; color: var(--red) !important; }
+.stato.arancio { background: #fff1e3 !important; color: #c85b00 !important; }
+.stato.verde { background: var(--green-t) !important; color: var(--green) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stato.arancio { background: #3a2516 !important; color: #ffab6b !important; } }
+.voce.fatta { opacity: .65; }
+.voce.fatta .mid b { text-decoration: line-through; }
+.gruppo { margin: 16px 4px 8px; font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.gruppo:first-child { margin-top: 0; }
+.barre { display: grid; gap: 8px; }
+.barra-cat { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.barra-cat .e { font-size: 20px; text-align: center; }
+.barra-cat .t { min-width: 0; }
+.barra-cat .t div:first-child { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.barra-cat .bg { height: 8px; border-radius: 4px; background: var(--c-t); overflow: hidden; margin-top: 3px; }
+.barra-cat .bg i { display: block; height: 100%; background: var(--c); border-radius: 4px; }
+.barra-cat b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scelte { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.scelte button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; min-height: 58px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12.5px; font-weight: 600; color: var(--text); line-height: 1.15; text-align: center; }
+.scelte button .e { font-size: 21px; }
+.scelte button.on { border-color: var(--c); background: var(--c-t); color: var(--c-scuro); }
+.campo input.testo[type="date"], .campo input.testo[type="time"], .campo select { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 12px; min-height: 46px; width: 100%; color: var(--text); font: inherit; }
+.due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.due > .campo { min-width: 0; }
+.spunte { display: flex; flex-wrap: wrap; gap: 6px; }
+.spunte label { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 600; }
+.spunte label:has(input:checked) { border-color: var(--c); background: var(--c-t); color: var(--c-scuro); }
+.spunte input { width: 18px; height: 18px; margin: 0; accent-color: var(--c); }
+.riga-spunta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+.riga-spunta input { width: 24px; height: 24px; flex: none; accent-color: var(--c); }
+.cal .gg .punti { display: flex; gap: 3px; justify-content: center; }
+.cal .gg .punti i { width: 7px; height: 7px; border-radius: 50%; background: var(--red); display: block; }
+.cal .gg .punti i.ok { background: var(--green); }
+.cal .gg .punti i.prox { background: #f08a24; }
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 2px 0; font-size: 13px; color: var(--muted); }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+details.doc { background: var(--surface); border-radius: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(20,40,90,.05), 0 6px 18px rgba(20,40,90,.07); }
+details.doc summary { padding: 14px 16px; font-weight: 700; font-size: 16px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+details.doc summary::-webkit-details-marker { display: none; }
+details.doc summary::after { content: "›"; font-size: 24px; color: var(--c); transform: rotate(90deg); transition: transform .15s; }
+details.doc[open] summary::after { transform: rotate(-90deg); }
+details.doc .prosa { padding: 0 16px 12px; }
+.sezione-top { display: flex; gap: 8px; margin-bottom: 12px; }
+.sezione-top .btn { flex: 1; }
+.punti { margin: 0 0 10px; padding-left: 20px; } .punti li { margin-bottom: 6px; }
+.agg { color: var(--muted); font-size: 13px; }
+.docs { display: grid; gap: 8px; }
+.docs details.doc { margin-bottom: 0; }
+.prosa ul { margin: 0 0 10px; padding-left: 20px; } .prosa li { margin-bottom: 4px; }
+.scelte button.nuova { border-style: dashed; color: var(--c); }
+.scelte button.nuova .e { font-size: 22px; font-weight: 700; }
+.icone-cat { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+.icone-cat button { height: 46px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; font-size: 22px; padding: 0; }
+.icone-cat button.on { border-color: var(--c); background: var(--c-t); box-shadow: 0 0 0 2px var(--c) inset; }
+.mie-cat { padding: 8px 0; border-top: 1px solid var(--line); }
+.mie-cat:first-of-type { border-top: 0; }
+.mie-cat > b { display: block; margin-bottom: 6px; }
+.mie-cat-l { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mie-cat-l .chip.nuova { border-style: dashed; color: var(--c); }
+/* blocco con PIN */
+.pin-ov { position: fixed; inset: 0; z-index: 1000; background: var(--pin-bg, var(--bg, #0f1420)); color: var(--pin-fg, var(--text, var(--fg, #16203a))); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); overflow: auto; }
+.pin-box { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.pin-marca { font-size: 26px; font-weight: 800; letter-spacing: -.01em; color: var(--pin-c, var(--c-scuro, var(--c, var(--gold, #1430c4)))); }
+.pin-ic { width: 40px; height: 40px; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-titolo { font-size: 20px; font-weight: 700; }
+.pin-msg { margin: 0; min-height: 2.6em; font-size: 14.5px; color: var(--muted, #5b6684); max-width: 300px; }
+.pin-punti { display: flex; gap: 18px; justify-content: center; margin: 4px 0 10px; }
+.pin-punti i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--pin-c, var(--c, var(--gold, #1f6fe6))); display: block; }
+.pin-punti i.on { background: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-punti.scuoti { animation: pin-scuoti .4s; }
+@keyframes pin-scuoti { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.pin-tast { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; justify-content: center; }
+.pin-k { width: 76px; height: 76px; border-radius: 50%; border: 1px solid var(--line, #e2e8f3); background: var(--surface, #fff); color: inherit; font-size: 28px; font-weight: 600; display: grid; place-items: center; padding: 0; font-family: inherit; cursor: pointer; }
+.pin-k:active { background: var(--c-t, rgba(127,127,127,.2)); }
+.pin-k.pin-del { border-color: transparent; background: transparent; font-size: 24px; }
+.pin-link { margin-top: 6px; border: 0; background: none; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); font-weight: 700; font-size: 15px; padding: 8px 12px; font-family: inherit; cursor: pointer; }
+.pin-aiuto { width: 100%; }
+.pin-det { text-align: left; font-size: 14px; color: var(--muted, #5b6684); display: grid; gap: 8px; }
+.pin-det[hidden] { display: none; }
+.pin-det p { margin: 0; }
+.pin-inp { width: 100%; min-height: 44px; border: 1px solid var(--line, #e2e8f3); border-radius: 10px; padding: 0 12px; background: var(--surface, #fff); color: inherit; font: inherit; }
+.pin-canc { min-height: 44px; border: 0; border-radius: 10px; background: var(--red-t, #fdeced); color: var(--red, #e2393a); font-weight: 700; font: inherit; font-weight: 700; cursor: pointer; }
+.pin-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 76px); transform: translateX(-50%); background: var(--toast, #16203a); color: #fff; padding: 10px 16px; border-radius: 12px; z-index: 1001; max-width: 86vw; text-align: center; }
+.pin-panel .pin-stato { margin: 0 0 10px; color: var(--muted, #5b6684); font-size: 14px; }
+.pin-panel .pin-tasti { display: flex; flex-wrap: wrap; gap: 8px; }
+.pin-panel .pin-tasti > * { flex: 1 1 auto; }
+@media (max-width: 340px) { .pin-tast { grid-template-columns: repeat(3, 66px); } .pin-k { width: 66px; height: 66px; } }
+.pin-codice { font: 700 26px/1.2 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .06em; padding: 14px 16px; border-radius: 14px; border: 2px dashed var(--pin-c, var(--c, var(--gold, #1f6fe6))); background: var(--surface, #fff); white-space: nowrap; max-width: 100%; }
+.pin-riga { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; font-weight: 600; padding: 4px 2px; }
+.pin-spunta { width: 26px; height: 26px; flex: none; accent-color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
+.pin-usa { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--pin-c, var(--c-fondo, var(--c, var(--gold, #1f6fe6)))); color: var(--pin-on, #fff); font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; }
+.pin-usa:disabled { opacity: .45; }
+.pin-err { margin: 0; min-height: 1.3em; color: var(--red, #e2393a); font-size: 14px; }
+.pin-sep { border-top: 1px solid var(--line, #e2e8f3); padding-top: 10px; margin-top: 4px !important; }
+@media (max-width: 340px) { .pin-codice { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>window.CONTABILY_PIN = { nome: 'ContabilyFamily', chiave: 'contabilyfamily' };</script>
+<script>
+/* Blocco con PIN di 4 cifre (Contabily). Il PIN non viene mai salvato: si salva solo un'impronta (PBKDF2-SHA256, 150.000 giri, con sale casuale).
+   Si chiede all'apertura dell'app e ogni volta che ci si torna dopo averla chiusa o messa in secondo piano. 5 tentativi sbagliati → attesa di 30 secondi.
+   Codice di ripristino di 12 caratteri (anch'esso salvato solo come impronta) per scegliere un PIN nuovo senza perdere i dati. */
+(function () {
+  'use strict';
+  const CFG = window.CONTABILY_PIN || {}; const NOME = CFG.nome || 'Contabily'; const CHIAVE = (CFG.chiave || 'contabily') + '.pin';
+  const DOVE = CFG.dove || 'Info', BACKUP = CFG.backup || (DOVE + ' → Carica backup');
+  const LEN = 4, RIBLOCCO_MS = 1500;
+  const ALFA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const nuovoCodice = () => { const r = crypto.getRandomValues(new Uint8Array(12)); let c = ''; r.forEach((x, i) => { c += ALFA[x % ALFA.length]; if (i === 3 || i === 7) c += '-'; }); return c; };
+  const normCodice = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/O/g, '0').replace(/I/g, '1');
+  const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE) || 'null'); } catch (e) { return null; } };
+  const scrivi = (v) => { try { if (v) localStorage.setItem(CHIAVE, JSON.stringify(v)); else localStorage.removeItem(CHIAVE); } catch (e) { /* */ } };
+  const hex = (b) => Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, '0')).join('');
+  const unhex = (s) => new Uint8Array(s.match(/../g).map((x) => parseInt(x, 16)));
+  const ok = () => !!(window.crypto && crypto.subtle);
+  async function impronta(pin, saltHex) {
+    const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+    return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: unhex(saltHex), iterations: 150000, hash: 'SHA-256' }, km, 256));
+  }
+  const attivo = () => { const c = leggi(); return !!(c && c.hash && c.salt); };
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+  // tastierino a schermo intero; titolo, testo; onPin(pin) → true se va bene (chiude), stringa = messaggio d'errore
+  function tastierino({ titolo, testo, onPin, chiudibile, extra }) {
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', titolo);
+    const box = el('div', 'pin-box');
+    const marca = el('div', 'pin-marca', NOME);
+    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const t = el('div', 'pin-titolo', titolo); const msg = el('p', 'pin-msg', testo || ''); msg.setAttribute('role', 'status');
+    const punti = el('div', 'pin-punti'); punti.setAttribute('aria-hidden', 'true');
+    let pin = '', busy = false;
+    const disegna = () => { punti.replaceChildren(...Array.from({ length: LEN }, (_, i) => el('i', i < pin.length ? 'on' : ''))); };
+    const chiudi = () => { document.removeEventListener('keydown', tasto, true); ov.remove(); };
+    const premi = async (k) => {
+      if (busy) return;
+      if (k === 'del') pin = pin.slice(0, -1); else if (pin.length < LEN) pin += k;
+      disegna();
+      if (pin.length === LEN) { busy = true; const r = await onPin(pin); busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
+    };
+    const tasto = (e) => { if (e.target && e.target.tagName === 'INPUT') return; if (/^[0-9]$/.test(e.key)) { e.preventDefault(); premi(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); premi('del'); } else if (e.key === 'Escape' && chiudibile) chiudi(); };
+    const tast = el('div', 'pin-tast');
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].forEach((k) => {
+      if (!k) { tast.append(el('span')); return; }
+      const b = el('button', 'pin-k' + (k === 'del' ? ' pin-del' : ''), k === 'del' ? '⌫' : k); b.type = 'button'; if (k === 'del') b.setAttribute('aria-label', 'Cancella una cifra');
+      b.addEventListener('click', () => premi(k)); tast.append(b);
+    });
+    box.append(marca, ic, t, msg, punti, tast);
+    if (extra) box.append(extra(chiudi));
+    if (chiudibile) { const a = el('button', 'pin-link', 'Annulla'); a.type = 'button'; a.addEventListener('click', chiudi); box.append(a); }
+    ov.append(box); document.body.append(ov); disegna(); document.addEventListener('keydown', tasto, true);
+    return chiudi;
+  }
+
+  // ---- blocco ----
+  let bloccato = false, falliti = 0, attesa = 0;
+  function blocca() {
+    if (bloccato || !attivo()) return; bloccato = true;
+    const aiuto = (chiudi) => {
+      const box = el('div', 'pin-aiuto'); const btn = el('button', 'pin-link', 'PIN dimenticato?'); btn.type = 'button';
+      const det = el('div', 'pin-det'); det.hidden = true;
+      const cfg0 = leggi() || {};
+      if (cfg0.rhash) {
+        det.append(el('p', null, 'Scrivi il codice di ripristino che ti è stato dato quando hai scelto il PIN: potrai sceglierne uno nuovo senza perdere niente.'));
+        const cod = document.createElement('input'); cod.type = 'text'; cod.className = 'pin-inp'; cod.placeholder = 'XXXX-XXXX-XXXX'; cod.autocapitalize = 'characters'; cod.autocomplete = 'off'; cod.spellcheck = false; cod.setAttribute('aria-label', 'Codice di ripristino');
+        const esito = el('p', 'pin-err'); esito.setAttribute('role', 'status');
+        const usa = el('button', 'pin-usa', 'Usa il codice'); usa.type = 'button';
+        usa.addEventListener('click', async () => {
+          const c = leggi(); const n = normCodice(cod.value);
+          if (n.length !== 12) { esito.textContent = 'Il codice ha 12 caratteri.'; return; }
+          const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
+          if (c && c.rhash && await impronta(n, c.rsalt) === c.rhash) { chiudi(); bloccato = false; falliti = 0; chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
+          falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; }
+          esito.textContent = 'Codice errato. Controlla e riprova.';
+        });
+        det.append(cod, usa, esito, el('p', 'pin-sep', 'Hai perso anche il codice? Lo sviluppatore non può sbloccare l’app, perché non vede i tuoi dati. L’unica strada è cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
+      } else det.append(el('p', null, 'Per sicurezza il PIN non si può recuperare, nemmeno dallo sviluppatore. Per rientrare devi cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
+      const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Scrivi CANCELLA'; inp.className = 'pin-inp'; inp.setAttribute('aria-label', 'Scrivi CANCELLA per cancellare tutti i dati');
+      const canc = el('button', 'pin-canc', 'Cancella tutti i dati'); canc.type = 'button';
+      canc.addEventListener('click', () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); } catch (e) { /* */ } location.reload(); });
+      det.append(inp, canc);
+      btn.addEventListener('click', () => { det.hidden = !det.hidden; });
+      box.append(btn, det); return box;
+    };
+    tastierino({ titolo: 'Inserisci il PIN', testo: 'L’app è protetta: scrivi le 4 cifre.', extra: aiuto, onPin: async (p) => {
+      const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
+      const c = leggi(); if (!c) { bloccato = false; return true; }
+      if (await impronta(p, c.salt) === c.hash) { falliti = 0; bloccato = false; return true; }
+      falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; return 'Troppi tentativi. Riprova tra 30 secondi.'; }
+      return 'PIN errato. Riprova.';
+    } });
+  }
+  let nascostaDa = 0;
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') nascostaDa = Date.now(); else if (nascostaDa && Date.now() - nascostaDa > RIBLOCCO_MS) blocca(); });
+
+  // ---- impostazioni ----
+  // mostra il codice di ripristino da scrivere
+  function mostraCodice(codice, fatto) {
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Codice di ripristino');
+    const box = el('div', 'pin-box');
+    const c = el('div', 'pin-codice', codice);
+    const spunta = document.createElement('input'); spunta.type = 'checkbox'; spunta.id = 'pin-scritto'; spunta.className = 'pin-spunta';
+    const lab = el('label', 'pin-riga'); lab.htmlFor = 'pin-scritto'; lab.append(el('span', null, 'Ho scritto il codice in un posto sicuro'), spunta);
+    const fine = el('button', 'pin-usa', 'Fatto'); fine.type = 'button'; fine.disabled = true;
+    spunta.addEventListener('change', () => { fine.disabled = !spunta.checked; });
+    fine.addEventListener('click', () => { ov.remove(); fatto && fatto(); });
+    const copia = el('button', 'pin-link', 'Copia il codice'); copia.type = 'button';
+    copia.addEventListener('click', async () => { try { await navigator.clipboard.writeText(codice); avviso('Codice copiato'); } catch (e) { avviso('Scrivilo a mano'); } });
+    box.append(el('div', 'pin-marca', NOME), el('div', 'pin-titolo', 'Codice di ripristino'),
+      el('p', 'pin-msg', 'Se un giorno dimentichi il PIN, con questo codice ne scegli uno nuovo senza perdere i dati. Scrivilo su un foglio o fotografalo e tienilo lontano dal telefono: verrà mostrato solo adesso.'),
+      c, copia, lab, fine);
+    ov.append(box); document.body.append(ov);
+  }
+  const chiediNuovo = (fatto, obbligatorio) => {
+    let primo = null;
+    const c1 = tastierino({ titolo: 'Scegli il PIN', testo: 'Scegli 4 cifre facili da ricordare per te, ma non per gli altri (no 1234, no la data di nascita).', chiudibile: !obbligatorio, onPin: async (p) => {
+      if (/^(\d)\1{3}$/.test(p) || '0123456789'.includes(p) || '9876543210'.includes(p)) return 'Troppo facile: scegline un altro.';
+      primo = p; setTimeout(() => tastierino({ titolo: 'Ripeti il PIN', testo: 'Scrivi di nuovo le stesse 4 cifre.', chiudibile: !obbligatorio, onPin: async (q) => {
+        if (q !== primo) return 'I due PIN non sono uguali. Riprova.';
+        const salt = hex(crypto.getRandomValues(new Uint8Array(16))), rsalt = hex(crypto.getRandomValues(new Uint8Array(16))), codice = nuovoCodice();
+        scrivi({ salt, hash: await impronta(q, salt), rsalt, rhash: await impronta(normCodice(codice), rsalt), len: LEN, dal: new Date().toISOString() });
+        setTimeout(() => mostraCodice(codice, fatto), 0); return true; } }), 0);
+      return true; } });
+    return c1;
+  };
+  const chiediAttuale = (titolo, poi) => tastierino({ titolo, testo: 'Scrivi il PIN attuale.', chiudibile: true, onPin: async (p) => { const c = leggi(); if (c && await impronta(p, c.salt) === c.hash) { setTimeout(poi, 0); return true; } return 'PIN errato. Riprova.'; } });
+  const avviso = (t) => { const a = el('div', 'pin-toast', t); a.setAttribute('role', 'status'); document.body.append(a); setTimeout(() => a.remove(), 2600); };
+  const ContabilyPin = {
+    attivo,
+    imposta(dopo) { if (!ok()) return avviso('Il blocco con PIN funziona solo nell’app installata'); chiediNuovo(() => { avviso('PIN attivato'); dopo && dopo(); }); },
+    cambia(dopo) { chiediAttuale('Cambia il PIN', () => chiediNuovo(() => { avviso('PIN cambiato'); dopo && dopo(); })); },
+    togli(dopo) { chiediAttuale('Togli il PIN', () => { scrivi(null); avviso('Blocco con PIN tolto'); dopo && dopo(); }); },
+    // riquadro per la pagina Info: o = { classePanel, classeBtn, classeGhost, ridisegna }
+    pannello(o) {
+      o = o || {}; const p = el('div', (o.classePanel || 'panel') + ' pin-panel');
+      const h3 = el('h3', null, 'Blocco con PIN');
+      const t = el('p', 'pin-stato', attivo() ? 'Attivo: il PIN viene chiesto ogni volta che apri l’app o ci torni. Se lo dimentichi, usa il codice di ripristino.' : 'Non attivo. Con un PIN di 4 cifre nessuno può aprire l’app senza di te, anche se ha il tuo telefono in mano.');
+      const r = el('div', 'pin-tasti');
+      const b = (txt, cls, fn) => { const x = el('button', cls, txt); x.type = 'button'; x.addEventListener('click', fn); return x; };
+      const dopo = () => o.ridisegna && o.ridisegna();
+      if (attivo()) r.append(b('Cambia PIN', o.classeGhost || 'btn ghost', () => ContabilyPin.cambia(dopo)), b('Togli PIN', o.classeGhost || 'btn ghost', () => ContabilyPin.togli(dopo)));
+      else r.append(b('Imposta PIN', o.classeBtn || 'btn', () => ContabilyPin.imposta(dopo)));
+      p.append(h3, t, r); return p;
+    },
+  };
+  // alla prima apertura: proposta di scegliere il PIN (una volta sola)
+  ContabilyPin.proponi = (dopo) => {
+    const K = CHIAVE + 'proposto'; let gia = false; try { gia = !!localStorage.getItem(K); } catch (e) { /* */ }
+    if (gia || attivo() || !ok()) { dopo && dopo(); return; }
+    try { localStorage.setItem(K, '1'); } catch (e) { /* */ }
+    const ov = el('div', 'pin-ov'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Imposta il PIN');
+    const box = el('div', 'pin-box');
+    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const si = el('button', 'pin-usa', 'Imposta il PIN'); si.type = 'button';
+    const no = el('button', 'pin-link', 'Più tardi'); no.type = 'button';
+    si.addEventListener('click', () => { ov.remove(); chiediNuovo(() => { avviso('PIN attivato'); dopo && dopo(); }); });
+    no.addEventListener('click', () => { ov.remove(); dopo && dopo(); });
+    box.append(el('div', 'pin-marca', NOME), ic, el('div', 'pin-titolo', 'Proteggi l’app con un PIN'),
+      el('p', 'pin-msg', 'Scegli 4 cifre: verranno chieste ogni volta che apri l’app. Riceverai anche un codice di ripristino da conservare, se un giorno dimentichi il PIN. Puoi farlo anche più tardi da ' + DOVE + ' → Blocco con PIN.'),
+      si, no);
+    ov.append(box); document.body.append(ov);
+  };
+  window.ContabilyPin = ContabilyPin;
+  if (attivo()) blocca();
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  const NOME = 'ContabilyFamily';
+  const VERSIONE = '1.0.1';
+  const TERMINI_VER = 2; // 2 = informativa e condizioni del 1/11/2026 con il blocco con PIN
+  // ---------- utilità ----------
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'html') el.innerHTML = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    kids.flat(9).forEach((c) => { if (c != null && c !== false) el.append(c.nodeType ? c : String(c)); });
+    return el;
+  };
+  const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const fmt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const eur = (n) => (r2(n) < 0 ? '-⁠€ ' : '€ ') + fmt.format(Math.abs(r2(n)));
+  const num = (s) => { const t = String(s == null ? '' : s).replace(/\s/g, '').replace(/\./g, '').replace(',', '.'); const v = parseFloat(t); return isNaN(v) ? 0 : v; };
+  const MESI = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+  const MESI_L = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+  const GIORNI3 = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const isoGiorno = (d) => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  const oggi = () => isoGiorno(new Date());
+  const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+  const addDays = (iso, n) => { const d = toDate(iso); d.setDate(d.getDate() + n); return isoGiorno(d); };
+  const addMesi = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const ult = new Date(y, m - 1 + n + 1, 0).getDate(); return isoGiorno(new Date(y, m - 1 + n, Math.min(d, ult), 12)); };
+  const diffGiorni = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
+  const dataBreve = (iso) => { const d = toDate(iso); return GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()]; };
+  const dataLunga = (iso) => { const d = toDate(iso); return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
+  const nuovoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const ICONE = {
+    oggi: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+    scad: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6M12 2v3"/>',
+    spese: '<path d="M4 6h16v12H4z"/><path d="M4 10h16M8 15h3"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    salva: '<path d="M5 12l4 4 10-10"/>', azzera: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>', piu: '<path d="M12 5v14M5 12h14"/>',
+    chiudi: '<path d="M6 6l12 12M18 6L6 18"/>',
+    calendario: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><circle cx="8" cy="14" r="1.2"/><circle cx="12" cy="14" r="1.2"/><circle cx="16" cy="14" r="1.2"/>',
+    calc: '<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8 6.5h8v3H8zM8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/>', ora: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    giu: '<path d="M12 4v12M6 10l6 6 6-6M5 20h14"/>', su: '<path d="M12 20V8M6 14l6-6 6 6M5 4h14"/>',
+    campana: '<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  };
+  const svg = (n) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = ICONE[n] || ''; return s; };
+  const toast = (t, ms) => { document.querySelectorAll('.toast').forEach((x) => x.remove()); const el = h('div', { class: 'toast', role: 'status' }, t); document.body.append(el); setTimeout(() => el.remove(), ms || 2400); };
+
+  // ---------- archivio: solo nel telefono ----------
+  const CHIAVE = 'contabilyfamily';
+  const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE)) || {}; } catch (e) { return {}; } };
+  const db = Object.assign({ scadenze: [], spese: [], accettato: 0, notifiche: { attive: true, ora: '09:00' } }, leggi());
+  const salvaDb = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(db)); } catch (e) { toast('Spazio pieno: non riesco a salvare'); } };
+
+  // ---------- categorie ----------
+  const CAT_SCAD = [
+    { v: 'casa', l: 'Casa', e: '🏠' }, { v: 'auto', l: 'Auto e moto', e: '🚗' }, { v: 'salute', l: 'Salute e visite', e: '🩺' },
+    { v: 'vaccini', l: 'Vaccini', e: '💉' }, { v: 'animali', l: 'Animali', e: '🐾' }, { v: 'documenti', l: 'Documenti', e: '🪪' },
+    { v: 'tasse', l: 'Tasse e pagamenti', e: '🧾' }, { v: 'altro', l: 'Altro', e: '📌' }];
+  const CAT_SPESE = [
+    { v: 'spesa', l: 'Spesa', e: '🛒' }, { v: 'bollette', l: 'Bollette', e: '💡' }, { v: 'carburante', l: 'Carburante', e: '⛽' },
+    { v: 'casa', l: 'Casa', e: '🏠' }, { v: 'salute', l: 'Salute', e: '💊' }, { v: 'animali', l: 'Animali', e: '🐾' },
+    { v: 'auto', l: 'Auto', e: '🚗' }, { v: 'vestiti', l: 'Vestiti', e: '👕' }, { v: 'svago', l: 'Svago', e: '🎉' },
+    { v: 'scuola', l: 'Scuola e figli', e: '🎒' }, { v: 'regali', l: 'Regali', e: '🎁' }, { v: 'altro', l: 'Altro', e: '📌' }];
+  // categorie create dall'utente (prima di «Altro»)
+  if (!db.mieCat) db.mieCat = { scad: [], spese: [] };
+  const tutteScad = () => CAT_SCAD.slice(0, -1).concat(db.mieCat.scad, CAT_SCAD.slice(-1));
+  const tutteSpese = () => CAT_SPESE.slice(0, -1).concat(db.mieCat.spese, CAT_SPESE.slice(-1));
+  const catScad = (v) => tutteScad().find((c) => c.v === v) || CAT_SCAD[CAT_SCAD.length - 1];
+  const catSpesa = (v) => tutteSpese().find((c) => c.v === v) || CAT_SPESE[CAT_SPESE.length - 1];
+  const ICONE_CAT = ['🏠', '🚗', '🏍️', '🚲', '🩺', '💉', '💊', '🦷', '👓', '🐾', '🐶', '🐱', '🪪', '🧾', '💡', '🔥', '💧', '📱', '🌐', '📺', '🛒', '⛽', '👕', '👟', '🎒', '📚', '🎁', '🎉', '✈️', '🏖️', '🍕', '☕', '🏋️', '💇', '🧹', '🔧', '🌱', '👶', '👵', '💼', '🏦', '💳', '📌', '⭐'];
+  // crea o modifica una categoria: tipo = 'scad' | 'spese'
+  function apriCategoria(tipo, cat, dopo) {
+    let icona = cat ? cat.e : ICONE_CAT[0];
+    const nome = h('input', { class: 'testo', value: cat ? cat.l : '', placeholder: tipo === 'scad' ? 'Es. Palestra, Abbonamenti, Condominio' : 'Es. Ristorante, Figli, Hobby', maxlength: '24', 'aria-label': 'Nome della categoria' });
+    const griglia = h('div', { class: 'icone-cat', role: 'group', 'aria-label': 'Icona' });
+    const btns = ICONE_CAT.map((e) => h('button', { type: 'button', class: e === icona ? 'on' : '', 'aria-label': 'Icona ' + e, onclick: () => { icona = e; btns.forEach((b) => b.classList.toggle('on', b.textContent === e)); } }, e));
+    griglia.append(...btns);
+    const lista = () => db.mieCat[tipo];
+    foglio(cat ? 'Modifica categoria' : 'Nuova categoria', [campo('Nome', nome), campo('Icona', griglia)], (ch) => [
+      cat ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina la categoria', onclick: async () => {
+        const usate = tipo === 'scad' ? db.scadenze.filter((x) => x.cat === cat.v).length : db.spese.filter((x) => x.cat === cat.v).length;
+        if (await chiedi('Eliminare la categoria «' + cat.l + '»?' + (usate ? ' Le ' + usate + (tipo === 'scad' ? ' scadenze' : ' spese') + ' che la usano passano in «Altro».' : ''), 'Elimina')) {
+          db.mieCat[tipo] = lista().filter((x) => x.v !== cat.v);
+          (tipo === 'scad' ? db.scadenze : db.spese).forEach((x) => { if (x.cat === cat.v) x.cat = 'altro'; });
+          salvaDb(); ch(); dopo && dopo(); toast('Categoria eliminata'); } } }, svg('azzera')) : null,
+      h('button', { class: 'btn', onclick: () => {
+        const l = nome.value.trim(); if (!l) return toast('Scrivi il nome della categoria');
+        const tutte = tipo === 'scad' ? tutteScad() : tutteSpese();
+        if (tutte.some((c) => c.l.toLowerCase() === l.toLowerCase() && (!cat || c.v !== cat.v))) return toast('Esiste già una categoria con questo nome');
+        if (cat) { const c = lista().find((x) => x.v === cat.v); if (c) { c.l = l; c.e = icona; } }
+        else lista().push({ v: 'u' + nuovoId(), l, e: icona });
+        salvaDb(); ch(); dopo && dopo(cat ? null : lista()[lista().length - 1].v); toast(cat ? 'Categoria modificata' : 'Categoria creata');
+      } }, svg('salva'), 'Salva')]);
+    if (!cat) setTimeout(() => nome.focus(), 80);
+  }
+  const RIPETI = [{ v: 'no', l: 'Una volta sola' }, { v: '1m', l: 'Ogni mese', m: 1 }, { v: '3m', l: 'Ogni 3 mesi', m: 3 }, { v: '6m', l: 'Ogni 6 mesi', m: 6 },
+    { v: '1a', l: 'Ogni anno', m: 12 }, { v: '2a', l: 'Ogni 2 anni', m: 24 }, { v: '3a', l: 'Ogni 3 anni', m: 36 }, { v: '5a', l: 'Ogni 5 anni', m: 60 }, { v: '10a', l: 'Ogni 10 anni', m: 120 }];
+  const AVVISI = [{ v: 30, l: '30 giorni prima' }, { v: 7, l: '7 giorni prima' }, { v: 3, l: '3 giorni prima' }, { v: 1, l: 'Il giorno prima' }, { v: 0, l: 'Il giorno stesso' }];
+
+  // stato di una scadenza: quanti giorni mancano
+  const quando = (s) => {
+    if (s.fatta) return { t: 'Fatta' + (s.fattaIl ? ' il ' + dataBreve(s.fattaIl.slice(0, 10)) : ''), c: 'verde' };
+    const g = diffGiorni(oggi(), s.data);
+    if (g < 0) return { t: 'Scaduta da ' + (-g) + (g === -1 ? ' giorno' : ' giorni'), c: 'rosso' };
+    if (g === 0) return { t: 'Scade oggi', c: 'rosso' };
+    if (g === 1) return { t: 'Scade domani', c: 'arancio' };
+    if (g <= 7) return { t: 'Tra ' + g + ' giorni', c: 'arancio' };
+    return { t: 'Tra ' + g + ' giorni', c: '' };
+  };
+  const daFare = () => db.scadenze.filter((s) => !s.fatta).sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
+
+  // ---------- intestazione: ora, calcolatrice, nome dell'app e data di oggi ----------
+  const oraTesto = () => { const d = new Date(); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); };
+  const dataTesto = () => new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const marca = () => h('div', { class: 'marca' },
+    h('div', { class: 'barra' },
+      h('div', { class: 'pill', 'aria-label': 'Ora attuale' }, svg('ora'), h('b', { 'data-ora': '' }, oraTesto())),
+      h('button', { class: 'pill', 'aria-label': 'Apri la calcolatrice', onclick: apriCalc }, svg('calc'), h('span', { 'data-calc': '' }, testoTastoCalc()))),
+    h('h2', null, 'Contabily', h('span', null, 'Family')),
+    h('p', { class: 'sotto-marca', style: { margin: '4px 0 0', fontWeight: '700', fontSize: '16px' } }, 'scadenze e spese della famiglia'),
+    h('p', { class: 'oggi', 'data-oggi': '' }, dataTesto()));
+  setInterval(() => { document.querySelectorAll('[data-ora]').forEach((e) => (e.textContent = oraTesto())); document.querySelectorAll('[data-oggi]').forEach((e) => (e.textContent = dataTesto())); }, 15000);
+
+  // ---------- calcolatrice a scomparsa: resta sopra l'app, si riduce a un tasto ----------
+  const calcolo = (e) => {
+    const s = String(e).replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!s || !/^[\d.+\-*/()%]+$/.test(s)) return null;
+    let i = 0;
+    const numero = () => { const m = /^\d*\.?\d+|^\d+\./.exec(s.slice(i)); if (!m) throw 0; i += m[0].length; let v = parseFloat(m[0]); while (s[i] === '%') { v /= 100; i++; } return v; };
+    const fattore = () => { if (s[i] === '-') { i++; return -fattore(); } if (s[i] === '+') { i++; return fattore(); } if (s[i] === '(') { i++; const v = somma(); if (s[i] !== ')') throw 0; i++; return v; } return numero(); };
+    const prodotto = () => { let v = fattore(); while (s[i] === '*' || s[i] === '/') { const o = s[i++]; const w = fattore(); v = o === '*' ? v * w : v / w; } return v; };
+    const somma = () => { let v = prodotto(); while (s[i] === '+' || s[i] === '-') { const o = s[i++]; const w = prodotto(); v = o === '+' ? v + w : v - w; } return v; };
+    try { const v = somma(); return i === s.length && isFinite(v) ? r2(v) : null; } catch (err) { return null; }
+  };
+  const numTesto = (v) => fmt.format(v);
+  const calc = { expr: '', mini: false };
+  const testoTastoCalc = () => { if (!calc.mini || !calc.expr) return 'Calcolatrice'; const v = calcolo(calc.expr); return v != null ? numTesto(v) : 'Calcolatrice'; };
+  function apriCalc() { const ex = document.querySelector('.calcpad'); if (ex) { ex.remove(); return; } calc.mini = false; disegnaCalc(); }
+  function disegnaCalc() {
+    document.querySelectorAll('.calcpad').forEach((e) => e.remove());
+    document.querySelectorAll('[data-calc]').forEach((e) => (e.textContent = testoTastoCalc()));
+    if (calc.mini) return;
+    const expr = h('div', { class: 'expr' }), res = h('div', { class: 'res' });
+    const upd = () => { expr.textContent = calc.expr; const v = calcolo(calc.expr); res.textContent = calc.expr ? (v == null ? '…' : numTesto(v)) : '0,00'; };
+    const premi = (k) => {
+      if (k === 'C') calc.expr = '';
+      else if (k === '⌫') calc.expr = calc.expr.slice(0, -1);
+      else if (k === '=') { const v = calcolo(calc.expr); if (v != null) calc.expr = String(v).replace('.', ','); }
+      else calc.expr += k;
+      upd();
+    };
+    const tasti = ['C', '⌫', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '00', '0', ',', '='];
+    const box = h('div', { class: 'calcpad', role: 'dialog', 'aria-label': 'Calcolatrice' },
+      h('div', { class: 'bar' }, h('span', null, 'Calcolatrice'), h('div', { style: { display: 'flex', gap: '6px' } },
+        h('button', { onclick: async () => { const v = calcolo(calc.expr); if (v == null) return; try { await navigator.clipboard.writeText(numTesto(v)); toast('Copiato: ' + numTesto(v)); } catch (e) { toast(numTesto(v)); } } }, 'Copia'),
+        h('button', { onclick: () => { calc.mini = true; disegnaCalc(); } }, 'Riduci'),
+        h('button', { 'aria-label': 'Chiudi la calcolatrice', onclick: () => { box.remove(); calc.mini = false; document.querySelectorAll('[data-calc]').forEach((e) => (e.textContent = 'Calcolatrice')); } }, '✕'))),
+      h('div', { class: 'disp' }, expr, res),
+      h('div', { class: 'keys' }, tasti.map((k) => h('button', { type: 'button', class: /[÷×−+]/.test(k) ? 'op' : k === '=' ? 'eq' : /[C⌫%]/.test(k) ? 'fn' : '', onclick: () => premi(k) }, k))));
+    document.body.append(box); upd();
+  }
+
+  // ---------- fogli (finestre dal basso) e conferme ----------
+  const foglio = (titolo, corpo, piede) => {
+    const ov = h('div', { class: 'foglio-ov', onclick: (e) => { if (e.target === ov) chiudi(); } });
+    const chiudi = () => ov.remove();
+    ov.append(h('div', { class: 'foglio', role: 'dialog', 'aria-label': titolo }, h('div', { class: 'fh' }, h('b', null, titolo), h('button', { 'aria-label': 'Chiudi', onclick: chiudi }, svg('chiudi'))), h('div', { class: 'fb' }, corpo), piede ? h('div', { class: 'ff' }, piede(chiudi)) : null));
+    document.body.append(ov); return chiudi;
+  };
+  const chiedi = (testo, ok) => new Promise((res) => { let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); }; const chiudi = foglio('Conferma', h('p', { style: { margin: 0, fontSize: '16px' } }, testo), () => [h('button', { class: 'btn ghost', onclick: () => fine(false) }, 'Annulla'), h('button', { class: 'btn rosso', onclick: () => fine(true) }, ok || 'Conferma')]); });
+  const campo = (l, el, nota) => h('div', { class: 'campo' }, h('label', null, l), el, nota ? h('small', { class: 'muted' }, nota) : null);
+  const soldi = (inp) => h('div', { class: 'soldi' }, h('span', null, '€'), inp);
+  const inputSoldi = (v, aria) => { const i = h('input', { inputmode: 'decimal', placeholder: '0,00', value: v ? fmt.format(v) : '', 'aria-label': aria }); i.addEventListener('blur', () => { if (i.value.trim() !== '') i.value = fmt.format(num(i.value)); }); return i; };
+  const sceltaCat = (tipo, val, onScelta) => {
+    const box = h('div', { class: 'scelte', role: 'group' });
+    const disegnaScelte = (sel) => {
+      const lista = tipo === 'scad' ? tutteScad() : tutteSpese();
+      const btns = lista.map((c) => h('button', { type: 'button', class: c.v === sel ? 'on' : '', 'aria-pressed': c.v === sel ? 'true' : 'false', onclick: () => { btns.forEach((b) => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }); const b = btns[lista.indexOf(c)]; b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); onScelta(c.v); } }, h('span', { class: 'e' }, c.e), c.l));
+      box.replaceChildren(...btns, h('button', { type: 'button', class: 'nuova', onclick: () => apriCategoria(tipo, null, (nv) => { if (nv) { onScelta(nv); disegnaScelte(nv); } }) }, h('span', { class: 'e' }, '＋'), 'Nuova categoria'));
+    };
+    disegnaScelte(val); return box;
+  };
+
+  // ---------- struttura ----------
+  const app = document.getElementById('app');
+  let scheda = 'oggi';
+  const TABS = [['oggi', 'Oggi', 'oggi'], ['scadenze', 'Scadenze', 'scad'], ['spese', 'Spese', 'spese'], ['calendario', 'Calendario', 'calendario'], ['info', 'Info', 'info']];
+  const TITOLI = { oggi: ['Oggi', 'Le prossime scadenze e le spese'], scadenze: ['Scadenze', 'Casa, auto, salute, vaccini, animali, documenti'], spese: ['Spese', 'Quanto spendi, giorno per giorno'], calendario: ['Calendario', 'Scadenze e spese del mese'], info: ['Info', 'Manuale, notifiche, privacy e backup'] };
+  const disegna = () => {
+    app.replaceChildren();
+    const [titolo, sotto] = TITOLI[scheda];
+    const main = h('main');
+    app.append(marca(), h('header', { class: 'top' }, h('h1', null, titolo), h('small', null, sotto)), main,
+      h('nav', { class: 'tabbar' }, TABS.map(([k, l, ic]) => h('button', { class: scheda === k ? 'on' : '', 'aria-label': l, onclick: () => { scheda = k; disegna(); window.scrollTo(0, 0); } }, svg(ic), l))));
+    ({ oggi: schermataOggi, scadenze: schermataScadenze, spese: schermataSpese, calendario: schermataCalendario, info: schermataInfo })[scheda](main);
+  };
+
+  // ---------- elementi di lista ----------
+  const voceScad = (s, dopo) => {
+    const c = catScad(s.cat), st = quando(s); const d = toDate(s.data);
+    return h('button', { class: 'voce' + (s.fatta ? ' fatta' : ''), onclick: () => apriScadenza(s, dopo) },
+      h('div', { class: 'data' }, h('b', null, String(d.getDate())), h('small', null, MESI[d.getMonth()])),
+      h('div', { class: 'mid' }, h('b', null, c.e + ' ' + s.titolo), h('small', null, [c.l, s.chi, s.ripeti && s.ripeti !== 'no' ? (RIPETI.find((r) => r.v === s.ripeti) || {}).l.toLowerCase() : null].filter(Boolean).join(' · ')), h('span', { class: 'stato ' + st.c }, st.t)),
+      s.importo ? h('div', { class: 'imp' }, eur(s.importo)) : null);
+  };
+  const voceSpesa = (x, dopo) => {
+    const c = catSpesa(x.cat); const d = toDate(x.data);
+    return h('button', { class: 'voce', onclick: () => apriSpesa(x, dopo) },
+      h('div', { class: 'ico', 'aria-hidden': 'true' }, c.e),
+      h('div', { class: 'mid' }, h('b', null, x.nota || c.l), h('small', null, (x.nota ? c.l + ' · ' : '') + GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()])),
+      h('div', { class: 'imp' }, eur(x.importo)));
+  };
+  const totSpese = (filtro) => r2(db.spese.filter(filtro).reduce((a, x) => a + (x.importo || 0), 0));
+
+  // ---------- OGGI ----------
+  function schermataOggi(main) {
+    const prossime = daFare().slice(0, 3);
+    const ym = oggi().slice(0, 7);
+    main.append(
+      h('div', { class: 'due-tasti' },
+        h('button', { class: 'grande blu', onclick: () => apriScadenza(null, disegna) }, svg('scad'), h('span', null, h('b', null, '+ Scadenza'), h('small', null, 'bollo, visita, vaccino…'))),
+        h('button', { class: 'grande verde', onclick: () => apriSpesa(null, disegna) }, svg('spese'), h('span', null, h('b', null, '+ Spesa'), h('small', null, 'quanto hai speso oggi')))),
+      h('div', { class: 'panel' }, h('h3', null, 'Prossime scadenze', h('span', null, daFare().length ? daFare().length + ' da fare' : '')),
+        prossime.length ? h('div', { class: 'lista' }, prossime.map((s) => voceScad(s, disegna))) : h('p', { class: 'muted', style: { margin: '6px 0' } }, 'Nessuna scadenza. Tocca «+ Scadenza» per aggiungerne una.'),
+        daFare().length > 3 ? h('button', { class: 'btn ghost', style: { width: '100%', marginTop: '10px' }, onclick: () => { scheda = 'scadenze'; disegna(); window.scrollTo(0, 0); } }, 'Vedi tutte le scadenze') : null),
+      h('div', { class: 'panel' }, h('h3', null, 'Spese'),
+        h('div', { class: 'kpi2' }, h('div', null, h('small', null, 'Oggi'), h('b', null, eur(totSpese((x) => x.data === oggi())))), h('div', null, h('small', null, 'Questo mese'), h('b', null, eur(totSpese((x) => x.data.slice(0, 7) === ym))))),
+        h('button', { class: 'btn ghost', style: { width: '100%', marginTop: '10px' }, onclick: () => { scheda = 'spese'; disegna(); window.scrollTo(0, 0); } }, 'Vedi le spese del mese')));
+  }
+
+  // ---------- SCADENZE ----------
+  let filtroScad = 'prossime';
+  function schermataScadenze(main) {
+    const oggiIso = oggi();
+    const gruppi = {
+      prossime: db.scadenze.filter((s) => !s.fatta && s.data >= oggiIso).sort((a, b) => (a.data < b.data ? -1 : 1)),
+      scadute: db.scadenze.filter((s) => !s.fatta && s.data < oggiIso).sort((a, b) => (a.data < b.data ? -1 : 1)),
+      fatte: db.scadenze.filter((s) => s.fatta).sort((a, b) => ((a.fattaIl || a.data) < (b.fattaIl || b.data) ? 1 : -1)),
+    };
+    const chip = (k, l) => h('button', { class: 'chip' + (filtroScad === k ? ' on' : ''), onclick: () => { filtroScad = k; disegna(); } }, l, h('span', { class: 'n' }, String(gruppi[k].length)));
+    main.append(h('div', { class: 'sezione-top' }, h('button', { class: 'btn', onclick: () => apriScadenza(null, disegna) }, svg('piu'), 'Nuova scadenza')),
+      h('div', { class: 'chips' }, chip('prossime', 'Da fare'), chip('scadute', 'Scadute'), chip('fatte', 'Fatte')));
+    const lista = gruppi[filtroScad];
+    if (!lista.length) { main.append(h('div', { class: 'vuoto' }, filtroScad === 'prossime' ? [h('b', null, 'Nessuna scadenza da fare'), h('br'), 'Tocca «Nuova scadenza»: bollo, revisione, visita, vaccino del cane…'] : filtroScad === 'scadute' ? 'Nessuna scadenza passata da segnare. Bene!' : 'Qui trovi le scadenze che hai segnato come fatte.')); return; }
+    let mese = '';
+    const out = [];
+    lista.forEach((s) => { const m = filtroScad === 'fatte' ? null : s.data.slice(0, 7); if (m && m !== mese) { mese = m; const [y, mm] = m.split('-').map(Number); out.push(h('div', { class: 'gruppo' }, MESI_L[mm - 1] + ' ' + y)); } out.push(voceScad(s, disegna)); });
+    main.append(h('div', { class: 'lista' }, out));
+  }
+  function apriScadenza(s, dopo, preset) {
+    const v = s ? { ...s, avvisi: (s.avvisi || [7, 1, 0]).slice() } : Object.assign({ cat: 'casa', data: addDays(oggi(), 7), ripeti: 'no', avvisi: [7, 1, 0] }, preset || {});
+    const titolo = h('input', { class: 'testo', value: v.titolo || '', placeholder: 'Es. Bollo auto, Visita oculistica, Vaccino Fido', 'aria-label': 'Che cosa scade' });
+    const data = h('input', { class: 'testo', type: 'date', value: v.data, 'aria-label': 'Data di scadenza' });
+    const chi = h('input', { class: 'testo', value: v.chi || '', placeholder: 'Es. Mario, Fido, Panda', 'aria-label': 'Per chi o per cosa' });
+    const imp = inputSoldi(v.importo, 'Importo');
+    const nota = h('input', { class: 'testo', value: v.note || '', placeholder: 'Facoltativa', 'aria-label': 'Nota' });
+    const rip = h('select', { 'aria-label': 'Si ripete' }, RIPETI.map((r) => h('option', { value: r.v, selected: r.v === (v.ripeti || 'no') }, r.l)));
+    const avv = h('div', { class: 'spunte' }, AVVISI.map((a) => h('label', null, h('input', { type: 'checkbox', checked: v.avvisi.includes(a.v), onchange: (e) => { v.avvisi = v.avvisi.filter((x) => x !== a.v); if (e.target.checked) v.avvisi.push(a.v); } }), a.l)));
+    const corpo = [campo('Che cosa scade', titolo), campo('Tipo', sceltaCat('scad', v.cat, (c) => { v.cat = c; })),
+      h('div', { class: 'due' }, campo('Data di scadenza', data), campo('Si ripete', rip)),
+      h('div', { class: 'due' }, campo('Per chi o per cosa', chi), campo('Importo', soldi(imp))),
+      campo('Avvisami con una notifica', avv, 'Alle ' + (db.notifiche.ora || '09:00') + ' dei giorni scelti (l’orario si cambia in Info).'),
+      campo('Nota', nota)];
+    const leggiCampi = () => ({ ...v, titolo: titolo.value.trim(), data: data.value, chi: chi.value.trim(), importo: imp.value.trim() ? r2(num(imp.value)) : null, note: nota.value.trim(), ripeti: rip.value });
+    const salvaRec = (r) => { const i = db.scadenze.findIndex((x) => x.id === r.id); if (i >= 0) db.scadenze[i] = r; else db.scadenze.push(r); salvaDb(); programmaNotifiche(); };
+    foglio(s ? 'Modifica scadenza' : 'Nuova scadenza', corpo, (ch) => [
+      s ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina la scadenza', onclick: async () => { if (await chiedi('Eliminare «' + s.titolo + '»?', 'Elimina')) { db.scadenze = db.scadenze.filter((x) => x.id !== s.id); salvaDb(); programmaNotifiche(); ch(); dopo(); } } }, svg('azzera')) : null,
+      s && !s.fatta ? h('button', { class: 'btn ghost', onclick: () => {
+        const r = leggiCampi(); if (!r.titolo) return toast('Scrivi che cosa scade');
+        const rr = RIPETI.find((x) => x.v === r.ripeti);
+        if (rr && rr.m) { salvaRec({ ...r, id: nuovoId(), data: addMesi(r.data, rr.m), fatta: false, fattaIl: null }); }
+        salvaRec({ ...r, fatta: true, fattaIl: new Date().toISOString() }); ch(); dopo();
+        toast(rr && rr.m ? 'Fatta! La prossima è il ' + dataLunga(addMesi(r.data, rr.m)).replace(/^\S+ /, '') : 'Segnata come fatta', 3000);
+      } }, svg('salva'), 'Fatta') : null,
+      s && s.fatta ? h('button', { class: 'btn ghost', onclick: () => { salvaRec({ ...leggiCampi(), fatta: false, fattaIl: null }); ch(); dopo(); toast('Rimessa tra quelle da fare'); } }, 'Da fare') : null,
+      h('button', { class: 'btn', onclick: () => { const r = leggiCampi(); if (!r.titolo) return toast('Scrivi che cosa scade'); if (!r.data) return toast('Scegli la data'); salvaRec(s ? r : { ...r, id: nuovoId(), fatta: false }); ch(); dopo(); toast('Scadenza salvata'); } }, svg('salva'), 'Salva')]);
+    if (!s) setTimeout(() => titolo.focus(), 80);
+  }
+
+  // ---------- SPESE ----------
+  let speseMese = oggi().slice(0, 7);
+  const meseLabel = (ym) => { const [y, m] = ym.split('-').map(Number); return MESI_L[m - 1] + ' ' + y; };
+  const spostaMese = (ym, n) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return d.getFullYear() + '-' + pad2(d.getMonth() + 1); };
+  function schermataSpese(main) {
+    const del = db.spese.filter((x) => x.data.slice(0, 7) === speseMese).sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (a.creata || '') < (b.creata || '') ? 1 : -1));
+    const tot = r2(del.reduce((a, x) => a + x.importo, 0));
+    const prec = totSpese((x) => x.data.slice(0, 7) === spostaMese(speseMese, -1));
+    const perCat = tutteSpese().map((c) => ({ c, t: r2(del.filter((x) => x.cat === c.v).reduce((a, x) => a + x.importo, 0)) })).filter((x) => x.t > 0).sort((a, b) => b.t - a.t);
+    main.append(h('div', { class: 'sezione-top' }, h('button', { class: 'btn', style: { background: 'linear-gradient(135deg,#2c9b3c,#1f7a2e)' }, onclick: () => apriSpesa(null, disegna) }, svg('piu'), 'Nuova spesa')),
+      h('div', { class: 'mesenav' }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { speseMese = spostaMese(speseMese, -1); disegna(); } }, '‹'), h('b', { class: 'lbl', style: { textAlign: 'center' } }, meseLabel(speseMese)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { speseMese = spostaMese(speseMese, 1); disegna(); } }, '›')),
+      h('div', { class: 'panel' }, h('div', { class: 'kpi2' }, h('div', null, h('small', null, 'Speso nel mese'), h('b', null, eur(tot))), h('div', null, h('small', null, 'Mese prima'), h('b', null, eur(prec)))),
+        perCat.length ? h('div', { class: 'barre', style: { marginTop: '12px' } }, perCat.map(({ c, t }) => h('div', { class: 'barra-cat' }, h('span', { class: 'e', 'aria-hidden': 'true' }, c.e), h('div', { class: 't' }, h('div', null, c.l), h('div', { class: 'bg' }, h('i', { style: { width: Math.max(3, Math.round(t / perCat[0].t * 100)) + '%' } }))), h('b', null, eur(t))))) : null));
+    if (!del.length) { main.append(h('div', { class: 'vuoto' }, h('b', null, 'Nessuna spesa in questo mese'), h('br'), 'Tocca «Nuova spesa» e scrivi quanto hai speso.')); return; }
+    const out = []; let g = '';
+    del.forEach((x) => { if (x.data !== g) { g = x.data; const tg = r2(del.filter((y) => y.data === g).reduce((a, y) => a + y.importo, 0)); out.push(h('div', { class: 'gruppo', style: { display: 'flex', justifyContent: 'space-between' } }, h('span', null, dataLunga(g).replace(/ \d{4}$/, '')), h('span', null, eur(tg)))); } out.push(voceSpesa(x, disegna)); });
+    main.append(h('div', { class: 'lista' }, out));
+  }
+  function apriSpesa(x, dopo, dataDef) {
+    const v = x ? { ...x } : { cat: 'spesa', data: dataDef || oggi() };
+    const imp = inputSoldi(v.importo, 'Importo speso');
+    const data = h('input', { class: 'testo', type: 'date', value: v.data, 'aria-label': 'Giorno' });
+    const nota = h('input', { class: 'testo', value: v.nota || '', placeholder: 'Es. supermercato, farmacia, pieno', 'aria-label': 'Nota' });
+    foglio(x ? 'Modifica spesa' : 'Nuova spesa', [campo('Quanto hai speso', soldi(imp)), campo('Per cosa', sceltaCat('spese', v.cat, (c) => { v.cat = c; })), h('div', { class: 'due' }, campo('Giorno', data), campo('Nota', nota))], (ch) => [
+      x ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina la spesa', onclick: async () => { if (await chiedi('Eliminare questa spesa di ' + eur(x.importo) + '?', 'Elimina')) { db.spese = db.spese.filter((y) => y.id !== x.id); salvaDb(); ch(); dopo(); } } }, svg('azzera')) : null,
+      h('button', { class: 'btn', onclick: () => {
+        const n = r2(num(imp.value)); if (!(n > 0)) return toast('Scrivi quanto hai speso'); if (!data.value) return toast('Scegli il giorno');
+        const r = { ...v, importo: n, data: data.value, nota: nota.value.trim() };
+        if (x) db.spese = db.spese.map((y) => (y.id === x.id ? r : y)); else db.spese.push({ ...r, id: nuovoId(), creata: new Date().toISOString() });
+        salvaDb(); ch(); if (!x) speseMese = r.data.slice(0, 7); dopo(); toast('Spesa salvata: ' + eur(n));
+      } }, svg('salva'), 'Salva')]);
+    if (!x) setTimeout(() => imp.focus(), 80);
+  }
+
+  // ---------- CALENDARIO ----------
+  let calMese = oggi().slice(0, 7);
+  function schermataCalendario(main) {
+    const [Y, M] = calMese.split('-').map(Number);
+    const primo = new Date(Y, M - 1, 1), giorni = new Date(Y, M, 0).getDate();
+    const vuoti = (primo.getDay() + 6) % 7; const oggiIso = oggi();
+    const celle = [];
+    for (let i = 0; i < vuoti; i++) celle.push(h('div'));
+    for (let g = 1; g <= giorni; g++) {
+      const iso = Y + '-' + pad2(M) + '-' + pad2(g); const d = toDate(iso);
+      const sc = db.scadenze.filter((s) => s.data === iso); const sp = db.spese.filter((x) => x.data === iso); const ts = r2(sp.reduce((a, x) => a + x.importo, 0));
+      const cls = [iso === oggiIso ? 'oggi' : '', d.getDay() === 0 ? 'dom' : ''].filter(Boolean).join(' ');
+      celle.push(h('button', { class: cls, 'aria-label': g + ' ' + MESI_L[M - 1] + (sc.length ? ', ' + sc.length + (sc.length === 1 ? ' scadenza' : ' scadenze') : '') + (ts ? ', spese ' + eur(ts) : ''), onclick: () => apriGiorno(iso) },
+        h('span', { class: 'n' }, String(g)),
+        sc.length ? h('span', { class: 'punti' }, sc.slice(0, 3).map((s) => h('i', { class: s.fatta ? 'ok' : s.data < oggiIso ? '' : 'prox' }))) : null,
+        ts ? h('span', { class: 'imp' }, '€' + new Intl.NumberFormat('it-IT', { maximumFractionDigits: 0 }).format(ts)) : null));
+    }
+    while (celle.length % 7) celle.push(h('div'));
+    main.append(
+      h('div', { class: 'mesenav' }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { calMese = spostaMese(calMese, -1); disegna(); } }, '‹'), h('b', { class: 'lbl', style: { textAlign: 'center' } }, meseLabel(calMese)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { calMese = spostaMese(calMese, 1); disegna(); } }, '›')),
+      h('div', { class: 'cal' }, h('div', { class: 'gs' }, ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((x) => h('div', null, x))), h('div', { class: 'gg' }, celle)),
+      h('div', { class: 'legenda' }, h('span', null, h('i', { style: { background: '#f08a24' } }), 'scadenza da fare'), h('span', null, h('i', { style: { background: 'var(--red)' } }), 'scaduta'), h('span', null, h('i', { style: { background: 'var(--green)' } }), 'fatta'), h('span', null, h('b', { style: { color: 'var(--c)' } }, '€'), ' spese del giorno')),
+      h('p', { class: 'muted small cal-nota' }, 'Tocca un giorno per vedere scadenze e spese o per aggiungerne.'));
+  }
+  function apriGiorno(iso) {
+    const sc = db.scadenze.filter((s) => s.data === iso); const sp = db.spese.filter((x) => x.data === iso);
+    const dopo = () => disegna();
+    const chiudi = foglio(dataLunga(iso), [
+      h('div', { class: 'gruppo' }, 'Scadenze'), sc.length ? h('div', { class: 'lista' }, sc.map((s) => h('div', { onclick: () => chiudi() }, voceScad(s, dopo)))) : h('p', { class: 'muted', style: { margin: '0 4px' } }, 'Nessuna scadenza.'),
+      h('div', { class: 'gruppo', style: { marginTop: '16px' } }, 'Spese' + (sp.length ? ' · ' + eur(sp.reduce((a, x) => a + x.importo, 0)) : '')), sp.length ? h('div', { class: 'lista' }, sp.map((x) => h('div', { onclick: () => chiudi() }, voceSpesa(x, dopo)))) : h('p', { class: 'muted', style: { margin: '0 4px' } }, 'Nessuna spesa.')],
+    (ch) => [h('button', { class: 'btn ghost', onclick: () => { ch(); apriScadenza(null, dopo, { data: iso }); } }, svg('piu'), 'Scadenza'), h('button', { class: 'btn', style: { background: 'linear-gradient(135deg,#2c9b3c,#1f7a2e)' }, onclick: () => { ch(); apriSpesa(null, dopo, iso); } }, svg('piu'), 'Spesa')]);
+  }
+
+  // ---------- notifiche delle scadenze (solo nell'app installata) ----------
+  async function programmaNotifiche() {
+    const Cap = window.Capacitor; const LN = Cap && Cap.Plugins && Cap.Plugins.LocalNotifications; if (!LN || !(Cap.isNativePlatform && Cap.isNativePlatform())) return;
+    try {
+      const pend = await LN.getPending().catch(() => null); if (pend && pend.notifications && pend.notifications.length) await LN.cancel({ notifications: pend.notifications.map((n) => ({ id: n.id })) }).catch(() => {});
+      if (!db.notifiche.attive) return;
+      const perm = await LN.requestPermissions().catch(() => null); if (perm && perm.display === 'denied') return;
+      const [hh, mm] = (db.notifiche.ora || '09:00').split(':').map(Number); const ora = Date.now(); const out = []; let id = 1;
+      daFare().forEach((s) => (s.avvisi || [7, 1, 0]).forEach((g) => {
+        const giorno = addDays(s.data, -g); const at = toDate(giorno); at.setHours(hh, mm || 0, 0, 0);
+        if (at.getTime() <= ora || at.getTime() > ora + 400 * 864e5 || out.length >= 60) return;
+        const c = catScad(s.cat);
+        out.push({ id: id++, title: (g === 0 ? 'Scade oggi: ' : g === 1 ? 'Scade domani: ' : 'Tra ' + g + ' giorni: ') + s.titolo, body: c.e + ' ' + c.l + (s.chi ? ' · ' + s.chi : '') + ' · ' + dataLunga(s.data) + (s.importo ? ' · ' + eur(s.importo) : ''), schedule: { at, allowWhileIdle: true } });
+      }));
+      out.sort((a, b) => a.schedule.at - b.schedule.at);
+      if (out.length) await LN.schedule({ notifications: out.slice(0, 60) });
+    } catch (e) { /* notifiche non disponibili */ }
+  }
+
+  // ---------- INFO: manuale, notifiche, privacy, condizioni, backup ----------
+  const MANUALE = `<h4>Le scadenze</h4><p>Tocca <b>+ Scadenza</b> (in Oggi o in Scadenze) e scrivi che cosa scade: bollo auto, revisione, assicurazione, visita medica, vaccino, vaccino del cane, carta d'identità, IMU… Scegli il tipo, la data, se si ripete (ogni anno, ogni 2 anni…) e quando vuoi la notifica.</p><p>Quando l'hai fatta, apri la scadenza e tocca <b>Fatta</b>: se si ripete, l'app prepara da sola la prossima (per esempio il bollo dell'anno dopo).</p><p>In <b>Scadenze</b> le trovi divise in «Da fare», «Scadute» e «Fatte», mese per mese. I colori ti dicono quanto manca: arancione nell'ultima settimana, rosso se scade oggi o è già passata.</p><h4>Le spese</h4><p>Tocca <b>+ Spesa</b>, scrivi quanto hai speso e tocca per cosa (spesa, bollette, carburante…).</p><p>Se ti serve una voce che non c'è, tocca <b>＋ Nuova categoria</b> (nelle scadenze o nelle spese): scegli il nome e l'icona. Le categorie create le rinomini o le elimini in Info → Le tue categorie.</p><p> In <b>Spese</b> vedi il totale del mese, il confronto con il mese prima e quanto hai speso per ogni voce.</p><h4>Il calendario</h4><p>Ogni giorno mostra i pallini delle scadenze e le spese in euro. Tocca un giorno per vederle o aggiungerne.</p><h4>Le notifiche</h4><p>Nell'app installata arrivano anche ad app chiusa, all'orario che scegli qui sotto. Se non arrivano, controlla nelle impostazioni del telefono che le notifiche di ${NOME} siano permesse.</p><h4>Il backup</h4><p>I dati stanno solo in questo telefono: ogni tanto salva un backup e tienilo al sicuro. Se cambi telefono, lo ricarichi con «Carica backup».</p><h4>Il blocco con PIN</h4><p>In <b>Info → Blocco con PIN</b> tocca <b>Imposta PIN</b> e scegli 4 cifre: l'app le chiede ogni volta che la apri o ci torni. Ti viene dato anche un <b>codice di ripristino</b> da scrivere: se dimentichi il PIN, tocca «PIN dimenticato?», scrivi il codice e scegline uno nuovo senza perdere niente. Da Info puoi anche cambiarlo o toglierlo.</p>`;
+  const PRIVACY = `<p class="agg">Versione del 1° novembre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci: nessuno può accedere alle tue informazioni senza il tuo telefono.</li><li>I dati escono dal telefono solo quando li mandi tu (backup).</li></ul><h4>2. Chi tratta i dati</h4><p>Le scadenze e le spese che scrivi riguardano te e la tua famiglia e le usi per motivi personali e domestici: per questo uso il GDPR non si applica (art. 2, par. 2, lett. c GDPR). Lo sviluppatore non tratta i tuoi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento.</p><h4>3. Quali dati si possono inserire</h4><ul><li>Scadenze: che cosa scade, la data, la ripetizione, per chi o per cosa (per esempio un familiare, un animale, un'auto), un importo e una nota.</li><li>Spese: importo, categoria, giorno e una nota.</li><li>Visite mediche e vaccini sono <b>dati relativi alla salute</b> (art. 9 GDPR): scrivi solo quello che ti serve per ricordarti la scadenza (per esempio «Visita oculistica»), mai diagnosi, referti o terapie.</li></ul><h4>4. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu: puoi cancellare ogni scadenza o spesa con il cestino. Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>5. Sicurezza</h4><p>Proteggi il telefono con il blocco schermo (PIN, impronta o volto) e usa una password robusta per i backup. Le <b>notifiche</b> mostrano il nome della scadenza: se non vuoi che si legga a telefono bloccato, nelle impostazioni del telefono scegli di nascondere il contenuto delle notifiche di ${NOME}.</p><h4>Blocco con PIN</h4><p>Puoi proteggere l'apertura dell'app con un <b>PIN di 4 cifre</b> (Info → Blocco con PIN): viene chiesto ogni volta che apri l'app e ogni volta che ci torni. Quando lo scegli ricevi un <b>codice di ripristino</b> di 12 caratteri: se dimentichi il PIN, con il codice ne scegli uno nuovo senza perdere i dati. Il PIN e il codice non vengono salvati: sul telefono resta solo un'impronta cifrata (PBKDF2-SHA256 con sale casuale), da cui non si può risalire a loro. Lo sviluppatore <b>non può sbloccare l'app</b> né recuperare il PIN, perché non vede i tuoi dati: se perdi sia il PIN sia il codice di ripristino devi cancellare i dati dell'app e ricaricare un backup con la sua password.</p><h4>6. Trasferimenti</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se salvare o mandare un backup.</p><h4>7. I tuoi diritti</h4><p>Hai sempre il pieno controllo: puoi vedere, correggere ed eliminare ogni dato dall'app. Per qualsiasi dubbio sulla protezione dei dati puoi rivolgerti al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del tuo paese nell'Unione Europea.</p><h4>8. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per avvisarti delle scadenze, nei giorni e all'ora che scegli tu; puoi spegnerle in Info.</li><li><b>File</b>: solo per salvare e caricare il backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>9. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
+  const CONDIZIONI = `<p class="agg">Versione del 1° novembre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a ricordare le scadenze (casa, auto, salute, vaccini, animali, documenti, tasse) e ad annotare le spese di tutti i giorni. È uno strumento di promemoria e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non dà consigli</b> medici, veterinari, legali o fiscali e non sostituisce le comunicazioni ufficiali (ASL, medico, veterinario, ACI, Comune, Agenzia delle Entrate). Le date e gli importi sono <b>solo quelli che inserisci tu</b>: controlla sempre le scadenze reali.</p><h4>3. Le notifiche</h4><p>Le notifiche dipendono anche dal telefono (permessi, risparmio energetico, modalità non disturbare) e potrebbero non arrivare o arrivare in ritardo: <b>non affidarti solo all'app</b> per le scadenze importanti.</p><h4>4. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, del rispetto delle scadenze, della custodia del telefono, del PIN, dei backup e della loro password.</p><h4>5. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di scadenze dimenticate o mancate, notifiche non arrivate, errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni, more o danni derivanti dall'uso dell'app. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>6. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>7. Uso consentito</h4><p>Puoi usare l'app per te e per la tua famiglia. Non è consentito copiarla, modificarla o rivenderla.</p><h4>8. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>9. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
+  const doc = (titolo, html) => h('details', { class: 'doc' }, h('summary', null, titolo), h('div', { class: 'prosa', html }));
+  function schermataInfo(main) {
+    const oraIn = h('input', { class: 'testo', type: 'time', value: db.notifiche.ora || '09:00', 'aria-label': 'Ora delle notifiche', onchange: (e) => { db.notifiche.ora = e.target.value || '09:00'; salvaDb(); programmaNotifiche(); toast('Notifiche alle ' + db.notifiche.ora); } });
+    main.append(
+      h('details', { class: 'doc' }, h('summary', null, 'Manuale: come si usa'), h('div', { class: 'prosa', html: MANUALE })),
+      h('div', { class: 'panel' }, h('h3', null, 'Notifiche delle scadenze'),
+        h('label', { class: 'riga-spunta' }, h('span', null, 'Avvisami delle scadenze'), h('input', { type: 'checkbox', checked: !!db.notifiche.attive, onchange: (e) => { db.notifiche.attive = e.target.checked; salvaDb(); programmaNotifiche(); disegna(); } })),
+        db.notifiche.attive ? campo('A che ora', oraIn, 'I giorni (30, 7, 3, 1 giorno prima o il giorno stesso) li scegli in ogni scadenza.') : null),
+      h('div', { class: 'panel' }, h('h3', null, 'Le tue categorie'),
+        h('p', { class: 'muted small', style: { margin: '0 0 8px' } }, 'Crea le categorie che ti servono; tocca una categoria per rinominarla, cambiarle l’icona o eliminarla.'),
+        [['scad', 'Scadenze'], ['spese', 'Spese']].map(([t, l]) => h('div', { class: 'mie-cat' }, h('b', null, l),
+          h('div', { class: 'mie-cat-l' }, db.mieCat[t].length ? db.mieCat[t].map((c) => h('button', { type: 'button', class: 'chip', onclick: () => apriCategoria(t, c, () => disegna()) }, c.e + ' ' + c.l)) : h('span', { class: 'muted small' }, 'Nessuna categoria creata'),
+            h('button', { type: 'button', class: 'chip nuova', onclick: () => apriCategoria(t, null, () => disegna()) }, '＋ Nuova'))))),
+      window.ContabilyPin ? ContabilyPin.pannello({ ridisegna: disegna }) : null,
+      doc('Privacy e GDPR', PRIVACY),
+      doc('Condizioni d’uso', CONDIZIONI + (db.accettatoIl ? '<p class="muted small">Accettate il ' + new Date(db.accettatoIl).toLocaleDateString('it-IT') + '.</p>' : '')),
+      h('div', { class: 'panel' }, h('h3', null, 'Backup'), h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Salva scadenze e spese in un file protetto da password e ricaricale su questo o su un altro telefono.'),
+        h('div', { class: 'tasti', style: { margin: 0 } },
+          h('button', { class: 'btn ghost', onclick: esporta }, svg('giu'), 'Salva backup'),
+          h('button', { class: 'btn ghost', onclick: importa }, svg('su'), 'Carica backup'))),
+      h('p', { class: 'muted small', style: { textAlign: 'center' } }, NOME + ' · versione ' + VERSIONE));
+  }
+
+  // ---------- file e backup cifrato (AES-256-GCM, chiave dalla password con PBKDF2) ----------
+  const enc = new TextEncoder();
+  const b64 = (u8) => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+  const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function chiaveDa(password, salt) {
+    const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+  async function cifra(obj, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await chiaveDa(password, salt), enc.encode(JSON.stringify(obj)));
+    return { app: NOME, encrypted: true, kdf: 'PBKDF2-SHA256-200000', cipher: 'AES-256-GCM', salt: b64(salt), iv: b64(iv), data: b64(new Uint8Array(ct)), exportedAt: new Date().toISOString() };
+  }
+  async function decifra(w, password) {
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(w.iv) }, await chiaveDa(password, unb64(w.salt)), unb64(w.data));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }
+  async function salvaFile(nome, testo) {
+    const Cap = window.Capacitor;
+    if (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Filesystem) {
+      const FS = Cap.Plugins.Filesystem; const dati = b64(enc.encode(testo)); let res, dove;
+      try {
+        try { if (FS.requestPermissions) await FS.requestPermissions(); res = await FS.writeFile({ path: 'Download/ContabilyFamily/' + nome, data: dati, directory: 'EXTERNAL_STORAGE', recursive: true }); dove = 'Download/ContabilyFamily'; }
+        catch (e) { res = await FS.writeFile({ path: 'ContabilyFamily/' + nome, data: dati, directory: 'DOCUMENTS', recursive: true }); dove = 'Documenti/ContabilyFamily'; }
+        toast('Salvato in ' + dove, 3000);
+        if (Cap.Plugins.Share) { try { await Cap.Plugins.Share.share({ title: nome, url: res.uri, dialogTitle: 'Condividi ' + nome }); } catch (e) { /* annullato */ } }
+        return true;
+      } catch (e) { toast('Non riesco a salvare il file'); return false; }
+    }
+    const a = h('a', { href: URL.createObjectURL(new Blob([testo], { type: 'application/json' })), download: nome, style: { display: 'none' } });
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); toast('Backup salvato'); return true;
+  }
+  const chiediPassword = (titolo, conferma) => new Promise((res) => {
+    const p1 = h('input', { type: 'password', class: 'testo', autocomplete: 'new-password', placeholder: 'Almeno 8 caratteri', 'aria-label': 'Password' });
+    const p2 = conferma ? h('input', { type: 'password', class: 'testo', autocomplete: 'new-password', placeholder: 'Scrivila di nuovo', 'aria-label': 'Ripeti la password' }) : null;
+    let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); };
+    const chiudi = foglio(titolo, [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, conferma ? 'Il backup viene cifrato: senza questa password nessuno può leggerlo, nemmeno tu. Segnatela in un posto sicuro.' : 'Scrivi la password con cui hai salvato il backup.'), campo('Password', p1), p2 ? campo('Ripeti la password', p2) : null],
+      () => [h('button', { class: 'btn ghost', onclick: () => fine(null) }, 'Annulla'), h('button', { class: 'btn', onclick: () => { if (p1.value.length < 8) return toast('La password deve avere almeno 8 caratteri'); if (p2 && p2.value !== p1.value) return toast('Le due password non sono uguali'); fine(p1.value); } }, svg('salva'), 'Conferma')]);
+    setTimeout(() => p1.focus(), 60);
+  });
+  async function esporta() {
+    const pw = await chiediPassword('Backup protetto da password', true); if (!pw) return;
+    const w = await cifra({ app: NOME, tipo: 'backup', data: new Date().toISOString(), scadenze: db.scadenze, spese: db.spese, notifiche: db.notifiche, mieCat: db.mieCat }, pw);
+    salvaFile('ContabilyFamily_backup_' + oggi() + '.json', JSON.stringify(w));
+  }
+  function importa() {
+    const inp = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
+    inp.addEventListener('change', async () => {
+      const f = inp.files && inp.files[0]; inp.remove(); if (!f) return;
+      try {
+        let o = JSON.parse(await f.text());
+        if (o && o.encrypted) { const pw = await chiediPassword('Backup protetto', false); if (!pw) return; try { o = await decifra(o, pw); } catch (e) { return toast('Password sbagliata'); } }
+        if (!o || o.app !== NOME || !Array.isArray(o.scadenze) || !Array.isArray(o.spese)) return toast('Non è un backup di ' + NOME);
+        const idS = new Set(db.scadenze.map((x) => x.id)), idP = new Set(db.spese.map((x) => x.id));
+        const ns = o.scadenze.filter((x) => x && x.id && x.data && !idS.has(x.id)), np = o.spese.filter((x) => x && x.id && x.data && typeof x.importo === 'number' && !idP.has(x.id));
+        db.scadenze.push(...ns); db.spese.push(...np); if (o.mieCat) ['scad', 'spese'].forEach((t) => (o.mieCat[t] || []).forEach((c) => { if (c && c.v && c.l && !db.mieCat[t].some((x) => x.v === c.v)) db.mieCat[t].push(c); })); salvaDb(); programmaNotifiche(); toast(ns.length + ' scadenze e ' + np.length + ' spese caricate'); disegna();
+      } catch (e) { toast('File non leggibile'); }
+    });
+    document.body.append(inp); inp.click();
+  }
+
+  // ---------- primo avvio: accettazione delle condizioni ----------
+  if (db.accettato < TERMINI_VER) {
+    const spunta = h('input', { type: 'checkbox', id: 'accetto' });
+    const ok = h('button', { class: 'btn', disabled: true, style: { opacity: '.5' }, onclick: () => { if (!spunta.checked) return; db.accettato = TERMINI_VER; db.accettatoIl = new Date().toISOString(); salvaDb(); chiudi(); disegna(); if (window.ContabilyPin) ContabilyPin.proponi(); } }, svg('salva'), 'Accetto e inizio');
+    spunta.addEventListener('change', () => { ok.disabled = !spunta.checked; ok.style.opacity = spunta.checked ? '1' : '.5'; });
+    const chiudi = foglio('Benvenuto in ' + NOME, [
+      h('p', { style: { margin: '0 0 8px' } }, 'Prima di iniziare, quattro cose chiare:'),
+      h('ul', { class: 'punti' },
+        h('li', null, h('b', null, 'I dati restano sul telefono.'), ' L’app non usa Internet e non ha server: nessuno, nemmeno lo sviluppatore, riceve o vede i tuoi dati.'),
+        h('li', null, h('b', null, 'Per visite e vaccini'), ' scrivi solo quello che ti serve per ricordare la scadenza, mai diagnosi o referti.'),
+        h('li', null, h('b', null, 'L’app è un promemoria:'), ' le notifiche possono non arrivare, controlla sempre le scadenze importanti.'),
+        h('li', null, h('b', null, 'Fai backup regolari:'), ' se perdi il telefono o disinstalli l’app, i dati non si possono recuperare. I backup sono protetti dalla password che scegli tu.')),
+      h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Subito dopo potrai scegliere un PIN di 4 cifre che verrà chiesto ogni volta che apri l’app.'),
+      h('div', { class: 'docs' }, doc('Leggi l’informativa privacy e GDPR', PRIVACY), doc('Leggi le condizioni d’uso', CONDIZIONI))],
+    () => [h('label', { class: 'riga-spunta', for: 'accetto', style: { width: '100%', padding: '2px 2px 4px', fontWeight: '600' } }, h('span', null, 'Ho letto l’informativa privacy e accetto le condizioni d’uso.'), spunta), ok]);
+    document.querySelector('.foglio-ov').onclick = null; document.querySelector('.foglio .fh button').remove();
+  }
+  disegna();
+  programmaNotifiche();
+  try { const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (App && App.addListener) App.addListener('resume', () => { programmaNotifiche(); disegna(); }); } catch (e) { /* */ }
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body>
+</html>
