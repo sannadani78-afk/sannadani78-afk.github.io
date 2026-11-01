@@ -199,7 +199,7 @@ details.doc summary::after { content: "›"; font-size: 24px; color: var(--c); t
 details.doc[open] summary::after { transform: rotate(-90deg); }
 details.doc .prosa { padding: 0 16px 12px; }
 .sezione-top { display: flex; gap: 8px; margin-bottom: 12px; }
-.sezione-top .btn { flex: 1; }
+.sezione-top .btn { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.15; padding-left: 10px; padding-right: 10px; }
 .punti { margin: 0 0 10px; padding-left: 20px; } .punti li { margin-bottom: 6px; }
 .agg { color: var(--muted); font-size: 13px; }
 .docs { display: grid; gap: 8px; }
@@ -251,6 +251,29 @@ details.doc .prosa { padding: 0 16px 12px; }
 .pin-err { margin: 0; min-height: 1.3em; color: var(--red, #e2393a); font-size: 14px; }
 .pin-sep { border-top: 1px solid var(--line, #e2e8f3); padding-top: 10px; margin-top: 4px !important; }
 @media (max-width: 340px) { .pin-codice { font-size: 22px; } }
+/* confronta prezzi */
+.prezzi-top { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.cerca-p { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; min-height: 48px; margin-bottom: 12px; }
+.cerca-p svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.cerca-p input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; min-height: 46px; outline: none; }
+.indietro { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--c); font-weight: 700; font-size: 15px; padding: 4px 2px 10px; }
+.voce .ico.bar { font-size: 0; color: var(--c); } .voce .ico.bar svg { width: 28px; height: 28px; }
+.riga-prezzo { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); width: 100%; text-align: left; color: var(--text); }
+.riga-prezzo.top { border-color: var(--green); background: var(--green-t); }
+.riga-prezzo b.neg { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
+.riga-prezzo .pr { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.riga-prezzo small { color: var(--muted); font-size: 12.5px; }
+.riga-prezzo .diff { text-align: right; font-weight: 700; font-size: 12.5px; color: var(--red); white-space: nowrap; }
+.riga-prezzo.top .diff { color: var(--green); }
+.prezzi-lista { display: grid; gap: 8px; }
+.negozi-chip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.negozi-chip button { border: 1.5px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; padding: 7px 12px; font-weight: 600; font-size: 14px; }
+.negozi-chip button.on { border-color: var(--c); background: var(--c-t); color: var(--c-scuro); }
+.codice-riga { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.codice-riga .btn { min-height: 46px; padding: 0 14px; }
+.simili { display: grid; gap: 6px; margin-top: 8px; }
+.simili button { border: 1.5px dashed var(--c); background: var(--c-t); color: var(--c-scuro); border-radius: 12px; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 14px; }
+video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50vh; object-fit: cover; }
 </style>
 </head>
 <body>
@@ -427,8 +450,8 @@ details.doc .prosa { padding: 0 16px 12px; }
 (function () {
   'use strict';
   const NOME = 'ContabilyFamily';
-  const VERSIONE = '1.0.2';
-  const TERMINI_VER = 2; // 2 = informativa e condizioni del 1/11/2026 con il blocco con PIN
+  const VERSIONE = '1.0.3';
+  const TERMINI_VER = 3; // 3 = informativa e condizioni con il confronto prezzi e la fotocamera per i codici a barre
   // ---------- utilità ----------
   const h = (tag, attrs, ...kids) => {
     const el = document.createElement(tag);
@@ -470,6 +493,8 @@ details.doc .prosa { padding: 0 16px 12px; }
     calc: '<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8 6.5h8v3H8zM8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/>', ora: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     giu: '<path d="M12 4v12M6 10l6 6 6-6M5 20h14"/>', su: '<path d="M12 20V8M6 14l6-6 6 6M5 4h14"/>',
     campana: '<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    barre: '<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/>',
+    cerca: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', bilancia: '<path d="M12 3v18M5 21h14M6 7h12M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
   };
   const svg = (n) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = ICONE[n] || ''; return s; };
   const toast = (t, ms) => { document.querySelectorAll('.toast').forEach((x) => x.remove()); const el = h('div', { class: 'toast', role: 'status' }, t); document.body.append(el); setTimeout(() => el.remove(), ms || 2400); };
@@ -477,7 +502,7 @@ details.doc .prosa { padding: 0 16px 12px; }
   // ---------- archivio: solo nel telefono ----------
   const CHIAVE = 'contabilyfamily';
   const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE)) || {}; } catch (e) { return {}; } };
-  const db = Object.assign({ scadenze: [], spese: [], accettato: 0, notifiche: { attive: true, ora: '09:00' } }, leggi());
+  const db = Object.assign({ scadenze: [], spese: [], prodotti: [], accettato: 0, notifiche: { attive: true, ora: '09:00' } }, leggi());
   const salvaDb = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(db)); } catch (e) { toast('Spazio pieno: non riesco a salvare'); } };
 
   // ---------- categorie ----------
@@ -614,14 +639,14 @@ details.doc .prosa { padding: 0 16px 12px; }
   const app = document.getElementById('app');
   let scheda = 'oggi';
   const TABS = [['oggi', 'Oggi', 'oggi'], ['scadenze', 'Scadenze', 'scad'], ['spese', 'Spese', 'spese'], ['calendario', 'Calendario', 'calendario'], ['info', 'Info', 'info']];
-  const TITOLI = { oggi: ['Oggi', 'Le prossime scadenze e le spese'], scadenze: ['Scadenze', 'Casa, auto, salute, vaccini, animali, documenti'], spese: ['Spese', 'Quanto spendi, giorno per giorno'], calendario: ['Calendario', 'Scadenze e spese del mese'], info: ['Info', 'Manuale, notifiche, privacy e backup'] };
+  const TITOLI = { oggi: ['Oggi', 'Le prossime scadenze e le spese'], scadenze: ['Scadenze', 'Casa, auto, salute, vaccini, animali, documenti'], spese: ['Spese', 'Quanto spendi, giorno per giorno'], prezzi: ['Confronta prezzi', 'Lo stesso prodotto in negozi diversi'], calendario: ['Calendario', 'Scadenze e spese del mese'], info: ['Info', 'Manuale, notifiche, privacy e backup'] };
   const disegna = () => {
     app.replaceChildren();
     const [titolo, sotto] = TITOLI[scheda];
     const main = h('main');
     app.append(marca(), h('header', { class: 'top' }, h('h1', null, titolo), h('small', null, sotto)), main,
-      h('nav', { class: 'tabbar' }, TABS.map(([k, l, ic]) => h('button', { class: scheda === k ? 'on' : '', 'aria-label': l, onclick: () => { scheda = k; disegna(); window.scrollTo(0, 0); } }, svg(ic), l))));
-    ({ oggi: schermataOggi, scadenze: schermataScadenze, spese: schermataSpese, calendario: schermataCalendario, info: schermataInfo })[scheda](main);
+      h('nav', { class: 'tabbar' }, TABS.map(([k, l, ic]) => h('button', { class: scheda === k || (k === 'spese' && scheda === 'prezzi') ? 'on' : '', 'aria-label': l, onclick: () => { scheda = k; disegna(); window.scrollTo(0, 0); } }, svg(ic), l))));
+    ({ oggi: schermataOggi, scadenze: schermataScadenze, spese: schermataSpese, prezzi: schermataPrezzi, calendario: schermataCalendario, info: schermataInfo })[scheda](main);
   };
 
   // ---------- elementi di lista ----------
@@ -715,7 +740,7 @@ details.doc .prosa { padding: 0 16px 12px; }
     const tot = r2(del.reduce((a, x) => a + x.importo, 0));
     const prec = totSpese((x) => x.data.slice(0, 7) === spostaMese(speseMese, -1));
     const perCat = tutteSpese().map((c) => ({ c, t: r2(del.filter((x) => x.cat === c.v).reduce((a, x) => a + x.importo, 0)) })).filter((x) => x.t > 0).sort((a, b) => b.t - a.t);
-    main.append(h('div', { class: 'sezione-top' }, h('button', { class: 'btn', style: { background: 'linear-gradient(135deg,#2c9b3c,#1f7a2e)' }, onclick: () => apriSpesa(null, disegna) }, svg('piu'), 'Nuova spesa')),
+    main.append(h('div', { class: 'sezione-top' }, h('button', { class: 'btn', style: { background: 'linear-gradient(135deg,#2c9b3c,#1f7a2e)' }, onclick: () => apriSpesa(null, disegna) }, svg('piu'), 'Nuova spesa'), h('button', { class: 'btn ghost', onclick: () => { scheda = 'prezzi'; disegna(); window.scrollTo(0, 0); } }, svg('bilancia'), 'Confronta prezzi')),
       h('div', { class: 'mesenav' }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { speseMese = spostaMese(speseMese, -1); disegna(); } }, '‹'), h('b', { class: 'lbl', style: { textAlign: 'center' } }, meseLabel(speseMese)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { speseMese = spostaMese(speseMese, 1); disegna(); } }, '›')),
       h('div', { class: 'panel' }, h('div', { class: 'kpi2' }, h('div', null, h('small', null, 'Speso nel mese'), h('b', null, eur(tot))), h('div', null, h('small', null, 'Mese prima'), h('b', null, eur(prec)))),
         perCat.length ? h('div', { class: 'barre', style: { marginTop: '12px' } }, perCat.map(({ c, t }) => h('div', { class: 'barra-cat' }, h('span', { class: 'e', 'aria-hidden': 'true' }, c.e), h('div', { class: 't' }, h('div', null, c.l), h('div', { class: 'bg' }, h('i', { style: { width: Math.max(3, Math.round(t / perCat[0].t * 100)) + '%' } }))), h('b', null, eur(t))))) : null));
@@ -738,6 +763,136 @@ details.doc .prosa { padding: 0 16px 12px; }
         salvaDb(); ch(); if (!x) speseMese = r.data.slice(0, 7); dopo(); toast('Spesa salvata: ' + eur(n));
       } }, svg('salva'), 'Salva')]);
     if (!x) setTimeout(() => imp.focus(), 80);
+  }
+
+
+  // ---------- CONFRONTA PREZZI ----------
+  // lettura del codice a barre: 1) app installata (ML Kit, sul telefono, senza Internet) 2) fotocamera del browser 3) a mano
+  const plugin = (n) => (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins[n]) || null;
+  async function leggiCodice() {
+    const BS = plugin('BarcodeScanner');
+    if (BS) {
+      try {
+        const pr = await BS.requestPermissions(); if (pr.camera !== 'granted' && pr.camera !== 'limited') { toast('Per leggere i codici serve il permesso della fotocamera'); return null; }
+        const r = await BS.scan(); if (r && r.barcodes && r.barcodes.length) return r.barcodes[0].rawValue || r.barcodes[0].displayValue || null;
+        return null;
+      } catch (e) { const m = String((e && e.message) || e || ''); if (!/cancel/i.test(m)) toast('Lettura non riuscita: scrivi il codice a mano'); return null; }
+    }
+    if (!('BarcodeDetector' in window) || !navigator.mediaDevices) { toast('Qui la fotocamera non legge i codici: scrivi il codice a mano', 3200); return null; }
+    return new Promise(async (res) => {
+      let stream, raf, fatto = false;
+      const video = h('video', { class: 'scan', autoplay: true, playsinline: true, muted: true });
+      const fine = (v) => { if (fatto) return; fatto = true; cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach((t) => t.stop()); chiudi(); res(v); };
+      const chiudi = foglio('Inquadra il codice a barre', [video, h('p', { class: 'muted small', style: { textAlign: 'center' } }, 'Tieni il codice ben illuminato e fermo.')], () => [h('button', { class: 'btn ghost', onclick: () => fine(null) }, 'Annulla')]);
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); video.srcObject = stream;
+        const det = new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf'] });
+        const giro = async () => { if (fatto) return; try { const c = await det.detect(video); if (c.length) return fine(c[0].rawValue); } catch (e) { /* */ } raf = requestAnimationFrame(giro); };
+        video.onloadedmetadata = () => giro();
+      } catch (e) { toast('Fotocamera non disponibile: scrivi il codice a mano'); fine(null); }
+    });
+  }
+  const norm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+  const prezziOrd = (p) => [...(p.prezzi || [])].sort((a, b) => a.prezzo - b.prezzo || (a.data < b.data ? 1 : -1));
+  const negoziNoti = () => { const m = new Map(); db.prodotti.forEach((p) => (p.prezzi || []).forEach((x) => { const k = norm(x.negozio); const v = m.get(k); if (!v || x.data > v.data) m.set(k, { nome: x.negozio, data: x.data }); })); return [...m.values()].sort((a, b) => (a.data < b.data ? 1 : -1)).map((x) => x.nome); };
+  const perCodice = (c) => db.prodotti.find((p) => p.codice && p.codice === String(c).trim());
+  let cercaPrezzi = '';
+  function schermataPrezzi(main) {
+    const inp = h('input', { type: 'search', value: cercaPrezzi, placeholder: 'Cerca per nome o codice', 'aria-label': 'Cerca prodotto' });
+    const lista = h('div', { class: 'lista' });
+    const riempi = () => {
+      const q = norm(inp.value); cercaPrezzi = inp.value;
+      const tutti = [...db.prodotti].sort((a, b) => norm(a.nome).localeCompare(norm(b.nome), 'it'));
+      const vis = q ? tutti.filter((p) => norm(p.nome).includes(q) || (p.codice || '').includes(q)) : tutti;
+      if (!db.prodotti.length) return lista.replaceChildren(h('div', { class: 'vuoto' }, h('b', null, 'Nessun prodotto ancora'), h('br'), 'Al supermercato tocca «Scansiona», inquadra il codice a barre e scrivi il prezzo. Quando lo scansioni in un altro negozio, l’app ti dice dove conviene.'));
+      if (!vis.length) return lista.replaceChildren(h('div', { class: 'vuoto' }, 'Nessun prodotto trovato.'));
+      lista.replaceChildren(...vis.map((p) => {
+        const o = prezziOrd(p); const best = o[0];
+        const stato = !best ? h('span', { class: 'stato' }, 'Nessun prezzo') : o.length === 1 ? h('span', { class: 'stato' }, 'Solo da ' + best.negozio) : h('span', { class: 'stato verde' }, 'Conviene: ' + best.negozio);
+        return h('button', { class: 'voce', onclick: () => apriProdotto(p) },
+          h('div', { class: 'ico bar', 'aria-hidden': 'true' }, svg('barre')),
+          h('div', { class: 'mid' }, h('b', null, p.nome), h('small', null, [p.codice || 'senza codice', o.length ? o.length + (o.length === 1 ? ' negozio' : ' negozi') : null].filter(Boolean).join(' · ')), stato),
+          best ? h('div', { class: 'imp' }, eur(best.prezzo)) : null);
+      }));
+    };
+    inp.addEventListener('input', riempi);
+    main.append(
+      h('button', { class: 'indietro', onclick: () => { scheda = 'spese'; disegna(); window.scrollTo(0, 0); } }, '‹ Spese'),
+      h('div', { class: 'prezzi-top' },
+        h('button', { class: 'btn', onclick: scansiona }, svg('barre'), 'Scansiona'),
+        h('button', { class: 'btn ghost', onclick: () => apriProdotto(null) }, svg('piu'), 'Prodotto')),
+      h('label', { class: 'cerca-p' }, svg('cerca'), inp), lista);
+    riempi();
+  }
+  async function scansiona() {
+    const c = await leggiCodice(); if (!c) return;
+    const p = perCodice(c);
+    if (p) { toast('Trovato: ' + p.nome); apriProdotto(p); } else apriProdotto(null, { codice: String(c).trim() });
+  }
+  function apriProdotto(p, nuovo) {
+    const v = p ? { ...p, prezzi: [...(p.prezzi || [])] } : { codice: (nuovo && nuovo.codice) || '', nome: '', prezzi: [] };
+    const nome = h('input', { class: 'testo', value: v.nome, placeholder: 'Es. Latte intero 1 l', 'aria-label': 'Nome del prodotto' });
+    const codice = h('input', { class: 'testo', value: v.codice, inputmode: 'numeric', placeholder: 'Facoltativo', 'aria-label': 'Codice a barre' });
+    const simili = h('div', { class: 'simili' });
+    let chiudi;
+    if (!p) nome.addEventListener('input', () => {
+      const q = norm(nome.value); if (q.length < 3) return simili.replaceChildren();
+      const trov = db.prodotti.filter((x) => norm(x.nome).includes(q)).slice(0, 3);
+      simili.replaceChildren(...trov.map((x) => h('button', { type: 'button', onclick: () => {
+        if (codice.value.trim() && !x.codice) { x.codice = codice.value.trim(); salvaDb(); }
+        chiudi(); apriProdotto(x);
+      } }, 'È già salvato «' + x.nome + '»: tocca per aprirlo')));
+    });
+    const negozio = h('input', { class: 'testo', value: db.ultimoNegozio || '', placeholder: 'Es. Conad, Eurospin', 'aria-label': 'Negozio' });
+    const prezzo = inputSoldi(null, 'Prezzo');
+    const noti = negoziNoti().slice(0, 8);
+    const chips = h('div', { class: 'negozi-chip' });
+    const disegnaChips = () => chips.replaceChildren(...noti.map((n) => h('button', { type: 'button', class: norm(n) === norm(negozio.value) ? 'on' : '', onclick: () => { negozio.value = n; disegnaChips(); prezzo.focus(); } }, n)));
+    negozio.addEventListener('input', disegnaChips); disegnaChips();
+    const elenco = h('div', { class: 'prezzi-lista' });
+    const disegnaElenco = () => {
+      const o = prezziOrd(v);
+      if (!o.length) return elenco.replaceChildren(h('p', { class: 'muted small', style: { margin: 0 } }, 'Ancora nessun prezzo: scrivi il negozio e il prezzo qui sotto.'));
+      const min = o[0].prezzo;
+      elenco.replaceChildren(...o.map((x, i) => {
+        const d = r2(x.prezzo - min);
+        return h('button', { type: 'button', class: 'riga-prezzo' + (i === 0 && o.length > 1 ? ' top' : ''), onclick: () => { negozio.value = x.negozio; prezzo.value = fmt.format(x.prezzo); disegnaChips(); prezzo.focus(); } },
+          h('b', { class: 'neg' }, x.negozio), h('span', { class: 'pr' }, eur(x.prezzo)),
+          h('small', null, 'il ' + dataBreve(x.data)), h('span', { class: 'diff' }, o.length < 2 ? '' : i === 0 ? 'Conviene qui' : d > 0 ? '+' + eur(d) + ' (+' + Math.round(d / min * 100) + '%)' : 'Stesso prezzo'));
+      }));
+    };
+    disegnaElenco();
+    const scanCod = h('button', { type: 'button', class: 'btn ghost', 'aria-label': 'Leggi il codice a barre', onclick: async () => {
+      const c = await leggiCodice(); if (!c) return; const g = perCodice(c);
+      if (g && (!p || g.id !== p.id)) { toast('Questo codice è già di «' + g.nome + '»'); chiudi(); apriProdotto(g); return; }
+      codice.value = String(c).trim();
+    } }, svg('barre'));
+    chiudi = foglio(p ? p.nome : 'Nuovo prodotto', [
+      campo('Prodotto', nome), simili,
+      campo('Codice a barre', h('div', { class: 'codice-riga' }, codice, scanCod)),
+      h('div', { class: 'gruppo', style: { marginTop: '14px' } }, 'Prezzi nei negozi'), elenco,
+      h('div', { class: 'gruppo', style: { marginTop: '16px' } }, 'Aggiungi o aggiorna un prezzo'),
+      h('div', { class: 'due' }, campo('Negozio', negozio), campo('Prezzo', soldi(prezzo))), chips],
+    (ch) => [
+      p ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina il prodotto', onclick: async () => { if (await chiedi('Eliminare «' + p.nome + '» e tutti i suoi prezzi?', 'Elimina')) { db.prodotti = db.prodotti.filter((y) => y.id !== p.id); salvaDb(); ch(); disegna(); } } }, svg('azzera')) : null,
+      h('button', { class: 'btn', onclick: () => {
+        const n = nome.value.trim(); if (!n) { nome.focus(); return toast('Scrivi il nome del prodotto'); }
+        const cod = codice.value.trim(); const altro = cod && perCodice(cod); if (altro && (!p || altro.id !== p.id)) return toast('Questo codice è già di «' + altro.nome + '»');
+        const neg = negozio.value.trim(), pz = r2(num(prezzo.value));
+        if (neg && !(pz > 0)) { prezzo.focus(); return toast('Scrivi il prezzo'); }
+        if (!neg && pz > 0) { negozio.focus(); return toast('Scrivi il negozio'); }
+        if (!p && !(pz > 0)) { negozio.focus(); return toast('Scrivi negozio e prezzo'); }
+        const prezzi = v.prezzi.filter((x) => !neg || norm(x.negozio) !== norm(neg));
+        if (neg) { prezzi.push({ negozio: neg, prezzo: pz, data: oggi() }); db.ultimoNegozio = neg; }
+        const r = { ...(p || { id: nuovoId(), creato: new Date().toISOString() }), nome: n, codice: cod, prezzi };
+        if (p) db.prodotti = db.prodotti.map((y) => (y.id === p.id ? r : y)); else db.prodotti.push(r);
+        salvaDb(); ch(); disegna();
+        const o = prezziOrd(r);
+        if (o.length > 1) { const best = o[0]; const qui = neg && o.find((x) => norm(x.negozio) === norm(neg));
+          toast(qui && norm(best.negozio) === norm(neg) ? 'Qui conviene: è il prezzo più basso (' + eur(best.prezzo) + ')' : 'Conviene da ' + best.negozio + ': ' + eur(best.prezzo) + (qui ? ', risparmi ' + eur(qui.prezzo - best.prezzo) : ''), 4200); }
+        else toast('Prezzo salvato');
+      } }, svg('salva'), 'Salva')]);
+    setTimeout(() => (p ? prezzo : codice.value ? nome : nome).focus(), 80);
   }
 
   // ---------- CALENDARIO ----------
@@ -793,9 +948,9 @@ details.doc .prosa { padding: 0 16px 12px; }
   }
 
   // ---------- INFO: manuale, notifiche, privacy, condizioni, backup ----------
-  const MANUALE = `<h4>Le scadenze</h4><p>Tocca <b>+ Scadenza</b> (in Oggi o in Scadenze) e scrivi che cosa scade: bollo auto, revisione, assicurazione, visita medica, vaccino, vaccino del cane, carta d'identità, IMU… Scegli il tipo, la data, se si ripete (ogni anno, ogni 2 anni…) e quando vuoi la notifica.</p><p>Quando l'hai fatta, apri la scadenza e tocca <b>Fatta</b>: se si ripete, l'app prepara da sola la prossima (per esempio il bollo dell'anno dopo).</p><p>In <b>Scadenze</b> le trovi divise in «Da fare», «Scadute» e «Fatte», mese per mese. I colori ti dicono quanto manca: arancione nell'ultima settimana, rosso se scade oggi o è già passata.</p><h4>Le spese</h4><p>Tocca <b>+ Spesa</b>, scrivi quanto hai speso e tocca per cosa (spesa, bollette, carburante…).</p><p>Se ti serve una voce che non c'è, tocca <b>＋ Nuova categoria</b> (nelle scadenze o nelle spese): scegli il nome e l'icona. Le categorie create le rinomini o le elimini in Info → Le tue categorie.</p><p> In <b>Spese</b> vedi il totale del mese, il confronto con il mese prima e quanto hai speso per ogni voce.</p><h4>Il calendario</h4><p>Ogni giorno mostra i pallini delle scadenze e le spese in euro. Tocca un giorno per vederle o aggiungerne.</p><h4>Le notifiche</h4><p>Nell'app installata arrivano anche ad app chiusa, all'orario che scegli qui sotto. Se non arrivano, controlla nelle impostazioni del telefono che le notifiche di ${NOME} siano permesse.</p><h4>Il backup</h4><p>I dati stanno solo in questo telefono: ogni tanto salva un backup e tienilo al sicuro. Se cambi telefono, lo ricarichi con «Carica backup».</p><h4>Il blocco con PIN</h4><p>In <b>Info → Blocco con PIN</b> tocca <b>Imposta PIN</b> e scegli 4 cifre: l'app le chiede ogni volta che la apri o ci torni. Ti viene dato anche un <b>codice di ripristino</b> da scrivere: se dimentichi il PIN, tocca «PIN dimenticato?», scrivi il codice e scegline uno nuovo senza perdere niente. Da Info puoi anche cambiarlo o toglierlo.</p>`;
-  const PRIVACY = `<p class="agg">Versione del 1° novembre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci: nessuno può accedere alle tue informazioni senza il tuo telefono.</li><li>I dati escono dal telefono solo quando li mandi tu (backup).</li></ul><h4>2. Chi tratta i dati</h4><p>Le scadenze e le spese che scrivi riguardano te e la tua famiglia e le usi per motivi personali e domestici: per questo uso il GDPR non si applica (art. 2, par. 2, lett. c GDPR). Lo sviluppatore non tratta i tuoi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento.</p><h4>3. Quali dati si possono inserire</h4><ul><li>Scadenze: che cosa scade, la data, la ripetizione, per chi o per cosa (per esempio un familiare, un animale, un'auto), un importo e una nota.</li><li>Spese: importo, categoria, giorno e una nota.</li><li>Visite mediche e vaccini sono <b>dati relativi alla salute</b> (art. 9 GDPR): scrivi solo quello che ti serve per ricordarti la scadenza (per esempio «Visita oculistica»), mai diagnosi, referti o terapie.</li></ul><h4>4. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu: puoi cancellare ogni scadenza o spesa con il cestino. Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>5. Sicurezza</h4><p>Proteggi il telefono con il blocco schermo (PIN, impronta o volto) e usa una password robusta per i backup. Le <b>notifiche</b> mostrano il nome della scadenza: se non vuoi che si legga a telefono bloccato, nelle impostazioni del telefono scegli di nascondere il contenuto delle notifiche di ${NOME}.</p><h4>Blocco con PIN</h4><p>Puoi proteggere l'apertura dell'app con un <b>PIN di 4 cifre</b> (Info → Blocco con PIN): viene chiesto ogni volta che apri l'app e ogni volta che ci torni. Quando lo scegli ricevi un <b>codice di ripristino</b> di 12 caratteri: se dimentichi il PIN, con il codice ne scegli uno nuovo senza perdere i dati. Il PIN e il codice non vengono salvati: sul telefono resta solo un'impronta cifrata (PBKDF2-SHA256 con sale casuale), da cui non si può risalire a loro. Lo sviluppatore <b>non può sbloccare l'app</b> né recuperare il PIN, perché non vede i tuoi dati: se perdi sia il PIN sia il codice di ripristino devi cancellare i dati dell'app e ricaricare un backup con la sua password.</p><h4>6. Trasferimenti</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se salvare o mandare un backup.</p><h4>7. I tuoi diritti</h4><p>Hai sempre il pieno controllo: puoi vedere, correggere ed eliminare ogni dato dall'app. Per qualsiasi dubbio sulla protezione dei dati puoi rivolgerti al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del tuo paese nell'Unione Europea.</p><h4>8. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per avvisarti delle scadenze, nei giorni e all'ora che scegli tu; puoi spegnerle in Info.</li><li><b>File</b>: solo per salvare e caricare il backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>9. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
-  const CONDIZIONI = `<p class="agg">Versione del 1° novembre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a ricordare le scadenze (casa, auto, salute, vaccini, animali, documenti, tasse) e ad annotare le spese di tutti i giorni. È uno strumento di promemoria e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non dà consigli</b> medici, veterinari, legali o fiscali e non sostituisce le comunicazioni ufficiali (ASL, medico, veterinario, ACI, Comune, Agenzia delle Entrate). Le date e gli importi sono <b>solo quelli che inserisci tu</b>: controlla sempre le scadenze reali.</p><h4>3. Le notifiche</h4><p>Le notifiche dipendono anche dal telefono (permessi, risparmio energetico, modalità non disturbare) e potrebbero non arrivare o arrivare in ritardo: <b>non affidarti solo all'app</b> per le scadenze importanti.</p><h4>4. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, del rispetto delle scadenze, della custodia del telefono, del PIN, dei backup e della loro password.</p><h4>5. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di scadenze dimenticate o mancate, notifiche non arrivate, errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni, more o danni derivanti dall'uso dell'app. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>6. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>7. Uso consentito</h4><p>Puoi usare l'app per te e per la tua famiglia. Non è consentito copiarla, modificarla o rivenderla.</p><h4>8. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>9. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
+  const MANUALE = `<h4>Le scadenze</h4><p>Tocca <b>+ Scadenza</b> (in Oggi o in Scadenze) e scrivi che cosa scade: bollo auto, revisione, assicurazione, visita medica, vaccino, vaccino del cane, carta d'identità, IMU… Scegli il tipo, la data, se si ripete (ogni anno, ogni 2 anni…) e quando vuoi la notifica.</p><p>Quando l'hai fatta, apri la scadenza e tocca <b>Fatta</b>: se si ripete, l'app prepara da sola la prossima (per esempio il bollo dell'anno dopo).</p><p>In <b>Scadenze</b> le trovi divise in «Da fare», «Scadute» e «Fatte», mese per mese. I colori ti dicono quanto manca: arancione nell'ultima settimana, rosso se scade oggi o è già passata.</p><h4>Le spese</h4><p>Tocca <b>+ Spesa</b>, scrivi quanto hai speso e tocca per cosa (spesa, bollette, carburante…).</p><p>Se ti serve una voce che non c'è, tocca <b>＋ Nuova categoria</b> (nelle scadenze o nelle spese): scegli il nome e l'icona. Le categorie create le rinomini o le elimini in Info → Le tue categorie.</p><p> In <b>Spese</b> vedi il totale del mese, il confronto con il mese prima e quanto hai speso per ogni voce.</p><h4>Confronta prezzi</h4><p>In <b>Spese → Confronta prezzi</b> tocca <b>Scansiona</b> e inquadra il codice a barre del prodotto (oppure tocca <b>Prodotto</b> e scrivi il nome). Scrivi il negozio e il prezzo e salva.</p><p>Quando sei in un altro negozio, scansiona lo stesso prodotto: l'app lo riconosce dal codice, scrivi il prezzo di quel negozio e ti dice subito <b>dove conviene</b> e quanto risparmi. Se il prodotto non ha il codice, cercalo per nome. In ogni prodotto vedi i prezzi di tutti i negozi, dal più basso: tocca un negozio per aggiornare il suo prezzo.</p><h4>Il calendario</h4><p>Ogni giorno mostra i pallini delle scadenze e le spese in euro. Tocca un giorno per vederle o aggiungerne.</p><h4>Le notifiche</h4><p>Nell'app installata arrivano anche ad app chiusa, all'orario che scegli qui sotto. Se non arrivano, controlla nelle impostazioni del telefono che le notifiche di ${NOME} siano permesse.</p><h4>Il backup</h4><p>I dati stanno solo in questo telefono: ogni tanto salva un backup e tienilo al sicuro. Se cambi telefono, lo ricarichi con «Carica backup».</p><h4>Il blocco con PIN</h4><p>In <b>Info → Blocco con PIN</b> tocca <b>Imposta PIN</b> e scegli 4 cifre: l'app le chiede ogni volta che la apri o ci torni. Ti viene dato anche un <b>codice di ripristino</b> da scrivere: se dimentichi il PIN, tocca «PIN dimenticato?», scrivi il codice e scegline uno nuovo senza perdere niente. Da Info puoi anche cambiarlo o toglierlo.</p>`;
+  const PRIVACY = `<p class="agg">Versione del 1° novembre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> ${NOME} non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci: nessuno può accedere alle tue informazioni senza il tuo telefono.</li><li>I dati escono dal telefono solo quando li mandi tu (backup).</li></ul><h4>2. Chi tratta i dati</h4><p>Le scadenze e le spese che scrivi riguardano te e la tua famiglia e le usi per motivi personali e domestici: per questo uso il GDPR non si applica (art. 2, par. 2, lett. c GDPR). Lo sviluppatore non tratta i tuoi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento.</p><h4>3. Quali dati si possono inserire</h4><ul><li>Scadenze: che cosa scade, la data, la ripetizione, per chi o per cosa (per esempio un familiare, un animale, un'auto), un importo e una nota.</li><li>Spese: importo, categoria, giorno e una nota.</li><li>Confronto prezzi: nome del prodotto, codice a barre, negozio, prezzo e giorno.</li><li>Visite mediche e vaccini sono <b>dati relativi alla salute</b> (art. 9 GDPR): scrivi solo quello che ti serve per ricordarti la scadenza (per esempio «Visita oculistica»), mai diagnosi, referti o terapie.</li></ul><h4>4. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>Il <b>backup in file</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo.</li><li>I dati restano finché li tieni tu: puoi cancellare ogni scadenza o spesa con il cestino. Se disinstalli l'app, tutti i dati vengono cancellati.</li></ul><h4>5. Sicurezza</h4><p>Proteggi il telefono con il blocco schermo (PIN, impronta o volto) e usa una password robusta per i backup. Le <b>notifiche</b> mostrano il nome della scadenza: se non vuoi che si legga a telefono bloccato, nelle impostazioni del telefono scegli di nascondere il contenuto delle notifiche di ${NOME}.</p><h4>Blocco con PIN</h4><p>Puoi proteggere l'apertura dell'app con un <b>PIN di 4 cifre</b> (Info → Blocco con PIN): viene chiesto ogni volta che apri l'app e ogni volta che ci torni. Quando lo scegli ricevi un <b>codice di ripristino</b> di 12 caratteri: se dimentichi il PIN, con il codice ne scegli uno nuovo senza perdere i dati. Il PIN e il codice non vengono salvati: sul telefono resta solo un'impronta cifrata (PBKDF2-SHA256 con sale casuale), da cui non si può risalire a loro. Lo sviluppatore <b>non può sbloccare l'app</b> né recuperare il PIN, perché non vede i tuoi dati: se perdi sia il PIN sia il codice di ripristino devi cancellare i dati dell'app e ricaricare un backup con la sua password.</p><h4>6. Trasferimenti</h4><p>L'app non trasferisce dati a nessuno, né in Italia né all'estero. Sei tu a decidere se salvare o mandare un backup.</p><h4>7. I tuoi diritti</h4><p>Hai sempre il pieno controllo: puoi vedere, correggere ed eliminare ogni dato dall'app. Per qualsiasi dubbio sulla protezione dei dati puoi rivolgerti al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all'autorità di controllo del tuo paese nell'Unione Europea.</p><h4>8. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per avvisarti delle scadenze, nei giorni e all'ora che scegli tu; puoi spegnerle in Info.</li><li><b>Fotocamera</b>: solo per leggere il codice a barre dei prodotti, quando tocchi «Scansiona». La lettura avviene nel telefono, senza Internet: nessuna foto viene salvata o inviata.</li><li><b>File</b>: solo per salvare e caricare il backup nella cartella Download.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>9. Modifiche</h4><p>Se questa informativa cambia, l'app te lo mostra alla prima apertura dopo l'aggiornamento e ti chiede di leggerla di nuovo.</p>`;
+  const CONDIZIONI = `<p class="agg">Versione del 1° novembre 2026.</p><h4>1. Cosa fa l'app</h4><p>${NOME} serve a ricordare le scadenze (casa, auto, salute, vaccini, animali, documenti, tasse), ad annotare le spese di tutti i giorni e a confrontare i prezzi dei prodotti nei negozi. È uno strumento di promemoria e di calcolo.</p><h4>2. Cosa non fa</h4><p>L'app <b>non dà consigli</b> medici, veterinari, legali o fiscali e non sostituisce le comunicazioni ufficiali (ASL, medico, veterinario, ACI, Comune, Agenzia delle Entrate). Le date, gli importi e i prezzi sono <b>solo quelli che inserisci tu</b>: controlla sempre le scadenze reali. I prezzi dei negozi possono cambiare: il confronto vale per i prezzi che hai annotato, nel giorno in cui li hai annotati.</p><h4>3. Le notifiche</h4><p>Le notifiche dipendono anche dal telefono (permessi, risparmio energetico, modalità non disturbare) e potrebbero non arrivare o arrivare in ritardo: <b>non affidarti solo all'app</b> per le scadenze importanti.</p><h4>4. La tua responsabilità</h4><p>Sei responsabile dei dati che inserisci, della loro correttezza, del rispetto delle scadenze, della custodia del telefono, del PIN, dei backup e della loro password.</p><h4>5. Limiti di responsabilità</h4><p>L'app è fornita «così com'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di scadenze dimenticate o mancate, notifiche non arrivate, errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione), sanzioni, more o danni derivanti dall'uso dell'app. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>6. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può recuperarli. Fai backup regolari (Info → Salva backup) e conservane una copia fuori dal telefono.</p><h4>7. Uso consentito</h4><p>Puoi usare l'app per te e per la tua famiglia. Non è consentito copiarla, modificarla o rivenderla.</p><h4>8. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l'app te le mostra di nuovo alla prima apertura.</p><h4>9. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>`;
   const doc = (titolo, html) => h('details', { class: 'doc' }, h('summary', null, titolo), h('div', { class: 'prosa', html }));
   function schermataInfo(main) {
     const oraIn = h('input', { class: 'testo', type: 'time', value: db.notifiche.ora || '09:00', 'aria-label': 'Ora delle notifiche', onchange: (e) => { db.notifiche.ora = e.target.value || '09:00'; salvaDb(); programmaNotifiche(); toast('Notifiche alle ' + db.notifiche.ora); } });
@@ -861,7 +1016,7 @@ details.doc .prosa { padding: 0 16px 12px; }
   });
   async function esporta() {
     const pw = await chiediPassword('Backup protetto da password', true); if (!pw) return;
-    const w = await cifra({ app: NOME, tipo: 'backup', data: new Date().toISOString(), scadenze: db.scadenze, spese: db.spese, notifiche: db.notifiche, mieCat: db.mieCat }, pw);
+    const w = await cifra({ app: NOME, tipo: 'backup', data: new Date().toISOString(), scadenze: db.scadenze, spese: db.spese, prodotti: db.prodotti, notifiche: db.notifiche, mieCat: db.mieCat }, pw);
     salvaFile('ContabilyFamily_backup_' + oggi() + '.json', JSON.stringify(w));
   }
   function importa() {
@@ -874,7 +1029,7 @@ details.doc .prosa { padding: 0 16px 12px; }
         if (!o || o.app !== NOME || !Array.isArray(o.scadenze) || !Array.isArray(o.spese)) return toast('Non è un backup di ' + NOME);
         const idS = new Set(db.scadenze.map((x) => x.id)), idP = new Set(db.spese.map((x) => x.id));
         const ns = o.scadenze.filter((x) => x && x.id && x.data && !idS.has(x.id)), np = o.spese.filter((x) => x && x.id && x.data && typeof x.importo === 'number' && !idP.has(x.id));
-        db.scadenze.push(...ns); db.spese.push(...np); if (o.mieCat) ['scad', 'spese'].forEach((t) => (o.mieCat[t] || []).forEach((c) => { if (c && c.v && c.l && !db.mieCat[t].some((x) => x.v === c.v)) db.mieCat[t].push(c); })); salvaDb(); programmaNotifiche(); toast(ns.length + ' scadenze e ' + np.length + ' spese caricate'); disegna();
+        db.scadenze.push(...ns); db.spese.push(...np); if (Array.isArray(o.prodotti)) { const idR = new Set(db.prodotti.map((x) => x.id)); db.prodotti.push(...o.prodotti.filter((x) => x && x.id && x.nome && Array.isArray(x.prezzi) && !idR.has(x.id))); } if (o.mieCat) ['scad', 'spese'].forEach((t) => (o.mieCat[t] || []).forEach((c) => { if (c && c.v && c.l && !db.mieCat[t].some((x) => x.v === c.v)) db.mieCat[t].push(c); })); salvaDb(); programmaNotifiche(); toast(ns.length + ' scadenze e ' + np.length + ' spese caricate'); disegna();
       } catch (e) { toast('File non leggibile'); }
     });
     document.body.append(inp); inp.click();
@@ -885,8 +1040,8 @@ details.doc .prosa { padding: 0 16px 12px; }
     const spunta = h('input', { type: 'checkbox', id: 'accetto' });
     const ok = h('button', { class: 'btn', disabled: true, style: { opacity: '.5' }, onclick: () => { if (!spunta.checked) return; db.accettato = TERMINI_VER; db.accettatoIl = new Date().toISOString(); salvaDb(); chiudi(); disegna(); if (window.ContabilyPin) ContabilyPin.proponi(); } }, svg('salva'), 'Accetto e inizio');
     spunta.addEventListener('change', () => { ok.disabled = !spunta.checked; ok.style.opacity = spunta.checked ? '1' : '.5'; });
-    const chiudi = foglio('Benvenuto in ' + NOME, [
-      h('p', { style: { margin: '0 0 8px' } }, 'Prima di iniziare, quattro cose chiare:'),
+    const chiudi = foglio(db.accettato ? 'Privacy e condizioni aggiornate' : 'Benvenuto in ' + NOME, [
+      h('p', { style: { margin: '0 0 8px' } }, db.accettato ? 'Abbiamo aggiornato l’informativa privacy e le condizioni d’uso per il confronto prezzi (la fotocamera serve solo a leggere i codici a barre). Le quattro cose chiare restano queste:' : 'Prima di iniziare, quattro cose chiare:'),
       h('ul', { class: 'punti' },
         h('li', null, h('b', null, 'I dati restano sul telefono.'), ' L’app non usa Internet e non ha server: nessuno, nemmeno lo sviluppatore, riceve o vede i tuoi dati.'),
         h('li', null, h('b', null, 'Per visite e vaccini'), ' scrivi solo quello che ti serve per ricordare la scadenza, mai diagnosi o referti.'),
