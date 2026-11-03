@@ -1,5 +1,7 @@
-<!doctype html><html><head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1F6FE6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ContabilyTab"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}html, body { overflow-x: clip; }
+<!doctype html><html lang="it"><head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1F6FE6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ContabilyTab"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}html, body { overflow-x: clip; }
 </style></head><body>
+<script>/* compatibilità con WebView Android datate (minSdk 26) */if(!Element.prototype.replaceChildren){Element.prototype.replaceChildren=function(){while(this.firstChild)this.removeChild(this.firstChild);this.append.apply(this,arguments)}}if(window.Blob&&!Blob.prototype.text){Blob.prototype.text=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsText(b)})}}if(window.Blob&&!Blob.prototype.arrayBuffer){Blob.prototype.arrayBuffer=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsArrayBuffer(b)})}}</script>
+
 <title>ContabilyTab</title>
 <style>
 /* ContabilyTab — layout: Home fedele alla schermata di riferimento; schermate interne a "foglio" con intestazione colorata per sezione */
@@ -815,6 +817,7 @@ html[data-modo="bartabacchi"] { --modo: var(--green); --modo-t: var(--green-t); 
 .lock-in { width: 100%; max-width: 320px; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .lock-brand { font-size: 30px; font-weight: 800; letter-spacing: -.02em; color: var(--navy); }
 .lock-brand span { color: var(--blue); }
+.lock-app { width: 92px; height: 92px; border-radius: 22px; box-shadow: 0 6px 18px rgba(0,0,0,.22); display: block; }
 .lock-ic { width: 34px; height: 34px; color: var(--blue); }
 .lock-msg { margin: 0; font-size: 16px; min-height: 1.4em; }
 .lock-dots { display: flex; gap: 12px; height: 16px; }
@@ -910,7 +913,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
   const S = (p, vb = '0 0 24 24') => `<svg viewBox="${vb}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
   const F = (p, vb = '0 0 24 24') => `<svg viewBox="${vb}" fill="currentColor">${p}</svg>`;
   window.CT = window.CT || {};
-  CT.VERSION = '1.5.26'; // la costruzione su GitHub la allinea a versione.json (scripts/build.sh); definita qui, prima di ogni schermata che la mostra
+  CT.VERSION = '1.5.29'; // la costruzione su GitHub la allinea a versione.json (scripts/build.sh); definita qui, prima di ogni schermata che la mostra
   CT.icons = {
     menu: S('<path d="M3 6h18M3 12h18M3 18h18"/>'),
     bell: S('<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
@@ -1013,7 +1016,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     let s = String(v).trim().replace(/[€\s]/g, '');
     if (!s) return 0;
     if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-    else if ((s.match(/\./g) || []).length > 1) s = s.replace(/\./g, '');
+    else if ((s.match(/\./g) || []).length > 1 || /^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); // «1.500» = millecinquecento; «1.50» resta un decimale
     const n = parseFloat(s);
     return isFinite(n) ? n : 0;
   };
@@ -1159,7 +1162,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     categorieProdotti: ['Tabacchi', 'Complementi di tabacchi', 'Svapo', 'Cartoleria', 'Giocattoli', 'Bevande', 'Dolciumi', 'Ricariche', 'Altro'],
     metodiPagamento: ['Contanti', 'POS', 'Bonifico', 'RID/SDD', 'Assegno', 'Altro'],
     conti: ['Conto impresa'],
-    notifiche: { addebiti: true, adbPrima: true, adbGiorno: true, adbOra1: '09:00', adbOra2: '11:00', adbOra3: '16:30', adbOra4: '19:30', giornaliera: true, oraGiornaliera: '20:30', settimanale: true, giornoSettimanale: 1, oraSettimanale: '09:00', controlloMancanti: true, scadenze: true, controlli: {} },
+    notifiche: { addebiti: true, adbPrima: true, adbGiorno: true, adbOra1: '09:00', adbOra2: '11:00', adbOra3: '16:30', adbOra4: '19:30', giornaliera: true, orariGiornaliera: '18:00, 19:00, 19:50, 20:00, 20:30, 21:00', settimanale: true, giornoSettimanale: 1, oraSettimanale: '09:00', controlloMancanti: true, scadenze: true, controlli: {} },
     avvisiChiusi: {}, // avvisi della campanella eliminati dall'utente: chiave -> giorno in cui e' stato eliminato
     giorniChiusura: [0], // 0 = domenica
     backupAuto: { attivo: true, giorni: 7 }, lastAutoBackup: null, // backup automatico (copia in Download nell'app installata)
@@ -1218,7 +1221,8 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
   let useLS = false;
   let kvCache = {}; // altri valori salvati nel deposito «kv» (es. listino tabacchi importato)
   function lsLoad() { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { return null; } }
-  function lsSave() { try { const data = {}; COLS.forEach((c) => (data[c] = [...cache[c].values()])); localStorage.setItem(LS_KEY, JSON.stringify({ settings, data, kv: kvCache })); } catch (e) { /* ignore */ } }
+  function lsSave(strict) { try { const data = {}; COLS.forEach((c) => (data[c] = [...cache[c].values()])); localStorage.setItem(LS_KEY, JSON.stringify({ settings, data, kv: kvCache })); } catch (e) { if (strict) throw e; } }
+  const erroreScrittura = (e) => { try { CT.toast('Salvataggio non riuscito' + (e && /quota/i.test(e.name || '') ? ': memoria del telefono piena' : '') + '. Riprova o fai un backup.', 4500); } catch (x) { /* */ } };
 
   const DB = (CT.DB = {
     ready: false,
@@ -1259,14 +1263,18 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       rec.col = col;
       rec.updatedAt = new Date().toISOString();
       if (!rec.createdAt) rec.createdAt = rec.updatedAt;
+      const prima = cache[col].get(rec.id);
       cache[col].set(rec.id, rec);
-      if (idb) await tx('records', 'readwrite', (s) => s.put(rec)); else lsSave();
+      try { if (idb) await tx('records', 'readwrite', (s) => s.put(rec)); else lsSave(true); }
+      catch (e) { if (prima) cache[col].set(rec.id, prima); else cache[col].delete(rec.id); erroreScrittura(e); throw e; }
       DB.emit(col);
       return rec;
     },
     async putMany(col, recs) {
+      const prima = new Map(cache[col]);
       recs.forEach((rec) => { if (!rec.id) rec.id = CT.uid(); rec.col = col; rec.updatedAt = rec.updatedAt || new Date().toISOString(); rec.createdAt = rec.createdAt || rec.updatedAt; cache[col].set(rec.id, rec); });
-      if (idb) await tx('records', 'readwrite', (s) => { recs.forEach((r) => s.put(r)); }); else lsSave();
+      try { if (idb) await tx('records', 'readwrite', (s) => { recs.forEach((r) => s.put(r)); }); else lsSave(true); }
+      catch (e) { cache[col] = prima; erroreScrittura(e); throw e; }
       DB.emit(col);
     },
     async del(col, id) {
@@ -1286,10 +1294,13 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     kv(k) { return kvCache[k]; },
     async kvSet(k, v) { kvCache[k] = v; if (idb) await tx('kv', 'readwrite', (s) => s.put({ k, v })); else lsSave(); },
     async saveSettings(patch) {
+      const prima = Object.assign({}, settings);
       if (patch) Object.assign(settings, patch);
-      if (idb) await tx('kv', 'readwrite', (s) => s.put({ k: 'settings', v: settings })); else lsSave();
+      try { if (idb) await tx('kv', 'readwrite', (s) => s.put({ k: 'settings', v: settings })); else lsSave(true); }
+      catch (e) { settings = prima; erroreScrittura(e); throw e; }
       DB.emit('settings');
     },
+    get ridotto() { return useLS; },
     // ---- query di comodo ----
     byMonth(col, ym, field = 'date') { return DB.all(col).filter((r) => (r[field] || '').startsWith(ym)); },
     byRange(col, from, to, field = 'date') { return DB.all(col).filter((r) => r[field] >= from && r[field] <= to); },
@@ -1302,13 +1313,24 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       return { app: 'ContabilyTab', format: 1, exportedAt: new Date().toISOString(), settings: Object.assign({}, settings, { blocco: undefined, backupPwd: undefined }), data };
     },
     async restore(obj, { merge = false } = {}) {
-      if (!obj || obj.app !== 'ContabilyTab' || !obj.data) throw new Error('Il file non è un backup ContabilyTab valido.');
-      if (!merge) {
-        COLS.forEach((c) => cache[c].clear());
-        if (idb) await tx('records', 'readwrite', (s) => s.clear());
+      if (!obj || typeof obj !== 'object' || obj.app !== 'ContabilyTab' || !obj.data || typeof obj.data !== 'object') throw new Error('Il file non è un backup ContabilyTab valido.');
+      // 1) controllo e pulizia PRIMA di toccare l'archivio: solo oggetti, con un id valido
+      const okId = (k) => (typeof k === 'string' && k !== '') || (typeof k === 'number' && isFinite(k));
+      const nuovi = {};
+      for (const c of COLS) { const arr = obj.data[c]; if (arr == null) continue; if (!Array.isArray(arr)) throw new Error('Backup danneggiato: la sezione «' + c + '» non è valida.'); nuovi[c] = arr.filter((r) => r && typeof r === 'object' && !Array.isArray(r)).map((r) => ({ ...r, id: okId(r.id) ? String(r.id) : CT.uid() })); }
+      // 2) copia di sicurezza dell'archivio attuale: se qualcosa va storto si torna indietro
+      const snap = {}; COLS.forEach((c) => (snap[c] = new Map(cache[c])));
+      try {
+        if (!merge) { COLS.forEach((c) => cache[c].clear()); if (idb) await tx('records', 'readwrite', (s) => s.clear()); }
+        for (const c of COLS) { if (nuovi[c]) await DB.putMany(c, nuovi[c]); }
+      } catch (e) {
+        COLS.forEach((c) => { cache[c] = snap[c]; });
+        try { if (idb) await tx('records', 'readwrite', (s) => { s.clear(); COLS.forEach((c) => snap[c].forEach((r) => s.put(r))); }); else lsSave(); } catch (x) { /* */ }
+        DB.emit('*');
+        throw new Error('Ripristino non riuscito, l’archivio di prima è stato mantenuto: ' + ((e && e.message) || e));
       }
-      for (const c of COLS) { if (Array.isArray(obj.data[c])) await DB.putMany(c, obj.data[c].map((r) => ({ ...r }))); }
-      if (obj.settings) { settings = Object.assign({}, DEFAULT_SETTINGS, obj.settings, { accepted: true, blocco: (settings && settings.blocco) || { attivo: false }, backupPwd: (settings && settings.backupPwd) || '' }); settings.backupAuto = Object.assign({}, DEFAULT_SETTINGS.backupAuto, settings.backupAuto || {}); settings.aggi = Object.assign({}, DEFAULT_SETTINGS.aggi, settings.aggi || {}); settings.notifiche = Object.assign({}, DEFAULT_SETTINGS.notifiche, settings.notifiche || {}); }
+      if (obj.settings && typeof obj.settings === 'object') { settings = Object.assign({}, DEFAULT_SETTINGS, obj.settings, { accepted: true, blocco: (settings && settings.blocco) || { attivo: false }, backupPwd: (settings && settings.backupPwd) || '' });
+        ['aliquoteIva', 'categorieSpese', 'categorieFatture', 'categorieProdotti', 'metodiPagamento', 'conti', 'giorniChiusura', 'preferiti', 'ordineAzioni', 'inserimenti', 'tavoli', 'terminaliPos'].forEach((k) => { if (!Array.isArray(settings[k])) settings[k] = Array.isArray(DEFAULT_SETTINGS[k]) ? [...DEFAULT_SETTINGS[k]] : settings[k]; }); settings.backupAuto = Object.assign({}, DEFAULT_SETTINGS.backupAuto, settings.backupAuto || {}); settings.aggi = Object.assign({}, DEFAULT_SETTINGS.aggi, settings.aggi || {}); settings.notifiche = Object.assign({}, DEFAULT_SETTINGS.notifiche, settings.notifiche || {}); }
       await DB.saveSettings();
       try { await DB.migrateNames(); } catch (e) { console.warn('Adeguamento nomi non riuscito', e); }
       DB.emit('*');
@@ -1464,7 +1486,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       return { ...r, maturato, previsto, rimanente: CT.r2(Math.max(previsto - maturato, 0)), prec: prev[r.key], var: CT.pct(previsto, prev[r.key]), giorniTrascorsi: openSoFar, giorniTotali: openTotal };
     });
     const tot = (k) => CT.sum(rows, k);
-    return { rows, maturato: tot('maturato'), previsto: tot('previsto'), rimanente: tot('rimanente'), prec: tot('prec'), dayNow, dim, isCurrent, giorniTrascorsi: rows[0].giorniTrascorsi, giorniTotali: rows[0].giorniTotali };
+    return { rows, maturato: tot('maturato'), previsto: tot('previsto'), rimanente: tot('rimanente'), prec: tot('prec'), dayNow, dim, isCurrent, giorniTrascorsi: rows.length ? rows[0].giorniTrascorsi : 0, giorniTotali: rows.length ? rows[0].giorniTotali : 0 };
   };
 
   // Marginalità mensile sui corrispettivi
@@ -1501,8 +1523,13 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     const t = CT.today(); if (!CT.isGiornoAperto(t) || !CT.controlliCfg()[x.k]) return null;
     return DB().byDate(x.col, t).some((r) => !x.tipo || r.tipo === x.tipo) ? 'ok' : 'no';
   };
-  // true dopo l'ora del promemoria giornaliero: da quel momento anche i dati di oggi contano come mancanti
-  CT.oraControlloPassata = () => { const [hh, mm] = (((DB().settings || {}).notifiche || {}).oraGiornaliera || '20:30').split(':').map(Number); const n = new Date(); return n.getHours() * 60 + n.getMinutes() >= (hh || 0) * 60 + (mm || 0); };
+  // orari dei promemoria serali (testo «18:00, 19:00, …»): puliti, ordinati, senza doppioni; se vuoto si torna a quelli predefiniti
+  CT.ORARI_GIORNALIERA = '18:00, 19:00, 19:50, 20:00, 20:30, 21:00';
+  CT.orariGiornaliera = (n) => { n = n || ((DB().settings || {}).notifiche || {}); const src = n.orariGiornaliera != null ? n.orariGiornaliera : CT.ORARI_GIORNALIERA; // la vecchia «ora del promemoria» singola non conta più
+    const out = []; String(src).split(/[\s,;]+/).forEach((t) => { const m = /^(\d{1,2})[:.](\d{2})$/.exec(t); if (!m) return; const hh = +m[1], mm = +m[2]; if (hh > 23 || mm > 59) return; const v = String(hh).padStart(2, '0') + ':' + m[2]; if (!out.includes(v)) out.push(v); });
+    return (out.length ? out : CT.ORARI_GIORNALIERA.split(', ')).sort(); };
+  // true dopo il primo orario dei promemoria serali: da quel momento anche i dati di oggi contano come mancanti
+  CT.oraControlloPassata = () => { const [hh, mm] = CT.orariGiornaliera()[0].split(':').map(Number); const n = new Date(); return n.getHours() * 60 + n.getMinutes() >= (hh || 0) * 60 + (mm || 0); };
   // Controllo dati mancanti: ultimi N giorni di apertura; oggi e' compreso dopo l'ora del promemoria (o con includeToday: true)
   CT.datiMancanti = function (days = 7, opts = {}) {
     const s = DB().settings;
@@ -1562,7 +1589,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     while (d < today && guard++ < 2000) {
       if (p.ripeti === 'daily') d = CT.addDays(d, 1);
       else if (p.ripeti === 'weekly') d = CT.addDays(d, 7);
-      else if (p.ripeti === 'monthly') { const [y, m, dd] = d.split('-').map(Number); const nm = new Date(y, m, Math.min(dd, new Date(y, m + 1, 0).getDate()), 12); d = CT.iso(nm); }
+      else if (p.ripeti === 'monthly') { const dd0 = Number(String(p.date || d).slice(8, 10)) || 1; const [y, m] = d.split('-').map(Number); const nm = new Date(y, m, Math.min(dd0, new Date(y, m + 1, 0).getDate()), 12); d = CT.iso(nm); }
       else if (p.ripeti === 'yearly') { const [y, m, dd] = d.split('-').map(Number); d = CT.iso(new Date(y + 1, m - 1, dd, 12)); }
       else break;
     }
@@ -1820,9 +1847,9 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
   // ---------- Cifratura backup (AES-256-GCM, chiave da password con PBKDF2) ----------
   const b64 = (u8) => { let s = ''; u8.forEach((b) => (s += String.fromCharCode(b))); return btoa(s); };
   const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-  async function deriveKey(password, salt) {
+  async function deriveKey(password, salt, iterations) {
     const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iterations || 200000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
   }
   CT.encryptBackup = async function (obj, password) {
     const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
@@ -1831,7 +1858,8 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     return JSON.stringify({ app: 'ContabilyTab', encrypted: true, kdf: 'PBKDF2-SHA256-200000', cipher: 'AES-256-GCM', salt: b64(salt), iv: b64(iv), data: b64(new Uint8Array(ct)), exportedAt: new Date().toISOString() });
   };
   CT.decryptBackup = async function (wrapper, password) {
-    const key = await deriveKey(password, unb64(wrapper.salt));
+    const it = Number((String(wrapper.kdf || '').match(/-(\d+)$/) || [])[1]) || 200000; if (it < 100000 || it > 5e6) throw new Error('Parametri del file non validi');
+    const key = await deriveKey(password, unb64(wrapper.salt), it);
     const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(wrapper.iv) }, key, unb64(wrapper.data));
     return JSON.parse(new TextDecoder().decode(pt));
   };
@@ -1994,34 +2022,35 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     async schedule() {
       const s = CT.DB.settings; const n = s.notifiche || {};
       const list = [];
-      const [hG, mG] = (n.oraGiornaliera || '20:30').split(':').map(Number);
+      const orariG = CT.orariGiornaliera(n);
       if (n.giornaliera) {
-        // una notifica per ciascuno dei prossimi 7 giorni di apertura (id 1-7): quella di oggi e' mirata, le altre generiche
+        // per ciascuno dei prossimi 7 giorni di apertura, una notifica a ogni orario impostato (id 1-56): quelle di oggi sono mirate e non partono se i dati sono gia' inseriti, le altre generiche
         const today = CT.today(); const nowMs = Date.now();
         const cfg = CT.controlliCfg(); const tutti = CT.DATI_GIORNO.filter((x) => cfg[x.k]);
         const chiusi = s.avvisiChiusi || {};
         const prec = CT.datiMancanti(7, { includeToday: false }).filter((m) => !chiusi['mancanti:' + m.date]).length;
-        let id = 1, d = today, guard = 0;
-        while (id <= 7 && guard++ < 30) {
+        let giorno = 0, d = today, guard = 0;
+        while (giorno < 7 && guard++ < 30) {
           if (CT.isGiornoAperto(d)) {
-            const at = CT.toDate(d); at.setHours(hG || 0, mG || 0, 0, 0);
-            if (at.getTime() > nowMs) {
-              const miss = d === today ? CT.datiMancantiGiorno(d) : tutti;
-              const lbl = miss.map((x) => x.l);
-              if (miss.length || (d === today && prec)) {
-                const testa = d === today ? (miss.length ? 'Oggi mancano ancora: ' : 'Dati di oggi completi.') : 'Ricorda di inserire i dati di oggi: ';
+            const miss = d === today ? CT.datiMancantiGiorno(d) : tutti;
+            const lbl = miss.map((x) => x.l);
+            orariG.slice(0, 8).forEach((o, slot) => {
+              const [hG, mG] = o.split(':').map(Number); const at = CT.toDate(d); at.setHours(hG || 0, mG || 0, 0, 0); const id = 1 + giorno * 8 + slot;
+              if (at.getTime() <= nowMs || !miss.length) return;
+              {
+                const testa = d === today ? 'Oggi mancano ancora: ' : 'Ricorda di inserire i dati di oggi: ';
                 const coda = (d === today && prec) ? ' Mancano dati anche in ' + prec + ' giornat' + (prec === 1 ? 'a' : 'e') + ' precedent' + (prec === 1 ? 'e' : 'i') + '.' : '';
                 const full = testa + (miss.length ? lbl.join(', ') + '.' : '') + coda;
                 const corta = testa + (miss.length ? (lbl.length > 2 ? lbl.slice(0, 2).join(', ') + ' e altri ' + (lbl.length - 2) : lbl.join(', ')) + '.' : '') + coda;
                 list.push({ id, title: 'ContabilyTab' + (d === today && miss.length ? ' · ' + miss.length + ' dat' + (miss.length === 1 ? 'o' : 'i') + ' da inserire' : ''), body: corta, largeBody: full, summaryText: 'Tocca per aprire la campanella', schedule: { at, allowWhileIdle: true }, extra: { tipo: 'giornaliera', date: d } });
               }
-              id++;
-            }
+            });
+            giorno++;
           }
           d = CT.addDays(d, 1);
         }
       }
-      if (n.settimanale) { const [hS, mS] = (n.oraSettimanale || '09:00').split(':').map(Number); const chiusi = s.avvisiChiusi || {}; const prec = CT.datiMancanti(7, { includeToday: false }).filter((m) => !chiusi['mancanti:' + m.date]).length; list.push({ id: 20, title: 'ContabilyTab — riepilogo settimanale', body: (prec ? 'Mancano dati in ' + prec + ' giornate: aprili dalla campanella. ' : '') + 'Inserisci gli aggi settimanali dai prospetti.', schedule: { on: { weekday: ((Number(n.giornoSettimanale) || 1) % 7) + 1, hour: hS, minute: mS }, allowWhileIdle: true } }); }
+      if (n.settimanale) { const [hS, mS] = (n.oraSettimanale || '09:00').split(':').map(Number); const chiusi = s.avvisiChiusi || {}; const prec = CT.datiMancanti(7, { includeToday: false }).filter((m) => !chiusi['mancanti:' + m.date]).length; list.push({ id: 60, title: 'ContabilyTab — riepilogo settimanale', body: (prec ? 'Mancano dati in ' + prec + ' giornate: aprili dalla campanella. ' : '') + 'Inserisci gli aggi settimanali dai prospetti.', schedule: { on: { weekday: ((Number(n.giornoSettimanale) || 1) % 7) + 1, hour: hS, minute: mS }, allowWhileIdle: true } }); }
       // addebiti settimanali (Lotto, Gratta e Vinci, Servizi LIS): il giorno prima e il giorno stesso, a 4 orari (id 300-499)
       if (n.addebiti !== false && CT.adbPeriodi && CT.adbOn && CT.adbOn()) {
         const oggiA = CT.today(); const fine = CT.addDays(oggiA, 15); const perGiorno = {};
@@ -2334,9 +2363,9 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       if (o.filter) recs = recs.filter((r) => o.filter(r, state));
       if (o.chips && o.chipFilter) recs = recs.filter((r) => o.chipFilter(r, state.chip));
       const q = CT.norm(state.q);
-      if (q) recs = recs.filter((r) => CT.norm(JSON.stringify(Object.values(r))).includes(q));
+      if (q) recs = recs.filter((r) => CT.norm(JSON.stringify(Object.entries(r).filter(([k, v]) => k !== 'allegato' && !(typeof v === 'string' && v.length > 2000)).map(([, v]) => v))).includes(q));
       const sf = o.sortField || o.dateField || 'date';
-      recs.sort((a, b) => (a[sf] < b[sf] ? 1 : a[sf] > b[sf] ? -1 : (a.createdAt < b.createdAt ? 1 : -1)));
+      if (o.sort) recs.sort(o.sort); else recs.sort((a, b) => (a[sf] < b[sf] ? 1 : a[sf] > b[sf] ? -1 : (a.createdAt < b.createdAt ? 1 : -1)));
       listEl.replaceChildren();
       const sumEl = o.summary ? o.summary(recs, state) : null;
       if (sumEl) { const wrapS = h('div', { class: 'block' }, sumEl); head.querySelector('.block') ? head.querySelector('.block').replaceWith(wrapS) : head.appendChild(wrapS); }
@@ -3420,7 +3449,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       { k: 'adbOra1', label: 'Mattina', type: 'time', half: true }, { k: 'adbOra2', label: 'Metà mattina', type: 'time', half: true },
       { k: 'adbOra3', label: 'Pomeriggio', type: 'time', half: true }, { k: 'adbOra4', label: 'Sera', type: 'time', half: true },
       { k: 'giornaliera', label: 'Promemoria giornaliero inserimento dati', type: 'check' },
-      { k: 'oraGiornaliera', label: 'Ora del promemoria giornaliero', type: 'time', half: true },
+      { k: 'orariGiornaliera', label: 'Orari dei promemoria serali (separati da virgola)', type: 'text', hint: 'Arrivano solo se mancano dati; appena li inserisci, quelli successivi non partono. Predefiniti: 18:00, 19:00, 19:50, 20:00, 20:30, 21:00.' },
       { k: 'settimanale', label: 'Riepilogo settimanale dati mancanti e aggi', type: 'check' },
       { k: 'giornoSettimanale', label: 'Giorno', type: 'select', half: true, options: [{ v: 1, l: 'Lunedì' }, { v: 2, l: 'Martedì' }, { v: 3, l: 'Mercoledì' }, { v: 4, l: 'Giovedì' }, { v: 5, l: 'Venerdì' }, { v: 6, l: 'Sabato' }, { v: 0, l: 'Domenica' }] },
       { k: 'oraSettimanale', label: 'Ora', type: 'time', half: true },
@@ -3438,7 +3467,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
             h('button', { class: 'btn c-red', onclick: async () => { const ok = await CT.notif.permission(); const n = await CT.notif.schedule(); CT.toast(ok ? 'Notifiche attive: ' + n + ' programmate' : 'Permesso negato: abilita le notifiche di ContabilyTab nelle impostazioni del telefono'); } }, CT.svg('bell'), 'Attiva'),
             h('button', { class: 'btn ghost c-red', onclick: async () => { const ok = await CT.notif.permission(); if (!ok) return CT.toast('Permesso notifiche negato'); CT.notif.now('ContabilyTab · prova', 'Le notifiche funzionano: così ti ricorderò i dati da inserire.'); CT.toast('Notifica inviata: guarda la barra in alto'); } }, 'Notifica di prova'))),
         h('div', { class: 'panel', style: { marginTop: '12px' } }, h('h3', null, 'Dati da controllare ogni giorno'),
-          h('p', { class: 'small muted' }, 'Ogni giorno di apertura l’app controlla che questi dati siano stati inseriti. Quelli mancanti compaiono nella campanella e nella notifica della sera (che elenca solo ciò che manca davvero e non arriva se è già tutto inserito). I dati di oggi contano come mancanti dopo l’ora del promemoria giornaliero. Le scelte si salvano subito.'),
+          h('p', { class: 'small muted' }, 'Ogni giorno di apertura l’app controlla che questi dati siano stati inseriti. Quelli mancanti compaiono nella campanella e nella notifica della sera (che elenca solo ciò che manca davvero e non arriva se è già tutto inserito). I dati di oggi contano come mancanti dal primo orario dei promemoria serali. Le scelte si salvano subito.'),
           CT.DATI_GIORNO.map(sw)),
         h('div', { class: 'panel', style: { marginTop: '12px' } }, h('h3', null, 'Avvisi eliminati'),
           h('p', { class: 'small muted' }, 'Gli avvisi che elimini dalla campanella non ricompaiono (quelli sul backup tornano il giorno dopo). Da qui puoi farli riapparire tutti.'),
@@ -3453,7 +3482,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       onSave: async (d, old) => { await DB().put('dipendenti', { ...(old || {}), ...d }); },
       item: (r) => ({ title: r.nome, sub: [r.ruolo, r.telefono, r.oreSettimana ? r.oreSettimana + ' h/sett.' : null].filter(Boolean).join(' · '), badge: r.attivo === false ? 'Non attivo' : null, dot: CT.svg('user') }),
       empty: { icon: 'people', text: 'Nessun dipendente' } });
-    CT.listState.dipendenti.all = true;
+    const ls = CT.listState.dipendenti; if (!ls.all) { ls.all = true; CT.render(); return; }
     document.querySelector('.monthnav') && document.querySelector('.monthnav').remove();
     document.querySelectorAll('.toolbar .chip').forEach((c) => c.remove());
   });
@@ -3488,7 +3517,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
       { k: 'attivo', label: 'Attivo', type: 'check', default: true, half: true },
       { k: 'note', label: 'Note', type: 'textarea' },
     ];
-    const ls = CT.listScreen({ app, key: 'promemoria', title: 'Promemoria Scadenze', subtitle: 'Avvisi e notifiche', color: 'red', col: 'promemoria', fields, home: true, sortField: 'next', addLabel: 'Promemoria',
+    const ls = CT.listScreen({ app, key: 'promemoria', title: 'Promemoria Scadenze', subtitle: 'Avvisi e notifiche', color: 'red', col: 'promemoria', fields, home: true, sort: (a, b) => ((CT.nextOccurrence(a) || '9999') < (CT.nextOccurrence(b) || '9999') ? -1 : 1), addLabel: 'Promemoria',
       chips: [{ l: 'Attivi', v: 'attivi' }, { l: 'Completati', v: 'done' }, { l: 'Tutti', v: null }], chipFilter: (r, v) => !v || (v === 'done' ? r.done : !r.done),
       defaults: () => ({ date: CT.today(), ora: '09:00', ripeti: 'none', tipo: TIPI[0], attivo: true }),
       onSave: async (d, old) => { await DB().put('promemoria', { ...(old || {}), ...d }); CT.notif.schedule().catch(() => {}); },
@@ -3647,14 +3676,16 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     const f = await CT.pickFile('.ctab,.json,application/json'); if (!f) return;
     let obj;
     try { obj = JSON.parse(await CT.readFileText(f)); } catch (e) { return CT.toast('File non leggibile'); }
-    if (obj.encrypted) {
+    if (obj && obj.encrypted) {
+      if (typeof obj.salt !== 'string' || typeof obj.iv !== 'string' || typeof obj.data !== 'string') return CT.toast('File di backup danneggiato');
       let dec = null;
       if (CT.backupPwdSet()) { try { dec = await CT.decryptBackup(obj, CT.backupPwd()); } catch (e) { dec = null; } }
       if (!dec) { const p = await CT.prompt('Password con cui è stato cifrato il file', { title: 'Backup cifrato', type: 'password' }); if (p == null) return; try { dec = await CT.decryptBackup(obj, p); } catch (e) { return CT.toast('Password errata o file danneggiato'); } }
       obj = dec;
     }
-    if (obj.app !== 'ContabilyTab') return CT.toast('Non è un backup ContabilyTab');
-    const n = CT.COLS.reduce((a, c) => a + ((obj.data[c] || []).length), 0);
+    if (!obj || typeof obj !== 'object') return CT.toast('File non leggibile');
+    if (obj.app !== 'ContabilyTab' || !obj.data || typeof obj.data !== 'object') return CT.toast(obj.tipo === 'listino-tabacchi' ? 'Questo è un file di listino: caricalo da Listino Tabacchi' : obj.tipo === 'ean-tabacchi' ? 'Questo è un file di codici a barre: caricalo dal Listino Tabacchi' : 'Non è un backup ContabilyTab', 3500);
+    const n = CT.COLS.reduce((a, c) => a + (Array.isArray(obj.data[c]) ? obj.data[c].length : 0), 0);
     const mode = await new Promise((res) => { let d = false; const s = CT.sheet({ title: 'Ripristina backup', body: h('p', null, 'Il file contiene ' + n + ' record (esportato il ' + CT.dateIT((obj.exportedAt || '').slice(0, 10)) + '). Come vuoi procedere?'), footer: [h('button', { class: 'btn ghost', onclick: () => { d = true; s.close(); res('merge'); } }, 'Aggiungi ai dati attuali'), h('button', { class: 'btn danger', onclick: () => { d = true; s.close(); res('replace'); } }, 'Sostituisci tutto')], onClose: () => { if (!d) res(null); } }); });
     if (!mode) return;
     if (mode === 'replace' && !(await CT.confirm('Tutti i dati attuali saranno cancellati e sostituiti dal backup. Continuare?', { ok: 'Sostituisci', danger: true }))) return;
@@ -3854,6 +3885,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
   const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
   const canHash = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
   // il PIN non viene mai salvato: si conserva solo la sua impronta crittografica (PBKDF2)
+  const LOCK_ICONA = 'data:image/png;base64,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'; // icona dell'app mostrata nella schermata del PIN
   async function hashPin(pin, saltB64) {
     const km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: unb64(saltB64), iterations: 150000, hash: 'SHA-256' }, km, 256);
@@ -3871,7 +3903,14 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     async verify() { try { const nb = plugin('NativeBiometric'); if (!nb) return false; await nb.verifyIdentity({ reason: 'Sblocca ContabilyTab', title: 'Sblocca ContabilyTab' }); return true; } catch (e) { return false; } },
   };
 
-  let locked = null, fails = 0, waitUntil = 0;
+  let locked = null;
+  // tentativi sbagliati e attesa salvati sul telefono (restano anche chiudendo l'app); dopo 5 errori 30 s, poi 1 min, 2 min… fino a un'ora
+  const LK = 'ct.lockTentativi';
+  const lkLeggi = () => { try { const t = JSON.parse(localStorage.getItem(LK) || 'null'); return t && typeof t === 'object' ? { f: +t.f || 0, until: +t.until || 0, giri: +t.giri || 0 } : { f: 0, until: 0, giri: 0 }; } catch (e) { return { f: 0, until: 0, giri: 0 }; } };
+  const lkScrivi = (t) => { try { if (t.f || t.until > Date.now()) localStorage.setItem(LK, JSON.stringify(t)); else localStorage.removeItem(LK); } catch (e) { /* */ } };
+  const lkAttesa = () => Math.ceil((lkLeggi().until - Date.now()) / 1000);
+  const lkAzzera = () => lkScrivi({ f: 0, until: 0, giri: 0 });
+  const lkErrore = () => { const t = lkLeggi(); t.f++; if (t.f >= 5) { t.giri++; t.f = 0; t.until = Date.now() + Math.min(30000 * Math.pow(2, t.giri - 1), 3600000); lkScrivi(t); return 'Troppi tentativi. Riprova tra ' + Math.ceil((t.until - Date.now()) / 1000) + ' secondi.'; } lkScrivi(t); return null; };
   CT.lock = {
     isOn: () => { const c = cfg(); return !!(c.attivo && c.hash && c.salt); },
     isLocked: () => !!locked,
@@ -3882,14 +3921,14 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
         const dots = h('div', { class: 'lock-dots', 'aria-hidden': 'true' });
         const msg = h('p', { class: 'lock-msg', role: 'status' }, 'Inserisci il PIN');
         const paint = () => dots.replaceChildren(...Array.from({ length: c.len }, (_, i) => h('i', { class: i < pin.length ? 'on' : '' })));
-        const done = () => { document.removeEventListener('keydown', onKey, true); ov.remove(); locked = null; fails = 0; res(true); };
+        const done = () => { document.removeEventListener('keydown', onKey, true); ov.remove(); locked = null; lkAzzera(); res(true); };
         const check = async () => {
-          const left = Math.ceil((waitUntil - Date.now()) / 1000);
+          const left = lkAttesa();
           if (left > 0) { pin = ''; paint(); msg.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
-          busy = true; const ok = await checkPin(pin); busy = false;
+          busy = true; let ok = false; try { ok = await checkPin(pin); } catch (e) { ok = false; } busy = false;
           if (ok) return done();
-          fails++; pin = ''; paint();
-          if (fails >= 5) { waitUntil = Date.now() + 30000; msg.textContent = 'Troppi tentativi. Riprova tra 30 secondi.'; } else msg.textContent = 'PIN errato. Riprova.';
+          pin = ''; paint();
+          msg.textContent = lkErrore() || 'PIN errato. Riprova.';
           dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake');
         };
         const press = (k) => { if (busy) return; if (k === 'del') pin = pin.slice(0, -1); else if (pin.length < c.len) pin += k; paint(); if (pin.length === c.len) check(); };
@@ -3905,9 +3944,10 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
           h('p', null, 'Scrivi il codice di ripristino che ti è stato dato quando hai scelto il PIN: potrai sceglierne uno nuovo senza perdere niente.'),
           h('div', { class: 'field' }, h('label', { for: 'lock-cod' }, 'Codice di ripristino'), codInp), codNote,
           h('button', { type: 'button', class: 'btn block', onclick: async () => {
-            const left = Math.ceil((waitUntil - Date.now()) / 1000); if (left > 0) { codNote.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
-            if (await checkCodice(codInp.value)) { await CT.DB.saveSettings({ blocco: { attivo: false } }); done(); setTimeout(async () => { if (await setNew()) CT.toast('PIN nuovo impostato'); else CT.toast('PIN tolto: puoi impostarlo da Altro → Blocco con PIN'); }, 900); return; }
-            fails++; if (fails >= 5) { waitUntil = Date.now() + 30000; fails = 0; } codNote.textContent = 'Codice errato. Controlla e riprova.'; } }, 'Usa il codice'),
+            const left = lkAttesa(); if (left > 0) { codNote.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
+            let okCod = false; try { okCod = await checkCodice(codInp.value); } catch (e) { okCod = false; }
+            if (okCod) { await CT.DB.saveSettings({ blocco: { attivo: false } }); done(); setTimeout(async () => { if (await setNew()) CT.toast('PIN nuovo impostato'); else CT.toast('PIN tolto: puoi impostarlo da Altro → Blocco con PIN'); }, 900); return; }
+            codNote.textContent = lkErrore() || 'Codice errato. Controlla e riprova.'; } }, 'Usa il codice'),
           h('p', { style: { borderTop: '1px solid var(--line)', paddingTop: '10px' } }, 'Hai perso anche il codice? Lo sviluppatore non può sbloccare l’app, perché non vede i tuoi dati.')] : [];
         const help = h('div', { class: 'lock-help', hidden: true }, ...conCodice,
           h('p', null, (c.rhash ? 'L’unica strada è cancellare' : 'Il PIN non si può recuperare. Per rientrare devi cancellare') + ' tutti i dati dell’app e poi ripristinare un backup da Altro → Importazione dati (il backup non contiene il PIN; per aprirlo ti servirà la password dei backup).'),
@@ -3916,7 +3956,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
         const forgot = h('button', { type: 'button', class: 'lock-link', 'aria-expanded': 'false', onclick: () => { help.hidden = !help.hidden; forgot.setAttribute('aria-expanded', help.hidden ? 'false' : 'true'); } }, 'PIN dimenticato?');
         const onKey = (e) => { if (e.target === wipeInp || e.target === codInp) return; if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); press('del'); } };
         const ov = h('div', { class: 'lock', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'App bloccata: inserisci il PIN' },
-          h('div', { class: 'lock-in' }, h('div', { class: 'lock-brand' }, 'Contabily', h('span', null, 'Tab')), CT.svg('lock', 'lock-ic'), msg, dots, pad, forgot, help));
+          h('div', { class: 'lock-in' }, h('img', { class: 'lock-app', src: LOCK_ICONA, alt: '', 'aria-hidden': 'true' }), h('div', { class: 'lock-brand' }, 'Contabily', h('span', null, 'Tab')), msg, dots, pad, forgot, help));
         document.body.appendChild(ov); paint();
         document.addEventListener('keydown', onKey, true);
         if (c.bio) bio.available().then((ok) => { if (!ok || !locked) return; bioBtn.classList.remove('inv'); bioBtn.disabled = false; bio.verify().then((v) => { if (v && locked) done(); }); });
@@ -4439,7 +4479,7 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
 
     { k: 'promemoria', t: 'Promemoria e notifiche', icon: 'bell', color: 'red', route: 'promemoria', html: `
 <p><a href="#promemoria"><b>Promemoria scadenze</b></a>: titolo, tipo (fattura, scadenza, versamento, compenso periodico, inventario…), ripetizione (una volta, ogni giorno, settimana, mese, anno), data, ora della notifica e importo facoltativo. Un promemoria settimanale con importo è comodo, per esempio, per l'addebito del Lotto o dei Gratta e Vinci.</p>
-<p>In <a href="#impostazioni-notifiche"><b>Notifiche e promemoria</b></a> imposti il <b>promemoria giornaliero</b> di inserimento dati (con l'ora), il riepilogo settimanale, il <b>controllo automatico dei dati mancanti</b> (avviso in Home e notifica) e le notifiche per fatture e scadenze. Le notifiche sono locali: le genera il telefono, non un server. Alla prima apertura l'app chiede il permesso; «Notifica di prova» serve a verificarle.</p>` },
+<p>In <a href="#impostazioni-notifiche"><b>Notifiche e promemoria</b></a> imposti i <b>promemoria serali</b> di inserimento dati (gli orari, predefiniti 18:00, 19:00, 19:50, 20:00, 20:30 e 21:00: arrivano solo se mancano dati), il riepilogo settimanale, il <b>controllo automatico dei dati mancanti</b> (avviso in Home e notifica) e le notifiche per fatture e scadenze. Le notifiche sono locali: le genera il telefono, non un server. Alla prima apertura l'app chiede il permesso; «Notifica di prova» serve a verificarle.</p>` },
 
     { k: 'prorata', t: 'Calcolo Pro Rata', icon: 'calc', color: 'purple', route: 'prorata', html: `
 <p>Dal tasto <b>Calcolo Pro Rata</b> in Home: inserisci prezzo di acquisto e di vendita (IVA inclusa), l'aliquota IVA e la tua percentuale di Pro Rata (quella della dichiarazione IVA annuale, quadro VF34 punto 9; l'app la ricorda), poi <b>Calcola</b>. Vedi l'IVA detraibile e quella indetraibile che diventa costo, il costo effettivo del prodotto, il margine lordo e il <b>margine effettivo</b> con le percentuali sul prezzo di vendita e sul costo.</p>` },
@@ -4597,6 +4637,10 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
     const f = await CT.pickFile('.json,application/json'); if (!f) return;
     let obj; try { obj = JSON.parse(await CT.readFileText(f)); } catch (e) { return CT.toast('File non leggibile'); }
     if (!obj || obj.tipo !== 'listino-tabacchi' || !Array.isArray(obj.voci) || !Array.isArray(obj.cat) || !Array.isArray(obj.tipi)) return CT.toast('Non è un file di listino tabacchi di ContabilyTab');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(obj.data)) || !obj.cat.every((c) => typeof c === 'string') || !obj.tipi.every((c) => typeof c === 'string')) return CT.toast('File di listino danneggiato');
+    const vociOk = obj.voci.filter((v) => Array.isArray(v) && Number.isInteger(v[0]) && typeof v[1] === 'string' && typeof v[2] === 'string' && Number.isFinite(v[3]) && Number.isFinite(v[4]) && Number.isInteger(v[5]));
+    if (!vociOk.length || vociOk.length < obj.voci.length * 0.9) return CT.toast('File di listino danneggiato');
+    obj.voci = vociOk;
     const cur = CT.listinoTab();
     if (obj.data <= (cur.data || '') && !(await CT.confirm('Il listino nel file (' + CT.dateIT(obj.data) + ') non è più recente di quello in uso (' + CT.dateIT(cur.data) + '). Caricarlo comunque?', { ok: 'Carica' }))) return;
     await DB().kvSet('listinoTabacchi', { app: 'ContabilyTab', tipo: 'listino-tabacchi', data: obj.data, fonte: obj.fonte || '', cat: obj.cat, tipi: obj.tipi, voci: obj.voci });
@@ -5810,7 +5854,16 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
   function evalExpr(e) {
     const s = e.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/%/g, '/100');
     if (!/^[\d.+\-*/() ]*$/.test(s)) return null;
-    try { const v = Function('"use strict";return (' + s + ')')(); return isFinite(v) ? CT.r2(v) : null; } catch (err) { return null; }
+    // piccolo interprete aritmetico (niente eval/Function): + − × ÷, parentesi, segno, decimali
+    try {
+      const t = s.replace(/\s+/g, ''); let i = 0;
+      const num = () => { const m = /^\d*\.?\d+|^\d+\.?/.exec(t.slice(i)); if (!m) throw new Error('n'); i += m[0].length; return parseFloat(m[0]); };
+      const fattore = () => { if (t[i] === '(') { i++; const v = somma(); if (t[i] !== ')') throw new Error(')'); i++; return v; } if (t[i] === '-') { i++; return -fattore(); } if (t[i] === '+') { i++; return fattore(); } return num(); };
+      const prodotto = () => { let v = fattore(); while (t[i] === '*' || t[i] === '/') { const o = t[i++]; const w = fattore(); v = o === '*' ? v * w : v / w; } return v; };
+      const somma = () => { let v = prodotto(); while (t[i] === '+' || t[i] === '-') { const o = t[i++]; const w = prodotto(); v = o === '+' ? v + w : v - w; } return v; };
+      if (!t) return null; const v = somma(); if (i !== t.length) return null;
+      return isFinite(v) ? CT.r2(v) : null;
+    } catch (err) { return null; }
   }
   function drawCalc() {
     document.querySelectorAll('.calcpad, .calc-mini').forEach((e) => e.remove());
@@ -5912,6 +5965,8 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
         if (miss.length) CT.notif.now('ContabilyTab', 'Mancano dati in ' + miss.length + ' giornat' + (miss.length === 1 ? 'a' : 'e') + ': ' + (miss.length === 1 ? miss[0].miss.join(', ') : 'aprili dalla campanella') + '.');
       }
     } catch (e) { /* storage non disponibile */ }
+    // archivio principale non disponibile: l'utente deve saperlo subito (i dati stanno in un deposito di riserva più piccolo)
+    if (CT.DB.ridotto) setTimeout(() => CT.toast('Attenzione: archivio in modalità ridotta. Fai subito un backup e riavvia il telefono.', 7000), 1200);
     // permesso notifiche (Android 13+ lo richiede): chiesto subito nell'app installata, cosi' i promemoria arrivano davvero
     if (CT.isNative()) { try { await CT.notif.permission(); } catch (e) { /* */ } }
     CT.notif.schedule().catch(() => {});
@@ -5923,4 +5978,6 @@ body:has(.fab) #app { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset
 
 </script>
 
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body></html>
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body>
+</html>

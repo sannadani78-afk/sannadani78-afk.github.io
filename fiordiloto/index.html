@@ -1,7 +1,7 @@
-<!doctype html><html lang="it"><head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2A1A2F"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Fior di Loto"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Fior di Loto</title>
+<!doctype html><html lang="it"><head><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2A1A2F"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Fior di Loto"><link rel="apple-touch-icon" href="icona-180.png"><link rel="icon" href="icona-192.png"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Fior di Loto</title><meta name="theme-color" content="#2A1A2F"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<script>/* compatibilità con WebView Android datate (minSdk 26) */if(!Element.prototype.replaceChildren){Element.prototype.replaceChildren=function(){while(this.firstChild)this.removeChild(this.firstChild);this.append.apply(this,arguments)}}if(window.Blob&&!Blob.prototype.text){Blob.prototype.text=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsText(b)})}}if(window.Blob&&!Blob.prototype.arrayBuffer){Blob.prototype.arrayBuffer=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsArrayBuffer(b)})}}</script>
+
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="theme-color" content="#2A1A2F">
 <style>
 /* Layout: schermata unica, contenuto scorrevole, barra delle schede fissa in basso. Blu dell'icona come accento, serif per i testi da leggere lentamente. */
 :root{
@@ -26,13 +26,21 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 input,textarea,select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-height:44px}
 textarea{min-height:110px;resize:vertical}
 label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;padding:16px 0 8px;text-align:center}
-.top svg{width:96px;height:96px;flex:none;filter:drop-shadow(0 4px 12px rgba(226,182,74,.35))}
-@media (max-width:339px){.top svg{width:84px;height:84px}}
+/* Intestazione fissa: icona e nome restano in alto anche scorrendo. L'intestazione è «appiccicata» con top negativo (−(altezza−56px), impostato da JS):
+   scorrendo sale di quanto si scorre, poi resta fissa mostrando la riga compatta (ultimi 56px); il contenuto non salta mai. --t (0→1) guida la dissolvenza. */
+.top{position:sticky;top:-88px;z-index:20;background:var(--bg);--t:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;padding:16px 0 8px;text-align:center}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line);opacity:var(--t)}
+.top>svg,.top>h1,.top>.date{opacity:calc(1 - var(--t)*2.2)}
+.top>svg{width:96px;height:96px;flex:none;filter:drop-shadow(0 4px 12px rgba(226,182,74,.35))}
+@media (max-width:339px){.top>svg{width:84px;height:84px}}
 .top h1{font-family:var(--display);font-size:30px;font-weight:600;letter-spacing:.01em}
 .top .date{flex-basis:100%;color:var(--muted);font-size:14px;text-align:center}
 .top .date .ora{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums;margin-left:6px}
 .top .date .ora::before{content:"·";color:var(--muted);font-weight:400;margin-right:6px}
+.top-mini{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:center;gap:10px;opacity:calc(var(--t)*2 - 1);pointer-events:none}
+.top-mini svg{width:38px;height:38px;flex:none;filter:drop-shadow(0 2px 6px rgba(226,182,74,.3))}
+.top-mini .nome{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.top-mini .ora{color:var(--muted);font-weight:600;font-size:14px;font-variant-numeric:tabular-nums;padding-left:4px}
 .view{display:flex;flex-direction:column;gap:18px;padding-top:8px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .quote{font-family:var(--display);font-size:21px;line-height:1.4;color:var(--fg)}
@@ -80,6 +88,11 @@ a.btn{text-decoration:none}
 .durata input{width:88px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
 .durata input:disabled{opacity:.6}
 .rec{gap:10px}
+.rec-mini{padding:10px 12px;gap:6px}
+.rec-mini h3{font-size:12px}
+.rec-mini .note{font-size:12.5px;line-height:1.35}
+.rec-btns{gap:8px;flex-wrap:wrap}
+.rec-btns .btn{flex:0 0 auto}
 .rec .chip.live{color:var(--warn)}
 .timer.session{color:var(--accent)}
 .sub{color:var(--muted);font-size:14px;text-align:center}
@@ -113,7 +126,7 @@ a.btn{text-decoration:none}
 .pagina.testo .tab3{display:grid;grid-template-columns:7.6em minmax(0,1fr) max-content;gap:.4em;margin:.1em 0;font-size:min(.82em,3.4vw);white-space:nowrap}.pagina.testo .tab3 b:nth-child(2){text-align:left}
 .pagina.testo .arco{width:1.3em;height:.6em;vertical-align:baseline}.pagina.testo .arco::after{bottom:.05em}
 .libretto-nota{font-family:var(--ui);font-size:13px;color:var(--muted);white-space:normal;margin:0 0 10px}
-.gsec{scroll-margin-top:12px}
+.gsec,#calForm,#shPanel{scroll-margin-top:68px}
 .gsec+.gsec{margin-top:1.6em;padding-top:1.2em;border-top:1px solid var(--line)}
 .gtitle{font-family:var(--ui);font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6em}
 .list{display:flex;flex-direction:column;gap:8px}
@@ -196,6 +209,8 @@ textarea.short{min-height:70px}
 .btn-gongyo b{font-size:28px;line-height:1.1;letter-spacing:.02em}
 .btn-gongyo small{font-size:14px;font-weight:600;opacity:.85;margin-top:2px}
 .btn-gongyo:active{transform:scale(.99)}
+.btn-gongyo .timer-g{width:46px;height:46px;margin:3px}
+@media (max-width:340px){.btn-gongyo b{font-size:23px}.btn-gongyo small{font-size:13px}}
 .prosa{font-size:14.5px;color:var(--fg)}.prosa p{margin:0 0 10px}.prosa h4{margin:14px 0 6px;font-size:15px}.prosa ul{margin:0 0 10px;padding-left:20px}.prosa li{margin-bottom:6px}.prosa .agg{color:var(--muted);font-size:13px}
 details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 .pinwrap h3{display:none}.pinwrap .pin-stato{font-size:14px}.pinwrap .pin-tasti>*{min-height:46px}
@@ -211,6 +226,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 .pin-ov { position: fixed; inset: 0; z-index: 1000; background: var(--pin-bg, var(--bg, #0f1420)); color: var(--pin-fg, var(--text, var(--fg, #16203a))); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); overflow: auto; }
 .pin-box { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
 .pin-marca { font-size: 26px; font-weight: 800; letter-spacing: -.01em; color: var(--pin-c, var(--c-scuro, var(--c, var(--gold, #1430c4)))); }
+.pin-app { width: 92px; height: 92px; border-radius: 22px; box-shadow: 0 6px 18px rgba(0,0,0,.22); display: block; margin-bottom: 2px; }
 .pin-ic { width: 40px; height: 40px; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
 .pin-titolo { font-size: 20px; font-weight: 700; }
 .pin-msg { margin: 0; min-height: 2.6em; font-size: 14.5px; color: var(--muted, #5b6684); max-width: 300px; }
@@ -245,10 +261,11 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 @media (max-width: 340px) { .pin-codice { font-size: 22px; } }
 </style>
 
-<header class="top">
+<header class="top" id="top">
   <svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#4A1D45"/><g fill="#E2B64A" stroke="#4A1D45" stroke-width="1.6" stroke-linejoin="round" transform="translate(50 50) scale(0.88) translate(-50 -56)"><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(-54 50 78)"/><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(54 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(-28 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(28 50 78)"/><path d="M50 20 C63 38 63 62 50 78 C37 62 37 38 50 20 Z" fill="#F4D67F"/><path d="M24 84 Q50 93 76 84" fill="none" stroke="#E2B64A" stroke-width="2.4" stroke-linecap="round"/></g></svg>
   <h1>Fior di Loto</h1>
   <div class="date"><span id="topDate"></span><span class="ora" id="topTime"></span></div>
+  <div class="top-mini" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#4A1D45"/><g fill="#E2B64A" stroke="#4A1D45" stroke-width="1.6" stroke-linejoin="round" transform="translate(50 50) scale(0.88) translate(-50 -56)"><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(-54 50 78)"/><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(54 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(-28 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(28 50 78)"/><path d="M50 20 C63 38 63 62 50 78 C37 62 37 38 50 20 Z" fill="#F4D67F"/><path d="M24 84 Q50 93 76 84" fill="none" stroke="#E2B64A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span class="nome">Fior di Loto</span><span class="ora" id="topTimeMini"></span></div>
 </header>
 
 <main>
@@ -266,6 +283,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
     <div class="tile"><span class="v" id="tSett">0</span><span class="l">Settimana</span></div>
     <div class="tile"><span class="v" id="tStriscia">0</span><span class="l">Giorni di fila</span></div>
   </div>
+  <button class="btn-gongyo" id="oggiConta"><svg class="lotus-g timer-g" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span><b>Conta Daimoku</b><small>Apri il timer e recita</small></span></button>
   <button class="btn-gongyo" id="oggiGongyo"><svg class="lotus-g" viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor" transform="translate(50 50) scale(1.1) translate(-50 -56)"><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(-54 50 78)"/><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(54 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(-28 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(28 50 78)"/><path d="M50 20 C63 38 63 62 50 78 C37 62 37 38 50 20 Z"/><path d="M24 84 Q50 93 76 84" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></svg><span><b>Gongyo</b><small>Apri il libretto e recita</small></span></button>
   <div class="card">
     <h3>Gongyo di oggi</h3>
@@ -341,6 +359,12 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 
 <!-- DAIMOKU -->
 <section class="view" id="view-daimoku" hidden>
+  <h3 class="tiles-title"><svg class="lotus" viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor" transform="translate(50 50) scale(1.1) translate(-50 -56)"><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(-54 50 78)"/><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(54 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(-28 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(28 50 78)"/><path d="M50 20 C63 38 63 62 50 78 C37 62 37 38 50 20 Z"/><path d="M24 84 Q50 93 76 84" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></svg>Conta Daimoku</h3>
+  <div class="tiles">
+    <div class="tile"><span class="v" id="dOggi">0</span><span class="l">Oggi</span></div>
+    <div class="tile"><span class="v" id="dStima">0</span><span class="l">Daimoku stimati</span></div>
+    <div class="tile"><span class="v" id="dTot">0</span><span class="l">Totale</span></div>
+  </div>
   <div class="seg" role="group" aria-label="Modalità">
     <button id="modeFree" aria-pressed="true">Libero</button>
     <button id="modeSession" aria-pressed="false">Sessione</button>
@@ -363,22 +387,31 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
     </div>
     <button class="btn ghost small" id="btnDiscard" hidden>Annulla senza salvare</button>
   </div>
-  <h3 class="tiles-title"><svg class="lotus" viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor" transform="translate(50 50) scale(1.1) translate(-50 -56)"><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(-54 50 78)"/><path d="M50 38 C60 50 60 66 50 78 C40 66 40 50 50 38 Z" transform="rotate(54 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(-28 50 78)"/><path d="M50 28 C62 44 62 64 50 78 C38 64 38 44 50 28 Z" transform="rotate(28 50 78)"/><path d="M50 20 C63 38 63 62 50 78 C37 62 37 38 50 20 Z"/><path d="M24 84 Q50 93 76 84" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></svg>Conta Daimoku</h3>
-  <div class="tiles">
-    <div class="tile"><span class="v" id="dOggi">0</span><span class="l">Oggi</span></div>
-    <div class="tile"><span class="v" id="dStima">0</span><span class="l">Daimoku stimati</span></div>
-    <div class="tile"><span class="v" id="dTot">0</span><span class="l">Totale</span></div>
+  <div class="card">
+    <h3>Statistiche</h3>
+    <div class="tiles">
+      <div class="tile"><span class="v" id="sSett">0</span><span class="l">Settimana</span></div>
+      <div class="tile"><span class="v" id="sMese">0</span><span class="l">Mese</span></div>
+      <div class="tile"><span class="v" id="sTot">0</span><span class="l">Totale</span></div>
+    </div>
+    <h3>Ultimi 7 giorni</h3>
+    <div class="bars" id="bars" aria-label="Minuti di Daimoku negli ultimi sette giorni"></div>
+    <div id="goalBox">
+      <div class="row between"><h3>Obiettivo</h3><span class="chip" id="goalChip"></span></div>
+      <div class="progress" style="margin-top:8px"><span id="goalFill" style="width:0%"></span></div>
+      <p class="note" id="goalNote"></p>
+    </div>
   </div>
-  <div class="card rec" id="recDaimoku">
+  <div class="card rec rec-mini" id="recDaimoku">
     <div class="row between"><h3>La tua registrazione di Daimoku</h3><span class="chip" data-r="status" hidden></span></div>
     <audio data-r="audio" controls hidden style="width:100%"></audio>
     <p class="note" data-r="note"></p>
-    <div class="grid2">
-      <button class="btn primary" data-r="rec">Registra</button>
-      <button class="btn ghost" data-r="upload">Carica un file</button>
+    <div class="row rec-btns">
+      <button class="btn primary small" data-r="rec">Registra</button>
+      <button class="btn ghost small" data-r="upload">Carica un file</button>
+      <button class="btn danger small" data-r="del" hidden>Elimina</button>
     </div>
     <input type="file" accept="audio/*" data-r="file" hidden>
-    <button class="btn danger small" data-r="del" hidden>Elimina la registrazione</button>
   </div>
   <details>
     <summary>Aggiungi una sessione a mano</summary>
@@ -439,6 +472,16 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
     <div class="row" style="justify-content:center;gap:14px">
       <span class="tipo" data-tipo="zadankai">Zadankai</span><span class="tipo" data-tipo="studio">Studio</span><span class="tipo" data-tipo="riunione">Riunione</span><span class="tipo" data-tipo="altro">Altro</span>
     </div>
+    <details class="doc"><summary>Che cos’è lo Zadankai?</summary><div class="prosa">
+      <p><b>Zadankai</b> (座談会) in giapponese vuol dire «riunione di dialogo»: <i>za</i> sedersi, <i>dan</i> parlare, <i>kai</i> riunione.</p>
+      <p>Nella Soka Gakkai è l’incontro mensile di base, che si tiene nelle case dei membri: un piccolo gruppo di persone del quartiere, praticanti e ospiti, recita Daimoku insieme, studia un passo degli scritti di Nichiren Daishonin, racconta esperienze di pratica e si incoraggia a vicenda.</p>
+      <p>È considerato il cuore dell’attività della Soka Gakkai fin dai tempi di Makiguchi e Toda, perché è lì che il buddismo si trasmette da persona a persona.</p>
+    </div></details>
+    <details class="doc"><summary>Che cos’è la riunione di studio?</summary><div class="prosa">
+      <p>Nel buddismo di Nichiren Daishonin la pratica poggia su tre pilastri: <b>fede</b>, <b>pratica</b> (Gongyo e Daimoku per sé, e trasmettere l’insegnamento agli altri) e <b>studio</b>. Nichiren scrive: «Esercitati nelle due vie della pratica e dello studio. Senza pratica e studio non può esserci buddismo» (<i>Il vero aspetto di tutti i fenomeni</i>).</p>
+      <p>La riunione di studio è l’incontro in cui i membri leggono e approfondiscono insieme il <b>Gosho</b> (gli scritti di Nichiren) e il Sutra del Loto, con il materiale di studio del mese, per capire il senso della pratica e applicarla alla vita di ogni giorno.</p>
+      <p>Per la Soka Gakkai lo studio non è teoria: serve a rafforzare la fede, a non farsi fuorviare e a dare basi solide al Daimoku e all’incoraggiamento degli altri.</p>
+    </div></details>
   </div>
   <button class="btn primary wide" id="calNuovo">+ Nuovo incontro</button>
   <h3 id="calGiornoTitolo">Oggi</h3>
@@ -552,21 +595,6 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 
 <!-- ALTRO -->
 <section class="view" id="view-altro" hidden>
-  <div class="card">
-    <h2>Statistiche</h2>
-    <div class="tiles">
-      <div class="tile"><span class="v" id="sSett">0</span><span class="l">Settimana</span></div>
-      <div class="tile"><span class="v" id="sMese">0</span><span class="l">Mese</span></div>
-      <div class="tile"><span class="v" id="sTot">0</span><span class="l">Totale</span></div>
-    </div>
-    <h3>Ultimi 7 giorni</h3>
-    <div class="bars" id="bars" aria-label="Minuti di Daimoku negli ultimi sette giorni"></div>
-    <div id="goalBox">
-      <div class="row between"><h3>Obiettivo</h3><span class="chip" id="goalChip"></span></div>
-      <div class="progress" style="margin-top:8px"><span id="goalFill" style="width:0%"></span></div>
-      <p class="note" id="goalNote"></p>
-    </div>
-  </div>
   <details>
     <summary>Sessioni recenti</summary>
     <div class="body"><div class="list" id="sessList"></div></div>
@@ -662,7 +690,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
 </nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script>window.CONTABILY_PIN = { nome: 'Fior di Loto', chiave: 'fdl', dove: 'Altro', backup: 'Altro → Backup → Importa' };</script>
+<script>window.CONTABILY_PIN = { nome: 'Fior di Loto', icona: 'data:image/png;base64,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', chiave: 'fdl', dove: 'Altro', backup: 'Altro → Backup → Importa' };</script>
 <script>
 /* Blocco con PIN di 4 cifre (Contabily). Il PIN non viene mai salvato: si salva solo un'impronta (PBKDF2-SHA256, 150.000 giri, con sale casuale).
    Si chiede all'apertura dell'app e ogni volta che ci si torna dopo averla chiusa o messa in secondo piano. 5 tentativi sbagliati → attesa di 30 secondi.
@@ -693,6 +721,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
     const box = el('div', 'pin-box');
     const marca = el('div', 'pin-marca', NOME);
     const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const app = CFG.icona ? el('img', 'pin-app') : null; if (app) { app.src = CFG.icona; app.alt = ''; app.setAttribute('aria-hidden', 'true'); }
     const t = el('div', 'pin-titolo', titolo); const msg = el('p', 'pin-msg', testo || ''); msg.setAttribute('role', 'status');
     const punti = el('div', 'pin-punti'); punti.setAttribute('aria-hidden', 'true');
     let pin = '', busy = false;
@@ -702,7 +731,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
       if (busy) return;
       if (k === 'del') pin = pin.slice(0, -1); else if (pin.length < LEN) pin += k;
       disegna();
-      if (pin.length === LEN) { busy = true; const r = await onPin(pin); busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
+      if (pin.length === LEN) { busy = true; let r; try { r = await onPin(pin); } catch (e) { r = 'Errore nel controllo del PIN. Riprova.'; } busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
     };
     const tasto = (e) => { if (e.target && e.target.tagName === 'INPUT') return; if (/^[0-9]$/.test(e.key)) { e.preventDefault(); premi(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); premi('del'); } else if (e.key === 'Escape' && chiudibile) chiudi(); };
     const tast = el('div', 'pin-tast');
@@ -711,7 +740,7 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
       const b = el('button', 'pin-k' + (k === 'del' ? ' pin-del' : ''), k === 'del' ? '⌫' : k); b.type = 'button'; if (k === 'del') b.setAttribute('aria-label', 'Cancella una cifra');
       b.addEventListener('click', () => premi(k)); tast.append(b);
     });
-    box.append(marca, ic, t, msg, punti, tast);
+    box.append(...(app ? [app, marca] : [marca, ic]), t, msg, punti, tast);
     if (extra) box.append(extra(chiudi));
     if (chiudibile) { const a = el('button', 'pin-link', 'Annulla'); a.type = 'button'; a.addEventListener('click', chiudi); box.append(a); }
     ov.append(box); document.body.append(ov); disegna(); document.addEventListener('keydown', tasto, true);
@@ -719,7 +748,14 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
   }
 
   // ---- blocco ----
-  let bloccato = false, falliti = 0, attesa = 0;
+  let bloccato = false;
+  const K_TENT = CHIAVE + '.tentativi';
+  const leggiTent = () => { try { const t = JSON.parse(localStorage.getItem(K_TENT) || 'null'); return t && typeof t === 'object' ? { falliti: +t.falliti || 0, attesa: +t.attesa || 0, giri: +t.giri || 0 } : { falliti: 0, attesa: 0, giri: 0 }; } catch (e) { return { falliti: 0, attesa: 0, giri: 0 }; } };
+  const scriviTent = (t) => { try { if (t.falliti || t.attesa > Date.now()) localStorage.setItem(K_TENT, JSON.stringify(t)); else localStorage.removeItem(K_TENT); } catch (e) { /* */ } };
+  const attesaResidua = () => Math.ceil((leggiTent().attesa - Date.now()) / 1000);
+  const azzeraTent = () => scriviTent({ falliti: 0, attesa: 0, giri: 0 });
+  // dopo 5 errori si aspetta 30 s, poi 1 min, 2 min, 4 min… fino a un'ora; il conteggio resta anche chiudendo l'app
+  const errore = () => { const t = leggiTent(); t.falliti++; if (t.falliti >= 5) { t.giri++; t.falliti = 0; t.attesa = Date.now() + Math.min(30000 * Math.pow(2, t.giri - 1), 3600000); scriviTent(t); return 'Troppi tentativi. Riprova tra ' + Math.ceil((t.attesa - Date.now()) / 1000) + ' secondi.'; } scriviTent(t); return null; };
   function blocca() {
     if (bloccato || !attivo()) return; bloccato = true;
     const aiuto = (chiudi) => {
@@ -734,26 +770,28 @@ details.doc{background:var(--bg)}details.doc .prosa{padding:0 14px 6px}
         usa.addEventListener('click', async () => {
           const c = leggi(); const n = normCodice(cod.value);
           if (n.length !== 12) { esito.textContent = 'Il codice ha 12 caratteri.'; return; }
-          const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
-          if (c && c.rhash && await impronta(n, c.rsalt) === c.rhash) { chiudi(); bloccato = false; falliti = 0; chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
-          falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; }
-          esito.textContent = 'Codice errato. Controlla e riprova.';
+          const left = attesaResidua(); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
+          let okCod = false; try { okCod = !!(c && c.rhash && await impronta(n, c.rsalt) === c.rhash); } catch (e) { okCod = false; }
+          if (okCod) { chiudi(); bloccato = false; azzeraTent(); chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
+          esito.textContent = errore() || 'Codice errato. Controlla e riprova.';
         });
         det.append(cod, usa, esito, el('p', 'pin-sep', 'Hai perso anche il codice? Lo sviluppatore non può sbloccare l’app, perché non vede i tuoi dati. L’unica strada è cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
       } else det.append(el('p', null, 'Per sicurezza il PIN non si può recuperare, nemmeno dallo sviluppatore. Per rientrare devi cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
       const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Scrivi CANCELLA'; inp.className = 'pin-inp'; inp.setAttribute('aria-label', 'Scrivi CANCELLA per cancellare tutti i dati');
       const canc = el('button', 'pin-canc', 'Cancella tutti i dati'); canc.type = 'button';
-      canc.addEventListener('click', () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); } catch (e) { /* */ } location.reload(); });
+      canc.addEventListener('click', async () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } canc.disabled = true; try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); (CFG.chiaviVecchie || []).forEach((v) => Object.keys(localStorage).forEach((k) => { if (k === v || k.startsWith(v + '.') || k.startsWith(v + '_')) localStorage.removeItem(k); })); } catch (e) { /* */ }
+        // archivi fuori da localStorage (IndexedDB, file): li cancella l'app tramite CONTABILY_PIN.cancella
+        if (typeof CFG.cancella === 'function') { try { await CFG.cancella(); } catch (e) { /* */ } }
+        location.reload(); });
       det.append(inp, canc);
       btn.addEventListener('click', () => { det.hidden = !det.hidden; });
       box.append(btn, det); return box;
     };
     tastierino({ titolo: 'Inserisci il PIN', testo: 'L’app è protetta: scrivi le 4 cifre.', extra: aiuto, onPin: async (p) => {
-      const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
+      const left = attesaResidua(); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
       const c = leggi(); if (!c) { bloccato = false; return true; }
-      if (await impronta(p, c.salt) === c.hash) { falliti = 0; bloccato = false; return true; }
-      falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; return 'Troppi tentativi. Riprova tra 30 secondi.'; }
-      return 'PIN errato. Riprova.';
+      if (await impronta(p, c.salt) === c.hash) { azzeraTent(); bloccato = false; return true; }
+      return errore() || 'PIN errato. Riprova.';
     } });
   }
   let nascostaDa = 0;
@@ -852,9 +890,11 @@ function defaults(){return {
   timer:{running:false, startedAt:0, acc:0, mode:'free', target:1800, lastBell:0}
 };}
 function load(){try{var r=localStorage.getItem(KEY);if(!r)return null;var o=JSON.parse(r);var d=defaults();
-  o.settings=Object.assign(d.settings,o.settings||{});o.timer=Object.assign(d.timer,o.timer||{});o.goal=Object.assign(d.goal,o.goal||{});
-  o.sessions=o.sessions||[];o.gongyo=o.gongyo||{};o.frasi=o.frasi||[];o.favRif=o.favRif||[];o.cal=o.cal||{};o.cal.events=o.cal.events||[];return o;}catch(e){return null}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+  var ob=function(a){return a&&typeof a==='object'&&!Array.isArray(a)?a:{}};o.settings=Object.assign(d.settings,ob(o.settings));o.timer=Object.assign(d.timer,ob(o.timer));o.goal=Object.assign(d.goal,ob(o.goal));
+  var arr=function(a){return Array.isArray(a)?a:[]},obj=function(a){return a&&typeof a==='object'&&!Array.isArray(a)?a:{}};
+  o.sessions=arr(o.sessions).filter(function(x){return x&&typeof x==='object'&&typeof x.d==='string'&&typeof x.sec==='number'&&isFinite(x.sec)});o.gongyo=obj(o.gongyo);o.frasi=arr(o.frasi);o.favRif=arr(o.favRif);o.cal=obj(o.cal);o.cal.events=arr(o.cal.events).filter(function(x){return x&&typeof x==='object'});
+  if(typeof o.timer.acc!=='number'||!isFinite(o.timer.acc)||o.timer.acc<0)o.timer.acc=0;if(typeof o.goal.value!=='number'||!isFinite(o.goal.value))o.goal.value=0;return o;}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){try{toast('Memoria piena: non riesco a salvare')}catch(x){}}}
 S=load()||defaults();
 
 /* ---------- utilità ---------- */
@@ -913,7 +953,7 @@ function finishTimer(){var T=S.timer;var sec=Math.round(elapsed());if(sec>=10){S
   resetTimer()}
 function discardTimer(){resetTimer();toast('Sessione annullata')}
 function resetTimer(){S.timer.running=false;S.timer.acc=0;S.timer.startAt=0;S.timer.lastBell=0;save();keepAwake(false);renderDaimoku();renderOggi()}
-function tick(){var T=S.timer;if(!T.running){return}var e=elapsed();
+function tick(){var T=S.timer;if(!T.running){return}var e=elapsed();if(!T.lastTick||Date.now()-T.lastTick>10000){T.lastTick=Date.now();save()}
   if(T.mode==='session'){if(e>=T.target){T.running=false;T.acc=T.target;save();keepAwake(false);bell();try{if(tapped&&navigator.vibrate)navigator.vibrate([300,150,300])}catch(x){}finishTimer();return}}
   var every=(S.settings.bellEvery|0)*60;if(every>0){var n=Math.floor(e/every);if(n>T.lastBell){T.lastBell=n;save();bell()}}
   paintTimer(e)}
@@ -929,7 +969,7 @@ function paintTimer(e){var T=S.timer;var t=$('timer');var idle=!T.running&&T.acc
   var shown=T.mode==='session'?Math.max(0,target-e):e;t.textContent=fmtClock(shown);t.classList.toggle('session',T.mode==='session');fitTimer(t);
   var st=T.running?'In corso':(T.acc>0?'In pausa':'Pronto');
   $('timerSub').textContent=st+(T.mode==='session'&&!idle?' · sessione di '+Math.round(T.target/60)+' min':'')+(e>0?' · circa '+fmtNum(stima(e))+' Daimoku':'');}
-function renderDaimoku(){var T=S.timer;$('modeFree').setAttribute('aria-pressed',T.mode==='free'?'true':'false');$('modeSession').setAttribute('aria-pressed',T.mode==='session'?'true':'false');
+function renderDaimoku(){renderStat();var T=S.timer;$('modeFree').setAttribute('aria-pressed',T.mode==='free'?'true':'false');$('modeSession').setAttribute('aria-pressed',T.mode==='session'?'true':'false');
   $('sessionRow').hidden=T.mode!=='session';if(document.activeElement!==$('presetMin'))$('presetMin').value=T.acc>0||T.running?Math.round(T.target/60):S.settings.preset;
   $('presetMin').disabled=T.running||T.acc>0;
   $('btnStart').textContent=T.running?'Pausa':(T.acc>0?'Riprendi':'Avvia');
@@ -976,6 +1016,8 @@ function itemMia(f){return '<div class="item"><div class="txt"><div class="quote
 
 /* ---------- CALENDARIO: incontri (Zadankai, studio, riunioni), ripetizioni e promemoria ---------- */
 var TIPI={zadankai:'Zadankai',studio:'Riunione di studio',riunione:'Riunione',altro:'Altro'};
+/* gli incontri salvati passano dallo stesso controllo di quelli importati (id, date, orari validi) */
+S.cal.events=S.cal.events.map(normEv).filter(Boolean);
 var TIPI_BREVI={zadankai:'Zadankai',studio:'Studio',riunione:'Riunione',altro:'Altro'};
 var ORDINALI=['primo','secondo','terzo','quarto','quinto'];
 var calCur=null, calSel=dkey(), calEditing=null, calTipo='zadankai';
@@ -997,7 +1039,7 @@ function prossimi(n,giorni){var out=[],d=new Date();for(var i=0;i<giorni&&out.le
 function quandoTesto(o){var ev=o.ev;return giornoLungo(o.k)+(ev.h?' · '+ev.h:'')+(ev.luogo?' · '+ev.luogo:'')}
 function traQuanto(k){var n=Math.round((fromKey(k)-fromKey(dkey()))/86400000);if(n<=0)return 'oggi';if(n===1)return 'domani';if(n<7)return 'fra '+n+' giorni';var w=Math.round(n/7);return 'fra '+w+(w===1?' settimana':' settimane')}
 function evItem(o,conRel){var ev=o.ev,d=fromKey(o.k);var rip=ripetizione(ev);
-  return '<div class="ev" data-tipo="'+ev.tipo+'" data-ev="'+ev.id+'" data-k="'+o.k+'" role="button" tabindex="0"><div class="when"><span class="g">'+d.getDate()+'</span><span class="m">'+d.toLocaleDateString('it-IT',{month:'short'}).replace('.','')+'</span></div><div class="txt">'
+  return '<div class="ev" data-tipo="'+esc(ev.tipo)+'" data-ev="'+esc(ev.id)+'" data-k="'+esc(o.k)+'" role="button" tabindex="0"><div class="when"><span class="g">'+d.getDate()+'</span><span class="m">'+d.toLocaleDateString('it-IT',{month:'short'}).replace('.','')+'</span></div><div class="txt">'
     +'<div class="row between" style="gap:6px"><span class="tit">'+esc(ev.t||TIPI[ev.tipo])+'</span><span class="tipo">'+TIPI_BREVI[ev.tipo]+'</span></div>'
     +'<div class="meta">'+esc(fromKey(o.k).toLocaleDateString('it-IT',{weekday:'long'}))+(ev.h?' · ore '+esc(ev.h):'')+(ev.luogo?' · '+esc(ev.luogo):'')+'</div>'
     +(conRel?'<div class="meta rel">'+traQuanto(o.k)+'</div>':'')
@@ -1015,7 +1057,7 @@ function renderCalGrid(){var y=calCur.y,m=calCur.m;var first=new Date(y,m,1);var
   $('calGrid').innerHTML=html}
 function renderCalGiorno(){var oggi=dkey();$('calGiornoTitolo').textContent=(calSel===oggi?'Oggi, ':'')+giornoLungo(calSel);
   var evs=eventiDel(calSel);$('calGiornoList').innerHTML=evs.length?evs.map(function(ev){return evItem({ev:ev,k:calSel},false)}).join(''):'<p class="note">Nessun incontro in questo giorno. Tocca «Nuovo incontro» per aggiungerne uno.</p>'}
-function renderCalProssimi(){var list=prossimi(10,120);$('calProssimi').innerHTML=list.length?list.map(function(o){return evItem(o,true)}).join(''):'<p class="note">Nessun incontro nei prossimi quattro mesi. Aggiungi Zadankai, riunioni di studio e altri incontri: li vedrai qui e nella schermata Oggi.</p>'}
+function renderCalProssimi(){var tutti=prossimi(30,120),list=tutti.filter(function(o){return o.k!==calSel}).slice(0,10);$('calProssimi').innerHTML=list.length?list.map(function(o){return evItem(o,true)}).join(''):tutti.length?'<p class="note">Nessun altro incontro nei prossimi quattro mesi.</p>':'<p class="note">Nessun incontro nei prossimi quattro mesi. Aggiungi Zadankai, riunioni di studio e altri incontri: li vedrai qui e nella schermata Oggi.</p>'}
 function renderCal(){if(!calCur){var d=fromKey(calSel);calCur={y:d.getFullYear(),m:d.getMonth()}}renderCalGrid();renderCalGiorno();renderCalProssimi();$('calRemDef').value=S.settings.calRemDef||'60';$('calEve').checked=S.settings.calEve!==false;renderCalRemNote()}
 function renderCalRemNote(){var el=$('calRemNote');if(LN){LN.checkPermissions().then(function(r){var p=r&&r.display;var ok=p==='granted';el.textContent=ok?'Notifiche consentite: i promemoria arrivano anche ad app chiusa.':p==='denied'?'Notifiche bloccate: riattivale nelle impostazioni del telefono (App → Fior di Loto → Notifiche).':'Tocca «Consenti le notifiche» per ricevere i promemoria anche ad app chiusa.';$('calPerm').hidden=ok;
     if(LN.checkExactNotificationSetting)LN.checkExactNotificationSetting().then(function(x){$('calExact').hidden=!(x&&x.exact_alarm&&x.exact_alarm!=='granted')}).catch(function(){})}).catch(function(){});return}
@@ -1141,12 +1183,12 @@ function eventsFromRows(rows){if(rows.length<2)return [];var head={};Object.keys
   var col=function(names){for(var i=0;i<names.length;i++)if(head[names[i]])return head[names[i]];return null};
   var cT=col(['tipo']),cTi=col(['titolo','incontro','nome']),cD=col(['data','giorno']),cH=col(['ora','orario']),cL=col(['luogo','dove']),cN=col(['note']),cR=col(['ripetizione','si ripete']),cP=col(['promemoria']),cC=col(['codice','id']);
   if(!cD)throw new Error('manca la colonna Data');var byId={},list=[];
-  rows.slice(1).forEach(function(r){var d=xlDate(r[cD]);if(!d)return;var id=cC&&r[cC]?String(r[cC]).trim():'';if(id&&byId[id])return;
+  rows.slice(1).forEach(function(r){var d=xlDate(r[cD]);if(!d)return;var id=cC&&r[cC]?String(r[cC]).replace(/[^A-Za-z0-9_-]/g,'').slice(0,40):'';if(id&&byId[id])return;
     var ev={id:id||uid(),tipo:tipoFromText(cT?r[cT]:''),t:String(cTi?(r[cTi]||''):'').trim(),d:d,h:xlTime(cH?r[cH]:''),luogo:String(cL?(r[cL]||''):'').trim(),note:String(cN?(r[cN]||''):'').trim(),rep:repFromText(cR?r[cR]:''),rem:remFromText(cP?r[cP]:''),skip:[]};
     if(!ev.t)ev.t=TIPI[ev.tipo];if(id)byId[id]=1;list.push(ev)});return list}
 /* ---- unione degli incontri ricevuti con quelli già presenti (stesso codice = aggiornamento) ---- */
 function normEv(e){if(!e||typeof e!=='object')return null;var d=String(e.d||'');if(!/^\d{4}-\d\d-\d\d$/.test(d))return null;var h=String(e.h||'');if(h&&!/^\d\d:\d\d$/.test(h))h='';
-  return {id:String(e.id||uid()).slice(0,40),tipo:TIPI[e.tipo]?e.tipo:'altro',t:String(e.t||'').slice(0,120),d:d,h:h,luogo:String(e.luogo||'').slice(0,120),note:String(e.note||'').slice(0,500),rep:['none','w','2w','m','mw'].indexOf(e.rep)>=0?e.rep:'none',rem:['none','30','60','120','mat','1d','1d+60'].indexOf(e.rem)>=0?e.rem:'none',skip:Array.isArray(e.skip)?e.skip.filter(function(x){return /^\d{4}-\d\d-\d\d$/.test(String(x))}).slice(0,100):[]}}
+  return {id:(String(e.id||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,40)||uid()),tipo:TIPI[e.tipo]?e.tipo:'altro',t:String(e.t||'').slice(0,120),d:d,h:h,luogo:String(e.luogo||'').slice(0,120),note:String(e.note||'').slice(0,500),rep:['none','w','2w','m','mw'].indexOf(e.rep)>=0?e.rep:'none',rem:['none','30','60','120','mat','1d','1d+60'].indexOf(e.rem)>=0?e.rem:'none',skip:Array.isArray(e.skip)?e.skip.filter(function(x){return /^\d{4}-\d\d-\d\d$/.test(String(x))}).slice(0,100):[]}}
 function calMerge(list,fonte){var nuovi=0,agg=0,saltati=0;list.forEach(function(e){var ev=normEv(e);if(!ev){saltati++;return}var ex=S.cal.events.filter(function(x){return x.id===ev.id})[0];if(ex){Object.assign(ex,ev);agg++}else{S.cal.events.push(ev);nuovi++}});
   save();renderCal();renderOggiCal();nativeEvents();
   $('impMsg').textContent='Importati da '+fonte+': '+nuovi+' nuovi, '+agg+' aggiornati'+(saltati?', '+saltati+' non validi':'')+'.';toast('Incontri importati')}
@@ -1154,13 +1196,14 @@ function impTesto(t){var m=String(t||'').match(/FDL-CAL:1:([A-Za-z0-9+\/=]+)/);i
   try{var o=JSON.parse(b64dec(m[1]));if(!o||!Array.isArray(o.ev))throw 0;calMerge(o.ev,'messaggio');$('impText').value=''}catch(e){$('impMsg').textContent='Il codice del messaggio è rovinato: fattelo rimandare.'}}
 
 /* ---------- ALTRO ---------- */
-function renderAltro(){var d=new Date(),k=dkey();var ws=dkey(weekStart(d));var ms=dkey(new Date(d.getFullYear(),d.getMonth(),1));
+function renderStat(){var d=new Date(),k=dkey();var ws=dkey(weekStart(d));var ms=dkey(new Date(d.getFullYear(),d.getMonth(),1));
   $('sSett').textContent=fmtDur(secondsBetween(ws,k));$('sMese').textContent=fmtDur(secondsBetween(ms,k));var tot=secondsBetween('0000','9999');$('sTot').textContent=fmtDur(tot);
   var days=[],max=0;for(var i=6;i>=0;i--){var dd=addDays(d,-i);var kk=dkey(dd);var m=Math.round(secondsOn(kk)/60);max=Math.max(max,m);days.push({k:kk,m:m,lab:dd.toLocaleDateString('it-IT',{weekday:'short'}).slice(0,2)})}
   $('bars').innerHTML=days.map(function(x){var h=max?Math.max(3,Math.round(x.m/max*80)):3;return '<div class="bar"><span class="n">'+(x.m||'')+'</span><div class="fill'+(x.m?'':' empty')+'" style="height:'+h+'px" title="'+x.m+' min"></div><span class="d">'+x.lab+'</span></div>'}).join('');
   var g=S.goal;var box=$('goalBox');if(!g.value){box.hidden=true}else{box.hidden=false;var since=g.since||'0000';var sec=secondsBetween(since,k);var done=g.type==='ore'?sec/3600:stima(sec);var pct=Math.min(100,done/g.value*100);
     $('goalFill').style.width=pct.toFixed(1)+'%';$('goalChip').textContent=Math.round(pct)+'%';$('goalChip').className='chip'+(pct>=100?' ok':'');
-    $('goalNote').textContent=(g.type==='ore'?(Math.round(done*10)/10)+' ore su '+g.value:fmtNum(done)+' Daimoku su '+fmtNum(g.value))+(g.since?' · da '+fromKey(g.since).toLocaleDateString('it-IT'):'')}
+    $('goalNote').textContent=(g.type==='ore'?(Math.round(done*10)/10)+' ore su '+g.value:fmtNum(done)+' Daimoku su '+fmtNum(g.value))+(g.since?' · da '+fromKey(g.since).toLocaleDateString('it-IT'):'')}}
+function renderAltro(){var g=S.goal;
   $('goalType').value=g.type;if(document.activeElement!==$('goalValue'))$('goalValue').value=g.value||'';
   var L=$('sessList');var list=S.sessions.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,40);
   L.innerHTML=list.length?list.map(function(s){return '<div class="item"><div class="txt"><div>'+fmtDur(s.sec)+(s.mode==='session'?' · sessione':s.mode==='manual'?' · a mano':'')+'</div><div class="meta">'+fromKey(s.d).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+(s.mode!=='manual'?' · '+new Date(s.ts).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'')+'</div></div><button class="icon-btn" data-delsess="'+s.id+'" aria-label="Elimina sessione"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>'}).join(''):'<p class="note">Nessuna sessione salvata.</p>';
@@ -1200,6 +1243,7 @@ if(CAP.App&&CAP.App.addListener){CAP.App.addListener('backButton',function(){var
   if(cur&&cur!=='oggi')show('oggi');else if(CAP.App.minimizeApp)CAP.App.minimizeApp();else if(CAP.App.exitApp)CAP.App.exitApp()})}
 
 /* ---------- registrazioni (microfono o file), salvate nel telefono ---------- */
+if(window.CONTABILY_PIN)window.CONTABILY_PIN.cancella=function(){return new Promise(function(res){try{var q=indexedDB.deleteDatabase('fdl');q.onsuccess=q.onerror=q.onblocked=function(){res()};setTimeout(res,3000)}catch(e){res()}})};
 function idb(){return new Promise(function(res,rej){try{var r=indexedDB.open('fdl',1);r.onupgradeneeded=function(){r.result.createObjectStore('files')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}}catch(e){rej(e)}})}
 function idbOp(mode,fn){return idb().then(function(db){return new Promise(function(res,rej){var st=db.transaction('files',mode).objectStore('files');var q=fn(st);q.onsuccess=function(){res(q.result)};q.onerror=function(){rej(q.error)}})})}
 function idbGet(k){return idbOp('readonly',function(s){return s.get(k)})}
@@ -1258,11 +1302,12 @@ $('gMattina').addEventListener('click',function(){toggleGongyo('m')});$('gSera')
 $('gDoneM').addEventListener('click',function(){toggleGongyo('m')});$('gDoneS').addEventListener('click',function(){toggleGongyo('s')});
 $('oggiDaimoku').addEventListener('click',function(){if(!(S.timer.running||S.timer.acc>0))S.timer.mode='free';show('daimoku');if(!S.timer.running)startTimer()});
 $('oggiSessione').addEventListener('click',function(){if(!(S.timer.running||S.timer.acc>0))S.timer.mode='session';show('daimoku');if(!S.timer.running)startTimer()});
+$('oggiConta').addEventListener('click',function(){show('daimoku')});
 $('oggiGongyo').addEventListener('click',function(){show('gongyo')});
 $('oggiCalApri').addEventListener('click',function(){calSel=dkey();calCur=null;show('calendario')});
 $('calPrev').addEventListener('click',function(){calCur.m--;if(calCur.m<0){calCur.m=11;calCur.y--}renderCalGrid()});
 $('calNext').addEventListener('click',function(){calCur.m++;if(calCur.m>11){calCur.m=0;calCur.y++}renderCalGrid()});
-$('calGrid').addEventListener('click',function(e){var b=e.target.closest('[data-day]');if(!b)return;calSel=b.dataset.day;var d=fromKey(calSel);if(d.getMonth()!==calCur.m||d.getFullYear()!==calCur.y){calCur={y:d.getFullYear(),m:d.getMonth()}}renderCalGrid();renderCalGiorno();
+$('calGrid').addEventListener('click',function(e){var b=e.target.closest('[data-day]');if(!b)return;calSel=b.dataset.day;var d=fromKey(calSel);if(d.getMonth()!==calCur.m||d.getFullYear()!==calCur.y){calCur={y:d.getFullYear(),m:d.getMonth()}}renderCalGrid();renderCalGiorno();renderCalProssimi();
   if(!$('calForm').hidden&&!calEditing){$('evData').value=calSel;calRipLabels()}});
 $('calNuovo').addEventListener('click',function(){calApriForm(null,calSel)});
 document.querySelectorAll('[data-tipo-btn]').forEach(function(b){b.addEventListener('click',function(){var prev=calTipo;calTipo=b.dataset.tipo;document.querySelectorAll('[data-tipo-btn]').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
@@ -1316,7 +1361,7 @@ function askNotif(done){if(LN){LN.requestPermissions().then(function(){nativeRem
 $('remPerm').addEventListener('click',function(){askNotif()});
 $('txtSave').addEventListener('click',function(){S.settings.texts={hoben:$('txtHoben').value,jigage:$('txtJigage').value,preghiere:$('txtPreghiere').value};save();toast('Testi salvati')});
 $('txtReset').addEventListener('click',function(){S.settings.texts={};save();renderAltro();toast('Testi originali ripristinati')});
-var TERMINI_VER=1,VERSIONE='1.1.14';
+var TERMINI_VER=1,VERSIONE='1.1.22';
 var PRIVACY='<p class="agg">Versione del 1° novembre 2026 · secondo il Regolamento (UE) 2016/679 («GDPR») e il Codice in materia di protezione dei dati personali (D.Lgs. 196/2003, aggiornato dal D.Lgs. 101/2018).</p><h4>1. In breve</h4><ul><li><b>I dati restano sul telefono.</b> Fior di Loto non ha il permesso di usare Internet: Android stesso le impedisce di collegarsi alla rete.</li><li>Nessun server, nessun account, nessuna pubblicità, nessuna statistica, nessun cookie, nessuna profilazione.</li><li>Lo sviluppatore <b>non riceve e non può vedere</b> nessuno dei dati che inserisci: nessuno può accedere alle tue informazioni senza il tuo telefono.</li><li>I dati escono dal telefono solo quando li mandi tu (backup, condivisione di un incontro o di una frase).</li></ul><h4>2. Chi tratta i dati</h4><p>Le sessioni di Daimoku, il Gongyo, le frasi e gli incontri che scrivi riguardano la tua pratica personale e li usi per motivi personali: per questo uso il GDPR non si applica (art. 2, par. 2, lett. c GDPR). Lo sviluppatore non tratta i tuoi dati: non li raccoglie, non li conserva e non li riceve, quindi non è né titolare né responsabile del trattamento.</p><h4>3. Quali dati si possono inserire</h4><ul><li>Sessioni di Daimoku (data, durata), Gongyo fatti, obiettivi e impostazioni.</li><li>Frasi preferite e frasi tue.</li><li>Incontri del calendario (titolo, giorno, ora, luogo, note).</li></ul><p>Questi dati possono rivelare il tuo <b>credo religioso</b>, che il GDPR considera un dato particolare (art. 9 GDPR): proprio per questo restano solo sul tuo telefono. Negli incontri, se scrivi nomi di altre persone, scrivi solo quello che ti serve.</p><h4>4. Dove sono e quanto restano</h4><ul><li>Nella memoria privata dell\'app sul telefono, che le altre app non possono leggere. È esclusa dal backup automatico di Google, quindi non finisce su cloud.</li><li>Il <b>backup</b> è cifrato (AES-256) con la password che scegli tu: senza password nessuno può leggerlo, nemmeno lo sviluppatore. Se la dimentichi, il backup non si può aprire.</li><li>I dati restano finché li tieni tu: puoi cancellarli da Altro → Informazioni → Cancella tutti i dati. Se disinstalli l\'app, tutti i dati vengono cancellati.</li></ul><h4>5. Sicurezza</h4><p>Proteggi il telefono con il blocco schermo (PIN, impronta o volto) e usa una password robusta per i backup. Le <b>notifiche</b> dei promemoria e degli incontri mostrano il titolo: se non vuoi che si legga a telefono bloccato, nelle impostazioni del telefono scegli di nascondere il contenuto delle notifiche di Fior di Loto.</p><h4>Blocco con PIN</h4><p>Puoi proteggere l\'apertura dell\'app con un <b>PIN di 4 cifre</b> (Altro → Blocco con PIN): viene chiesto ogni volta che apri l\'app e ogni volta che ci torni. Quando lo scegli ricevi un <b>codice di ripristino</b> di 12 caratteri: se dimentichi il PIN, con il codice ne scegli uno nuovo senza perdere i dati. Il PIN e il codice non vengono salvati: sul telefono resta solo un\'impronta cifrata (PBKDF2-SHA256 con sale casuale), da cui non si può risalire a loro. Lo sviluppatore <b>non può sbloccare l\'app</b> né recuperare il PIN, perché non vede i tuoi dati: se perdi sia il PIN sia il codice di ripristino devi cancellare i dati dell\'app e ricaricare un backup con la sua password.</p><h4>6. Trasferimenti</h4><p>L\'app non trasferisce dati a nessuno, né in Italia né all\'estero. Sei tu a decidere se fare un backup o condividere qualcosa, e con chi.</p><h4>7. I tuoi diritti</h4><p>Hai sempre il pieno controllo: puoi vedere, correggere ed eliminare ogni dato dall\'app. Per qualsiasi dubbio sulla protezione dei dati puoi rivolgerti al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it), o all\'autorità di controllo del tuo paese nell\'Unione Europea.</p><h4>8. Permessi del telefono</h4><ul><li><b>Notifiche</b>: solo per i promemoria del Gongyo e degli incontri, che scegli tu.</li><li><b>Schermo acceso</b>: solo durante il Daimoku, se lo attivi.</li><li><b>Internet</b>: <b>non richiesto</b>.</li></ul><h4>9. Modifiche</h4><p>Se questa informativa cambia, l\'app te lo mostra alla prima apertura dopo l\'aggiornamento e ti chiede di leggerla di nuovo.</p>';
 var CONDIZIONI='<p class="agg">Versione del 1° novembre 2026.</p><h4>1. Cosa fa l\'app</h4><p>Fior di Loto aiuta la pratica personale: conta il tempo del Daimoku, mostra i testi del Gongyo, raccoglie frasi e ricorda gli incontri. È un\'app indipendente e non è affiliata ad alcuna organizzazione.</p><h4>2. I testi</h4><p>I testi del Gongyo seguono il libretto in uso in Italia e sono riportati per comodità di lettura: in caso di differenze fa fede il libretto ufficiale.</p><h4>3. La tua responsabilità</h4><p>Sei l\'<b>unico responsabile</b> dei dati che inserisci, dell\'uso che fai dell\'app, della custodia del telefono, del PIN e del codice di ripristino, dei backup e della loro password.</p><h4>4. Limiti di responsabilità</h4><p>L\'app è fornita «così com\'è». Nei limiti consentiti dalla legge (art. 1229 c.c.), lo sviluppatore non risponde di promemoria o notifiche non arrivati, errori di inserimento, perdite di dati (per esempio per guasto, smarrimento o disinstallazione) o danni derivanti dall\'uso dell\'app. Restano salvi i casi di dolo o colpa grave e i diritti che la legge riconosce ai consumatori (D.Lgs. 206/2005, Codice del Consumo).</p><h4>5. Dati e backup</h4><p>I dati sono solo sul tuo telefono: lo sviluppatore non può vederli né recuperarli. Fai backup regolari (Altro → Backup) e conservane una copia fuori dal telefono.</p><h4>6. Uso consentito</h4><p>Puoi usare l\'app per te. Non è consentito copiarla, modificarla o rivenderla.</p><h4>7. Aggiornamenti</h4><p>Gli aggiornamenti possono aggiungere o cambiare funzioni. Se cambiano queste condizioni, l\'app te le mostra di nuovo alla prima apertura.</p><h4>8. Legge applicabile</h4><p>Si applica la legge italiana. Se sei un consumatore, è competente il tribunale del luogo in cui risiedi.</p>';
 function riempiTesti(){document.querySelectorAll('[data-testo]').forEach(function(d){d.innerHTML=d.dataset.testo==='privacy'?PRIVACY:CONDIZIONI});var v=$('verApp');if(v)v.textContent=VERSIONE}
@@ -1341,12 +1386,22 @@ $('bkImport').addEventListener('click',function(){var o;try{o=JSON.parse($('bkTe
 $('wipe').addEventListener('click',function(){if(!pendingDel.__wipe){pendingDel.__wipe=true;toast('Premi di nuovo per cancellare tutto');setTimeout(function(){delete pendingDel.__wipe},4000);return}S=defaults();save();show('oggi');toast('Dati cancellati')});
 
 /* ---------- avvio ---------- */
-function paintClock(){$('topTime').textContent=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}
+function paintClock(){var t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});$('topTime').textContent=t;var m=$('topTimeMini');if(m)m.textContent=t}
 paintClock();setInterval(paintClock,5000);
+/* intestazione fissa che si compatta scorrendo (vedi CSS .top): top negativo = altezza − 56, dissolvenza con --t */
+(function(){var top=$('top');if(!top)return;var HMIN=56,dist=88,ultimo=-1,pend=false;
+  function aggiorna(){var sy=window.scrollY||window.pageYOffset||0;var t=Math.min(1,Math.max(0,sy/dist));if(t===ultimo)return;ultimo=t;top.style.setProperty('--t',t.toFixed(3));top.classList.toggle('compatta',t>=1)}
+  function misura(){var h=Math.round(top.offsetHeight);if(h<HMIN+20)return;dist=h-HMIN;top.style.top=(HMIN-h)+'px';ultimo=-1;aggiorna()}
+  window.addEventListener('scroll',function(){if(pend)return;pend=true;requestAnimationFrame(function(){pend=false;aggiorna()})},{passive:true});
+  window.addEventListener('resize',misura);
+  if(window.ResizeObserver){try{new ResizeObserver(function(){misura()}).observe(top)}catch(e){}}
+  misura();
+})();
 setInterval(tick,250);setInterval(function(){checkReminders();checkEventReminders()},20000);
 var lastPlan=0;document.addEventListener('visibilitychange',function(){if(!document.hidden){if(S.timer.running)keepAwake(true);paintClock();renderOggi();if(Date.now()-lastPlan>600000){lastPlan=Date.now();nativeEvents()}}});
 window.addEventListener('resize',function(){if(!$('view-daimoku').hidden)paintTimer(elapsed())});
 var first='oggi';try{first=localStorage.getItem(KEY+'.view')||'oggi'}catch(e){}
+if(S.timer.running&&S.timer.lastTick&&Date.now()-S.timer.lastTick>90000){S.timer.acc=Math.max(0,S.timer.acc+(S.timer.lastTick-S.timer.startedAt)/1000);S.timer.running=false;save()}
 if(S.timer.running||S.timer.acc>0)first='daimoku';
 if(VIEWS.indexOf(first)<0)first='oggi';
 riempiTesti();riempiPin();
@@ -1361,4 +1416,6 @@ show(first);notifChannels();nativeReminders();nativeEvents();if(S.settings.remOn
 })();
 </script>
 
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body></html>
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body>
+</html>

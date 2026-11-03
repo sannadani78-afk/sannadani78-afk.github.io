@@ -219,6 +219,7 @@ details.doc .prosa { padding: 0 16px 12px; }
 .pin-ov { position: fixed; inset: 0; z-index: 1000; background: var(--pin-bg, var(--bg, #0f1420)); color: var(--pin-fg, var(--text, var(--fg, #16203a))); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); overflow: auto; }
 .pin-box { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
 .pin-marca { font-size: 26px; font-weight: 800; letter-spacing: -.01em; color: var(--pin-c, var(--c-scuro, var(--c, var(--gold, #1430c4)))); }
+.pin-app { width: 92px; height: 92px; border-radius: 22px; box-shadow: 0 6px 18px rgba(0,0,0,.22); display: block; margin-bottom: 2px; }
 .pin-ic { width: 40px; height: 40px; color: var(--pin-c, var(--c, var(--gold, #1f6fe6))); }
 .pin-titolo { font-size: 20px; font-weight: 700; }
 .pin-msg { margin: 0; min-height: 2.6em; font-size: 14.5px; color: var(--muted, #5b6684); max-width: 300px; }
@@ -283,8 +284,10 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
 </style>
 </head>
 <body>
+<script>/* compatibilità con WebView Android datate (minSdk 26) */if(!Element.prototype.replaceChildren){Element.prototype.replaceChildren=function(){while(this.firstChild)this.removeChild(this.firstChild);this.append.apply(this,arguments)}}if(window.Blob&&!Blob.prototype.text){Blob.prototype.text=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsText(b)})}}if(window.Blob&&!Blob.prototype.arrayBuffer){Blob.prototype.arrayBuffer=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsArrayBuffer(b)})}}</script>
+
 <div id="app"></div>
-<script>window.CONTABILY_PIN = { nome: 'ContabilyFamily', chiave: 'contabilyfamily' };</script>
+<script>window.CONTABILY_PIN = { nome: 'ContabilyFamily', icona: 'data:image/png;base64,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', chiave: 'contabilyfamily' };</script>
 <script>
 /* Blocco con PIN di 4 cifre (Contabily). Il PIN non viene mai salvato: si salva solo un'impronta (PBKDF2-SHA256, 150.000 giri, con sale casuale).
    Si chiede all'apertura dell'app e ogni volta che ci si torna dopo averla chiusa o messa in secondo piano. 5 tentativi sbagliati → attesa di 30 secondi.
@@ -315,6 +318,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const box = el('div', 'pin-box');
     const marca = el('div', 'pin-marca', NOME);
     const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ic.setAttribute('viewBox', '0 0 24 24'); ic.setAttribute('class', 'pin-ic'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    const app = CFG.icona ? el('img', 'pin-app') : null; if (app) { app.src = CFG.icona; app.alt = ''; app.setAttribute('aria-hidden', 'true'); }
     const t = el('div', 'pin-titolo', titolo); const msg = el('p', 'pin-msg', testo || ''); msg.setAttribute('role', 'status');
     const punti = el('div', 'pin-punti'); punti.setAttribute('aria-hidden', 'true');
     let pin = '', busy = false;
@@ -324,7 +328,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
       if (busy) return;
       if (k === 'del') pin = pin.slice(0, -1); else if (pin.length < LEN) pin += k;
       disegna();
-      if (pin.length === LEN) { busy = true; const r = await onPin(pin); busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
+      if (pin.length === LEN) { busy = true; let r; try { r = await onPin(pin); } catch (e) { r = 'Errore nel controllo del PIN. Riprova.'; } busy = false; if (r === true) return chiudi(); pin = ''; disegna(); if (typeof r === 'string') { msg.textContent = r; punti.classList.remove('scuoti'); void punti.offsetWidth; punti.classList.add('scuoti'); } }
     };
     const tasto = (e) => { if (e.target && e.target.tagName === 'INPUT') return; if (/^[0-9]$/.test(e.key)) { e.preventDefault(); premi(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); premi('del'); } else if (e.key === 'Escape' && chiudibile) chiudi(); };
     const tast = el('div', 'pin-tast');
@@ -333,7 +337,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
       const b = el('button', 'pin-k' + (k === 'del' ? ' pin-del' : ''), k === 'del' ? '⌫' : k); b.type = 'button'; if (k === 'del') b.setAttribute('aria-label', 'Cancella una cifra');
       b.addEventListener('click', () => premi(k)); tast.append(b);
     });
-    box.append(marca, ic, t, msg, punti, tast);
+    box.append(...(app ? [app, marca] : [marca, ic]), t, msg, punti, tast);
     if (extra) box.append(extra(chiudi));
     if (chiudibile) { const a = el('button', 'pin-link', 'Annulla'); a.type = 'button'; a.addEventListener('click', chiudi); box.append(a); }
     ov.append(box); document.body.append(ov); disegna(); document.addEventListener('keydown', tasto, true);
@@ -341,7 +345,14 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   }
 
   // ---- blocco ----
-  let bloccato = false, falliti = 0, attesa = 0;
+  let bloccato = false;
+  const K_TENT = CHIAVE + '.tentativi';
+  const leggiTent = () => { try { const t = JSON.parse(localStorage.getItem(K_TENT) || 'null'); return t && typeof t === 'object' ? { falliti: +t.falliti || 0, attesa: +t.attesa || 0, giri: +t.giri || 0 } : { falliti: 0, attesa: 0, giri: 0 }; } catch (e) { return { falliti: 0, attesa: 0, giri: 0 }; } };
+  const scriviTent = (t) => { try { if (t.falliti || t.attesa > Date.now()) localStorage.setItem(K_TENT, JSON.stringify(t)); else localStorage.removeItem(K_TENT); } catch (e) { /* */ } };
+  const attesaResidua = () => Math.ceil((leggiTent().attesa - Date.now()) / 1000);
+  const azzeraTent = () => scriviTent({ falliti: 0, attesa: 0, giri: 0 });
+  // dopo 5 errori si aspetta 30 s, poi 1 min, 2 min, 4 min… fino a un'ora; il conteggio resta anche chiudendo l'app
+  const errore = () => { const t = leggiTent(); t.falliti++; if (t.falliti >= 5) { t.giri++; t.falliti = 0; t.attesa = Date.now() + Math.min(30000 * Math.pow(2, t.giri - 1), 3600000); scriviTent(t); return 'Troppi tentativi. Riprova tra ' + Math.ceil((t.attesa - Date.now()) / 1000) + ' secondi.'; } scriviTent(t); return null; };
   function blocca() {
     if (bloccato || !attivo()) return; bloccato = true;
     const aiuto = (chiudi) => {
@@ -356,26 +367,28 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
         usa.addEventListener('click', async () => {
           const c = leggi(); const n = normCodice(cod.value);
           if (n.length !== 12) { esito.textContent = 'Il codice ha 12 caratteri.'; return; }
-          const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
-          if (c && c.rhash && await impronta(n, c.rsalt) === c.rhash) { chiudi(); bloccato = false; falliti = 0; chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
-          falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; }
-          esito.textContent = 'Codice errato. Controlla e riprova.';
+          const left = attesaResidua(); if (left > 0) { esito.textContent = 'Troppi tentativi. Riprova tra ' + left + ' secondi.'; return; }
+          let okCod = false; try { okCod = !!(c && c.rhash && await impronta(n, c.rsalt) === c.rhash); } catch (e) { okCod = false; }
+          if (okCod) { chiudi(); bloccato = false; azzeraTent(); chiediNuovo(() => avviso('PIN nuovo impostato'), true); return; }
+          esito.textContent = errore() || 'Codice errato. Controlla e riprova.';
         });
         det.append(cod, usa, esito, el('p', 'pin-sep', 'Hai perso anche il codice? Lo sviluppatore non può sbloccare l’app, perché non vede i tuoi dati. L’unica strada è cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
       } else det.append(el('p', null, 'Per sicurezza il PIN non si può recuperare, nemmeno dallo sviluppatore. Per rientrare devi cancellare tutti i dati dell’app e poi ricaricare un backup (' + BACKUP + ') con la sua password.'));
       const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Scrivi CANCELLA'; inp.className = 'pin-inp'; inp.setAttribute('aria-label', 'Scrivi CANCELLA per cancellare tutti i dati');
       const canc = el('button', 'pin-canc', 'Cancella tutti i dati'); canc.type = 'button';
-      canc.addEventListener('click', () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); } catch (e) { /* */ } location.reload(); });
+      canc.addEventListener('click', async () => { if (inp.value.trim() !== 'CANCELLA') { inp.focus(); inp.placeholder = 'Scrivi CANCELLA in maiuscolo'; return; } canc.disabled = true; try { const pref = (CFG.chiave || 'contabily'); Object.keys(localStorage).forEach((k) => { if (k === pref || k.startsWith(pref + '.') || k.startsWith(pref + '_')) localStorage.removeItem(k); }); (CFG.chiaviVecchie || []).forEach((v) => Object.keys(localStorage).forEach((k) => { if (k === v || k.startsWith(v + '.') || k.startsWith(v + '_')) localStorage.removeItem(k); })); } catch (e) { /* */ }
+        // archivi fuori da localStorage (IndexedDB, file): li cancella l'app tramite CONTABILY_PIN.cancella
+        if (typeof CFG.cancella === 'function') { try { await CFG.cancella(); } catch (e) { /* */ } }
+        location.reload(); });
       det.append(inp, canc);
       btn.addEventListener('click', () => { det.hidden = !det.hidden; });
       box.append(btn, det); return box;
     };
     tastierino({ titolo: 'Inserisci il PIN', testo: 'L’app è protetta: scrivi le 4 cifre.', extra: aiuto, onPin: async (p) => {
-      const left = Math.ceil((attesa - Date.now()) / 1000); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
+      const left = attesaResidua(); if (left > 0) return 'Troppi tentativi. Riprova tra ' + left + ' secondi.';
       const c = leggi(); if (!c) { bloccato = false; return true; }
-      if (await impronta(p, c.salt) === c.hash) { falliti = 0; bloccato = false; return true; }
-      falliti++; if (falliti >= 5) { attesa = Date.now() + 30000; falliti = 0; return 'Troppi tentativi. Riprova tra 30 secondi.'; }
-      return 'PIN errato. Riprova.';
+      if (await impronta(p, c.salt) === c.hash) { azzeraTent(); bloccato = false; return true; }
+      return errore() || 'PIN errato. Riprova.';
     } });
   }
   let nascostaDa = 0;
@@ -456,7 +469,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
 (function () {
   'use strict';
   const NOME = 'ContabilyFamily';
-  const VERSIONE = '1.0.4';
+  const VERSIONE = '1.0.6';
   const TERMINI_VER = 3; // 3 = informativa e condizioni con il confronto prezzi e la fotocamera per i codici a barre
   // ---------- utilità ----------
   const h = (tag, attrs, ...kids) => {
@@ -474,7 +487,8 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
   const fmt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const eur = (n) => (r2(n) < 0 ? '-⁠€ ' : '€ ') + fmt.format(Math.abs(r2(n)));
-  const num = (s) => { const t = String(s == null ? '' : s).replace(/\s/g, '').replace(/\./g, '').replace(',', '.'); const v = parseFloat(t); return isNaN(v) ? 0 : v; };
+  // «1.234,56» → 1234.56; «12,5» → 12.5; «12.50» e «0.99» → decimali (tastiere con il punto); «1.500» → 1500
+  const num = (s) => { let t = String(s == null ? '' : s).replace(/\s/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); else if (!/^-?\d+\.\d{1,2}$/.test(t)) t = t.replace(/\./g, ''); const v = parseFloat(t); return isNaN(v) ? 0 : v; };
   const MESI = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
   const MESI_L = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
   const GIORNI3 = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
@@ -483,7 +497,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   const oggi = () => isoGiorno(new Date());
   const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d, 12); };
   const addDays = (iso, n) => { const d = toDate(iso); d.setDate(d.getDate() + n); return isoGiorno(d); };
-  const addMesi = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const ult = new Date(y, m - 1 + n + 1, 0).getDate(); return isoGiorno(new Date(y, m - 1 + n, Math.min(d, ult), 12)); };
+  const addMesi = (iso, n, giorno) => { const [y, m, d] = iso.split('-').map(Number); const ult = new Date(y, m - 1 + n + 1, 0).getDate(); return isoGiorno(new Date(y, m - 1 + n, Math.min(giorno || d, ult), 12)); };
   const diffGiorni = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
   const dataBreve = (iso) => { const d = toDate(iso); return GIORNI3[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()] + ' ' + d.getFullYear(); };
   const dataLunga = (iso) => { const d = toDate(iso); return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
@@ -509,7 +523,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   const CHIAVE = 'contabilyfamily';
   const leggi = () => { try { return JSON.parse(localStorage.getItem(CHIAVE)) || {}; } catch (e) { return {}; } };
   const db = Object.assign({ scadenze: [], spese: [], prodotti: [], accettato: 0, notifiche: { attive: true, ora: '09:00' } }, leggi());
-  const salvaDb = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(db)); } catch (e) { toast('Spazio pieno: non riesco a salvare'); } };
+  const salvaDb = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(db)); return true; } catch (e) { toast('Spazio pieno: non riesco a salvare'); return false; } };
 
   // ---------- categorie ----------
   const CAT_SCAD = [
@@ -522,7 +536,36 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     { v: 'auto', l: 'Auto', e: '🚗' }, { v: 'vestiti', l: 'Vestiti', e: '👕' }, { v: 'svago', l: 'Svago', e: '🎉' },
     { v: 'scuola', l: 'Scuola e figli', e: '🎒' }, { v: 'regali', l: 'Regali', e: '🎁' }, { v: 'altro', l: 'Altro', e: '📌' }];
   // categorie create dall'utente (prima di «Altro»)
-  if (!db.mieCat) db.mieCat = { scad: [], spese: [] };
+  if (!db.mieCat || typeof db.mieCat !== 'object') db.mieCat = { scad: [], spese: [] };
+  // ---- pulizia dei dati (all'avvio e all'importazione): tipi giusti, date valide, niente campi strani ----
+  const isoOk = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && isoGiorno(toDate(v)) === v;
+  const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const idOk = (v) => (typeof v === 'string' && v && v.length <= 40 ? v : typeof v === 'number' && isFinite(v) ? String(v) : nuovoId());
+  const numOk = (v) => (typeof v === 'number' && isFinite(v) ? r2(v) : null);
+  const pulisciScad = (x) => {
+    if (!x || typeof x !== 'object' || !isoOk(x.data)) return null;
+    return { id: idOk(x.id), titolo: str(x.titolo, 80) || 'Senza titolo', cat: str(x.cat, 40) || 'altro', data: x.data, chi: str(x.chi, 40), note: str(x.note, 300),
+      importo: numOk(x.importo), ripeti: RIPETI.some((r) => r.v === x.ripeti) ? x.ripeti : 'no',
+      avvisi: Array.isArray(x.avvisi) ? x.avvisi.filter((g) => AVVISI.some((a) => a.v === g)) : [7, 1, 0],
+      fatta: !!x.fatta, fattaIl: x.fatta && typeof x.fattaIl === 'string' && !isNaN(Date.parse(x.fattaIl)) ? x.fattaIl : null,
+      giornoBase: Number.isInteger(x.giornoBase) && x.giornoBase >= 1 && x.giornoBase <= 31 ? x.giornoBase : undefined };
+  };
+  const pulisciSpesa = (x) => (x && typeof x === 'object' && isoOk(x.data) && typeof x.importo === 'number' && isFinite(x.importo) && x.importo > 0)
+    ? { id: idOk(x.id), data: x.data, importo: r2(x.importo), cat: str(x.cat, 40) || 'altro', nota: str(x.nota, 200), creata: typeof x.creata === 'string' ? x.creata : null } : null;
+  const pulisciProd = (x) => {
+    if (!x || typeof x !== 'object' || !str(x.nome, 80)) return null;
+    const prezzi = (Array.isArray(x.prezzi) ? x.prezzi : []).filter((q) => q && str(q.negozio, 40) && typeof q.prezzo === 'number' && isFinite(q.prezzo) && q.prezzo > 0 && isoOk(q.data)).map((q) => ({ negozio: str(q.negozio, 40), prezzo: r2(q.prezzo), data: q.data }));
+    return { id: idOk(x.id), nome: str(x.nome, 80), codice: str(x.codice, 32), prezzi, creato: typeof x.creato === 'string' ? x.creato : null };
+  };
+  const pulisciCat = (c) => (c && typeof c === 'object' && typeof c.v === 'string' && /^u[0-9a-z]+$/.test(c.v) && str(c.l, 24)) ? { v: c.v, l: str(c.l, 24), e: typeof c.e === 'string' && c.e.length <= 4 ? c.e : '📌' } : null;
+  const pulisciTutto = () => {
+    db.scadenze = (Array.isArray(db.scadenze) ? db.scadenze : []).map(pulisciScad).filter(Boolean);
+    db.spese = (Array.isArray(db.spese) ? db.spese : []).map(pulisciSpesa).filter(Boolean);
+    db.prodotti = (Array.isArray(db.prodotti) ? db.prodotti : []).map(pulisciProd).filter(Boolean);
+    db.notifiche = Object.assign({ attive: true, ora: '09:00' }, db.notifiche && typeof db.notifiche === 'object' ? db.notifiche : {});
+    if (!/^\d{1,2}:\d{2}$/.test(String(db.notifiche.ora))) db.notifiche.ora = '09:00';
+    db.mieCat = { scad: (Array.isArray(db.mieCat.scad) ? db.mieCat.scad : []).map(pulisciCat).filter(Boolean), spese: (Array.isArray(db.mieCat.spese) ? db.mieCat.spese : []).map(pulisciCat).filter(Boolean) };
+  };
   const tutteScad = () => CAT_SCAD.slice(0, -1).concat(db.mieCat.scad, CAT_SCAD.slice(-1));
   const tutteSpese = () => CAT_SPESE.slice(0, -1).concat(db.mieCat.spese, CAT_SPESE.slice(-1));
   const catScad = (v) => tutteScad().find((c) => c.v === v) || CAT_SCAD[CAT_SCAD.length - 1];
@@ -556,10 +599,12 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   const RIPETI = [{ v: 'no', l: 'Una volta sola' }, { v: '1m', l: 'Ogni mese', m: 1 }, { v: '3m', l: 'Ogni 3 mesi', m: 3 }, { v: '6m', l: 'Ogni 6 mesi', m: 6 },
     { v: '1a', l: 'Ogni anno', m: 12 }, { v: '2a', l: 'Ogni 2 anni', m: 24 }, { v: '3a', l: 'Ogni 3 anni', m: 36 }, { v: '5a', l: 'Ogni 5 anni', m: 60 }, { v: '10a', l: 'Ogni 10 anni', m: 120 }];
   const AVVISI = [{ v: 30, l: '30 giorni prima' }, { v: 7, l: '7 giorni prima' }, { v: 3, l: '3 giorni prima' }, { v: 1, l: 'Il giorno prima' }, { v: 0, l: 'Il giorno stesso' }];
+  pulisciTutto(); // i dati salvati passano dal controllo a ogni avvio (ripara anche archivi di versioni precedenti)
+  try { const grezzo = localStorage.getItem(CHIAVE); if (grezzo && grezzo !== JSON.stringify(db)) salvaDb(); } catch (e) { /* */ }
 
   // stato di una scadenza: quanti giorni mancano
   const quando = (s) => {
-    if (s.fatta) return { t: 'Fatta' + (s.fattaIl ? ' il ' + dataBreve(s.fattaIl.slice(0, 10)) : ''), c: 'verde' };
+    if (s.fatta) return { t: 'Fatta' + (s.fattaIl ? ' il ' + dataBreve(isoGiorno(new Date(s.fattaIl))) : ''), c: 'verde' };
     const g = diffGiorni(oggi(), s.data);
     if (g < 0) return { t: 'Scaduta da ' + (-g) + (g === -1 ? ' giorno' : ' giorni'), c: 'rosso' };
     if (g === 0) return { t: 'Scade oggi', c: 'rosso' };
@@ -621,13 +666,16 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   }
 
   // ---------- fogli (finestre dal basso) e conferme ----------
-  const foglio = (titolo, corpo, piede) => {
-    const ov = h('div', { class: 'foglio-ov', onclick: (e) => { if (e.target === ov) chiudi(); } });
-    const chiudi = () => ov.remove();
-    ov.append(h('div', { class: 'foglio', role: 'dialog', 'aria-label': titolo }, h('div', { class: 'fh' }, h('b', null, titolo), h('button', { 'aria-label': 'Chiudi', onclick: chiudi }, svg('chiudi'))), h('div', { class: 'fb' }, corpo), piede ? h('div', { class: 'ff' }, piede(chiudi)) : null));
+  // opz.fisso: non si chiude toccando fuori e non ha la X (schermate che vanno completate); opz.alChiudere: chiamata quando si chiude in qualunque modo
+  const foglio = (titolo, corpo, piede, opz) => {
+    opz = opz || {};
+    const ov = h('div', { class: 'foglio-ov', onclick: opz.fisso ? null : (e) => { if (e.target === ov) chiudi(); } });
+    let chiuso = false;
+    const chiudi = () => { if (chiuso) return; chiuso = true; ov.remove(); if (typeof opz.alChiudere === 'function') { try { opz.alChiudere(); } catch (e) { /* */ } } };
+    ov.append(h('div', { class: 'foglio', role: 'dialog', 'aria-label': titolo }, h('div', { class: 'fh' }, h('b', null, titolo), opz.fisso ? null : h('button', { 'aria-label': 'Chiudi', onclick: chiudi }, svg('chiudi'))), h('div', { class: 'fb' }, corpo), piede ? h('div', { class: 'ff' }, piede(chiudi)) : null));
     document.body.append(ov); return chiudi;
   };
-  const chiedi = (testo, ok) => new Promise((res) => { let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); }; const chiudi = foglio('Conferma', h('p', { style: { margin: 0, fontSize: '16px' } }, testo), () => [h('button', { class: 'btn ghost', onclick: () => fine(false) }, 'Annulla'), h('button', { class: 'btn rosso', onclick: () => fine(true) }, ok || 'Conferma')]); });
+  const chiedi = (testo, ok) => new Promise((res) => { let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); }; const chiudi = foglio('Conferma', h('p', { style: { margin: 0, fontSize: '16px' } }, testo), () => [h('button', { class: 'btn ghost', onclick: () => fine(false) }, 'Annulla'), h('button', { class: 'btn rosso', onclick: () => fine(true) }, ok || 'Conferma')], { alChiudere: () => fine(false) }); });
   const campo = (l, el, nota) => h('div', { class: 'campo' }, h('label', null, l), el, nota ? h('small', { class: 'muted' }, nota) : null);
   const soldi = (inp) => h('div', { class: 'soldi' }, h('span', null, '€'), inp);
   const inputSoldi = (v, aria) => { const i = h('input', { inputmode: 'decimal', placeholder: '0,00', value: v ? fmt.format(v) : '', 'aria-label': aria }); i.addEventListener('blur', () => { if (i.value.trim() !== '') i.value = fmt.format(num(i.value)); }); return i; };
@@ -668,6 +716,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
       if (!attivo) { if (Math.abs(mx) < 8) return; if (Math.abs(my) > Math.abs(mx)) { tocco = false; return; } attivo = true; }
       dx = Math.max(-L - 30, Math.min(0, (aperto ? -L : 0) + mx)); metti(dx, false); }, { passive: true });
     voce.addEventListener('touchend', () => { if (!tocco) return; tocco = false; if (!attivo) return; aperto = dx < -L / 2; metti(aperto ? -L : 0, true); voce.__trascinato = true; setTimeout(() => { voce.__trascinato = false; }, 350); });
+    voce.addEventListener('touchcancel', () => { tocco = false; if (attivo) { attivo = false; metti(aperto ? -L : 0, true); } });
     voce.addEventListener('click', (e) => { if (voce.__trascinato || aperto) { e.preventDefault(); e.stopImmediatePropagation(); if (aperto && !voce.__trascinato) chiudi(); } }, true);
     box.__chiudi = chiudi;
     return box;
@@ -676,7 +725,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const c = catScad(s.cat), st = quando(s); const d = toDate(s.data);
     return scorriPerEliminare(h('button', { class: 'voce' + (s.fatta ? ' fatta' : ''), onclick: () => apriScadenza(s, dopo) },
       h('div', { class: 'data' }, h('b', null, String(d.getDate())), h('small', null, MESI[d.getMonth()]), h('small', { class: 'anno' }, String(d.getFullYear()))),
-      h('div', { class: 'mid' }, h('b', null, c.e + ' ' + s.titolo), h('small', null, [c.l, s.chi, s.ripeti && s.ripeti !== 'no' ? (RIPETI.find((r) => r.v === s.ripeti) || {}).l.toLowerCase() : null].filter(Boolean).join(' · ')), h('span', { class: 'stato ' + st.c }, st.t)),
+      h('div', { class: 'mid' }, h('b', null, c.e + ' ' + s.titolo), h('small', null, [c.l, s.chi, s.ripeti && s.ripeti !== 'no' ? ((RIPETI.find((r) => r.v === s.ripeti) || {}).l || '').toLowerCase() : null].filter(Boolean).join(' · ')), h('span', { class: 'stato ' + st.c }, st.t)),
       s.importo ? h('div', { class: 'imp' }, eur(s.importo)) : null),
     async (chiudi) => { if (await chiedi('Eliminare «' + s.titolo + '»?', 'Elimina')) { db.scadenze = db.scadenze.filter((x) => x.id !== s.id); salvaDb(); programmaNotifiche(); dopo(); toast('Scadenza eliminata'); } else chiudi(); });
   };
@@ -743,11 +792,11 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     foglio(s ? 'Modifica scadenza' : 'Nuova scadenza', corpo, (ch) => [
       s ? h('button', { class: 'btn rosso', style: { flex: '0 0 auto' }, 'aria-label': 'Elimina la scadenza', onclick: async () => { if (await chiedi('Eliminare «' + s.titolo + '»?', 'Elimina')) { db.scadenze = db.scadenze.filter((x) => x.id !== s.id); salvaDb(); programmaNotifiche(); ch(); dopo(); } } }, svg('azzera')) : null,
       s && !s.fatta ? h('button', { class: 'btn ghost', onclick: () => {
-        const r = leggiCampi(); if (!r.titolo) return toast('Scrivi che cosa scade');
-        const rr = RIPETI.find((x) => x.v === r.ripeti);
-        if (rr && rr.m) { salvaRec({ ...r, id: nuovoId(), data: addMesi(r.data, rr.m), fatta: false, fattaIl: null }); }
+        const r = leggiCampi(); if (!r.titolo) return toast('Scrivi che cosa scade'); if (!r.data) return toast('Scegli la data');
+        const rr = RIPETI.find((x) => x.v === r.ripeti); const gb = r.giornoBase || Number(r.data.slice(8, 10));
+        if (rr && rr.m) { salvaRec({ ...r, id: nuovoId(), data: addMesi(r.data, rr.m, gb), giornoBase: gb, fatta: false, fattaIl: null }); }
         salvaRec({ ...r, fatta: true, fattaIl: new Date().toISOString() }); ch(); dopo();
-        toast(rr && rr.m ? 'Fatta! La prossima è il ' + dataLunga(addMesi(r.data, rr.m)).replace(/^\S+ /, '') : 'Segnata come fatta', 3000);
+        toast(rr && rr.m ? 'Fatta! La prossima è il ' + dataLunga(addMesi(r.data, rr.m, gb)).replace(/^\S+ /, '') : 'Segnata come fatta', 3000);
       } }, svg('salva'), 'Fatta') : null,
       s && s.fatta ? h('button', { class: 'btn ghost', onclick: () => { salvaRec({ ...leggiCampi(), fatta: false, fattaIl: null }); ch(); dopo(); toast('Rimessa tra quelle da fare'); } }, 'Da fare') : null,
       h('button', { class: 'btn', onclick: () => { const r = leggiCampi(); if (!r.titolo) return toast('Scrivi che cosa scade'); if (!r.data) return toast('Scegli la data'); salvaRec(s ? r : { ...r, id: nuovoId(), fatta: false }); ch(); dopo(); toast('Scadenza salvata'); } }, svg('salva'), 'Salva')]);
@@ -762,7 +811,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const del = db.spese.filter((x) => x.data.slice(0, 7) === speseMese).sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (a.creata || '') < (b.creata || '') ? 1 : -1));
     const tot = r2(del.reduce((a, x) => a + x.importo, 0));
     const prec = totSpese((x) => x.data.slice(0, 7) === spostaMese(speseMese, -1));
-    const perCat = tutteSpese().map((c) => ({ c, t: r2(del.filter((x) => x.cat === c.v).reduce((a, x) => a + x.importo, 0)) })).filter((x) => x.t > 0).sort((a, b) => b.t - a.t);
+    const perCat = tutteSpese().map((c) => ({ c, t: r2(del.filter((x) => catSpesa(x.cat).v === c.v).reduce((a, x) => a + x.importo, 0)) })).filter((x) => x.t > 0).sort((a, b) => b.t - a.t);
     main.append(h('div', { class: 'sezione-top' }, h('button', { class: 'btn', style: { background: 'linear-gradient(135deg,#2c9b3c,#1f7a2e)' }, onclick: () => apriSpesa(null, disegna) }, svg('piu'), 'Nuova spesa'), h('button', { class: 'btn ghost', onclick: () => { scheda = 'prezzi'; disegna(); window.scrollTo(0, 0); } }, svg('bilancia'), 'Confronta prezzi')),
       h('div', { class: 'mesenav' }, h('button', { 'aria-label': 'Mese precedente', onclick: () => { speseMese = spostaMese(speseMese, -1); disegna(); } }, '‹'), h('b', { class: 'lbl', style: { textAlign: 'center' } }, meseLabel(speseMese)), h('button', { 'aria-label': 'Mese successivo', onclick: () => { speseMese = spostaMese(speseMese, 1); disegna(); } }, '›')),
       h('div', { class: 'panel' }, h('div', { class: 'kpi2' }, h('div', null, h('small', null, 'Speso nel mese'), h('b', null, eur(tot))), h('div', null, h('small', null, 'Mese prima'), h('b', null, eur(prec)))),
@@ -796,8 +845,9 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const BS = plugin('BarcodeScanner');
     if (BS) {
       try {
-        const pr = await BS.requestPermissions(); if (pr.camera !== 'granted' && pr.camera !== 'limited') { toast('Per leggere i codici serve il permesso della fotocamera'); return null; }
-        const r = await BS.scan(); if (r && r.barcodes && r.barcodes.length) return r.barcodes[0].rawValue || r.barcodes[0].displayValue || null;
+        if (BS.isGoogleBarcodeScannerModuleAvailable) { const d = await BS.isGoogleBarcodeScannerModuleAvailable(); if (d && d.available === false) { toast('Preparo il lettore di codici (solo la prima volta): riprova tra qualche secondo', 4000); BS.installGoogleBarcodeScannerModule().catch(() => {}); return null; } }
+        const r = await BS.scan({ formats: ['EAN_13', 'EAN_8', 'UPC_A', 'UPC_E', 'CODE_128', 'CODE_39', 'ITF'] });
+        if (r && r.barcodes && r.barcodes.length) return String(r.barcodes[0].rawValue || r.barcodes[0].displayValue || '').replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 64) || null;
         return null;
       } catch (e) { const m = String((e && e.message) || e || ''); if (!/cancel/i.test(m)) toast('Lettura non riuscita: scrivi il codice a mano'); return null; }
     }
@@ -826,7 +876,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const riempi = () => {
       const q = norm(inp.value); cercaPrezzi = inp.value;
       const tutti = [...db.prodotti].sort((a, b) => norm(a.nome).localeCompare(norm(b.nome), 'it'));
-      const vis = q ? tutti.filter((p) => norm(p.nome).includes(q) || (p.codice || '').includes(q)) : tutti;
+      const vis = q ? tutti.filter((p) => norm(p.nome).includes(q) || String(p.codice || '').includes(q)) : tutti;
       if (!db.prodotti.length) return lista.replaceChildren(h('div', { class: 'vuoto' }, h('b', null, 'Nessun prodotto ancora'), h('br'), 'Al supermercato tocca «Scansiona», inquadra il codice a barre e scrivi il prezzo. Quando lo scansioni in un altro negozio, l’app ti dice dove conviene.'));
       if (!vis.length) return lista.replaceChildren(h('div', { class: 'vuoto' }, 'Nessun prodotto trovato.'));
       lista.replaceChildren(...vis.map((p) => {
@@ -944,7 +994,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
   }
   function apriGiorno(iso) {
     const sc = db.scadenze.filter((s) => s.data === iso); const sp = db.spese.filter((x) => x.data === iso);
-    const dopo = () => disegna();
+    const dopo = () => { chiudi(); disegna(); };
     const chiudi = foglio(dataLunga(iso), [
       h('div', { class: 'gruppo' }, 'Scadenze'), sc.length ? h('div', { class: 'lista' }, sc.map((s) => h('div', { onclick: () => chiudi() }, voceScad(s, dopo)))) : h('p', { class: 'muted', style: { margin: '0 4px' } }, 'Nessuna scadenza.'),
       h('div', { class: 'gruppo', style: { marginTop: '16px' } }, 'Spese' + (sp.length ? ' · ' + eur(sp.reduce((a, x) => a + x.importo, 0)) : '')), sp.length ? h('div', { class: 'lista' }, sp.map((x) => h('div', { onclick: () => chiudi() }, voceSpesa(x, dopo)))) : h('p', { class: 'muted', style: { margin: '0 4px' } }, 'Nessuna spesa.')],
@@ -961,7 +1011,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
       const [hh, mm] = (db.notifiche.ora || '09:00').split(':').map(Number); const ora = Date.now(); const out = []; let id = 1;
       daFare().forEach((s) => (s.avvisi || [7, 1, 0]).forEach((g) => {
         const giorno = addDays(s.data, -g); const at = toDate(giorno); at.setHours(hh, mm || 0, 0, 0);
-        if (at.getTime() <= ora || at.getTime() > ora + 400 * 864e5 || out.length >= 60) return;
+        if (isNaN(at.getTime()) || at.getTime() <= ora || at.getTime() > ora + 400 * 864e5 || out.length >= 60) return;
         const c = catScad(s.cat);
         out.push({ id: id++, title: (g === 0 ? 'Scade oggi: ' : g === 1 ? 'Scade domani: ' : 'Tra ' + g + ' giorni: ') + s.titolo, body: c.e + ' ' + c.l + (s.chi ? ' · ' + s.chi : '') + ' · ' + dataLunga(s.data) + (s.importo ? ' · ' + eur(s.importo) : ''), schedule: { at, allowWhileIdle: true } });
       }));
@@ -1034,7 +1084,7 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const p2 = conferma ? h('input', { type: 'password', class: 'testo', autocomplete: 'new-password', placeholder: 'Scrivila di nuovo', 'aria-label': 'Ripeti la password' }) : null;
     let fatto = false; const fine = (v) => { if (fatto) return; fatto = true; chiudi(); res(v); };
     const chiudi = foglio(titolo, [h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, conferma ? 'Il backup viene cifrato: senza questa password nessuno può leggerlo, nemmeno tu. Segnatela in un posto sicuro.' : 'Scrivi la password con cui hai salvato il backup.'), campo('Password', p1), p2 ? campo('Ripeti la password', p2) : null],
-      () => [h('button', { class: 'btn ghost', onclick: () => fine(null) }, 'Annulla'), h('button', { class: 'btn', onclick: () => { if (p1.value.length < 8) return toast('La password deve avere almeno 8 caratteri'); if (p2 && p2.value !== p1.value) return toast('Le due password non sono uguali'); fine(p1.value); } }, svg('salva'), 'Conferma')]);
+      () => [h('button', { class: 'btn ghost', onclick: () => fine(null) }, 'Annulla'), h('button', { class: 'btn', onclick: () => { if (p1.value.length < 8) return toast('La password deve avere almeno 8 caratteri'); if (p2 && p2.value !== p1.value) return toast('Le due password non sono uguali'); fine(p1.value); } }, svg('salva'), 'Conferma')], { alChiudere: () => fine(null) });
     setTimeout(() => p1.focus(), 60);
   });
   async function esporta() {
@@ -1046,13 +1096,18 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
     const inp = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
     inp.addEventListener('change', async () => {
       const f = inp.files && inp.files[0]; inp.remove(); if (!f) return;
+      if (f.size > 10 * 1024 * 1024) return toast('Il file è troppo grande per essere un backup di ' + NOME);
       try {
         let o = JSON.parse(await f.text());
         if (o && o.encrypted) { const pw = await chiediPassword('Backup protetto', false); if (!pw) return; try { o = await decifra(o, pw); } catch (e) { return toast('Password sbagliata'); } }
         if (!o || o.app !== NOME || !Array.isArray(o.scadenze) || !Array.isArray(o.spese)) return toast('Non è un backup di ' + NOME);
         const idS = new Set(db.scadenze.map((x) => x.id)), idP = new Set(db.spese.map((x) => x.id));
-        const ns = o.scadenze.filter((x) => x && x.id && x.data && !idS.has(x.id)), np = o.spese.filter((x) => x && x.id && x.data && typeof x.importo === 'number' && !idP.has(x.id));
-        db.scadenze.push(...ns); db.spese.push(...np); if (Array.isArray(o.prodotti)) { const idR = new Set(db.prodotti.map((x) => x.id)); db.prodotti.push(...o.prodotti.filter((x) => x && x.id && x.nome && Array.isArray(x.prezzi) && !idR.has(x.id))); } if (o.mieCat) ['scad', 'spese'].forEach((t) => (o.mieCat[t] || []).forEach((c) => { if (c && c.v && c.l && !db.mieCat[t].some((x) => x.v === c.v)) db.mieCat[t].push(c); })); salvaDb(); programmaNotifiche(); toast(ns.length + ' scadenze e ' + np.length + ' spese caricate'); disegna();
+        // prima si controlla tutto, poi si tocca l'archivio: un file sbagliato non lascia dati a metà
+        const ns = o.scadenze.map(pulisciScad).filter((x) => x && !idS.has(x.id)), np = o.spese.map(pulisciSpesa).filter((x) => x && !idP.has(x.id));
+        const idR = new Set(db.prodotti.map((x) => x.id)); const nr = (Array.isArray(o.prodotti) ? o.prodotti : []).map(pulisciProd).filter((x) => x && !idR.has(x.id));
+        const nc = { scad: [], spese: [] }; if (o.mieCat && typeof o.mieCat === 'object') ['scad', 'spese'].forEach((t) => (Array.isArray(o.mieCat[t]) ? o.mieCat[t] : []).map(pulisciCat).forEach((c) => { if (c && !db.mieCat[t].some((x) => x.v === c.v) && !nc[t].some((x) => x.v === c.v)) nc[t].push(c); }));
+        db.scadenze.push(...ns); db.spese.push(...np); db.prodotti.push(...nr); db.mieCat.scad.push(...nc.scad); db.mieCat.spese.push(...nc.spese);
+        if (!salvaDb()) return; programmaNotifiche(); toast(ns.length + ' scadenze e ' + np.length + ' spese caricate'); disegna();
       } catch (e) { toast('File non leggibile'); }
     });
     document.body.append(inp); inp.click();
@@ -1072,13 +1127,15 @@ video.scan { width: 100%; border-radius: 12px; background: #000; max-height: 50v
         h('li', null, h('b', null, 'Fai backup regolari:'), ' se perdi il telefono o disinstalli l’app, i dati non si possono recuperare. I backup sono protetti dalla password che scegli tu.')),
       h('p', { class: 'muted small', style: { margin: '0 0 10px' } }, 'Subito dopo potrai scegliere un PIN di 4 cifre che verrà chiesto ogni volta che apri l’app.'),
       h('div', { class: 'docs' }, doc('Leggi l’informativa privacy e GDPR', PRIVACY), doc('Leggi le condizioni d’uso', CONDIZIONI))],
-    () => [h('label', { class: 'riga-spunta', for: 'accetto', style: { width: '100%', padding: '2px 2px 4px', fontWeight: '600' } }, h('span', null, 'Ho letto l’informativa privacy e accetto le condizioni d’uso.'), spunta), ok]);
-    document.querySelector('.foglio-ov').onclick = null; document.querySelector('.foglio .fh button').remove();
+    () => [h('label', { class: 'riga-spunta', for: 'accetto', style: { width: '100%', padding: '2px 2px 4px', fontWeight: '600' } }, h('span', null, 'Ho letto l’informativa privacy e accetto le condizioni d’uso.'), spunta), ok], { fisso: true });
   }
-  disegna();
-  programmaNotifiche();
-  try { const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (App && App.addListener) App.addListener('resume', () => { programmaNotifiche(); disegna(); }); } catch (e) { /* */ }
+  try { disegna(); } catch (e) { app.replaceChildren(h('div', { class: 'vuoto', style: { padding: '24px' } }, h('b', null, 'Qualcosa non va nei dati salvati.'), h('br'), 'Puoi ricaricare un backup o azzerare l’archivio.', h('br'), h('button', { class: 'btn', style: { marginTop: '12px' }, onclick: () => { scheda = 'info'; disegna(); } }, 'Vai a Info'), h('button', { class: 'btn ghost', style: { marginTop: '8px' }, onclick: async () => { if (await chiedi('Azzerare tutto l’archivio di ' + NOME + '?', 'Azzera')) { try { localStorage.removeItem(CHIAVE); } catch (x) { /* */ } location.reload(); } } }, 'Azzera i dati'))); }
+  if (db.accettato >= TERMINI_VER) programmaNotifiche();
+  // al ritorno nell'app (anche il giorno dopo): notifiche riprogrammate e schermata aggiornata se è cambiato il giorno
+  let giornoDisegnato = oggi();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; programmaNotifiche(); if (oggi() !== giornoDisegnato) { giornoDisegnato = oggi(); try { disegna(); } catch (e) { /* */ } } });
 })();
 </script>
+
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body>
 </html>
