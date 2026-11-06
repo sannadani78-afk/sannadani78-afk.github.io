@@ -1,6 +1,6 @@
 // Fior di Loto versione web di prova: dopo la prima apertura funziona anche senza rete (i dati stanno solo nel telefono)
-const C = 'fiordiloto-web-1.1.23';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icona-192.png', './icona-512.png', './icona-180.png'];
+const C = 'fiordiloto-web-1.1.31';
+const FILES = ['./', './index.html', './frasi-giorno.js', './manifest.webmanifest', './icona-192.png', './icona-512.png', './icona-180.png', './suoni/sveglia_campana.ogg', './suoni/sveglia_cantata.ogg', './suoni/sveglia_carillon.ogg', './suoni/sveglia_cristallina.ogg', './suoni/sveglia_doppio.ogg', './suoni/sveglia_gong.ogg', './suoni/sveglia_profonda.ogg', './suoni/sveglia_risveglio.ogg', './suoni/sveglia_trecampane.ogg'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(C).then((c) => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('fiordiloto') && k !== C).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => { if (e.request.method !== 'GET') return; e.respondWith(fetch(e.request).then((res) => { const copy = res.clone(); caches.open(C).then((c) => c.put(e.request, copy)); return res; }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((r) => r || caches.match('./index.html')))); });
